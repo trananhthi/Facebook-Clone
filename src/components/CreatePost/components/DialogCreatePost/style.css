@@ -1,0 +1,22 @@
+.privacy-radio-input:checked~.privacy-checkmark {
+  background-color: #005dc7;
+}
+
+.privacy-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.privacy-radio-input:checked~.privacy-checkmark:after {
+  display: block;
+}
+
+.privacy-checkmark:after {
+  top: 5px;
+  left: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: white;
+}
