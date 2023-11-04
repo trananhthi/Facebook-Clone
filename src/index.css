@@ -60,3 +60,22 @@ html {
   border-radius: 6px;
   border: 3px solid var(--scrollbarBG);
 }
+
+.privacy-scrollbar::-webkit-scrollbar {
+  width: 13px;
+}
+
+.privacy-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+.privacy-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.privacy-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG);
+  border-radius: 6px;
+  border: 3px solid var(--scrollbarBG);
+}

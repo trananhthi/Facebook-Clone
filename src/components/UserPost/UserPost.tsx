@@ -1,13 +1,21 @@
-import { Avatar } from '@material-tailwind/react'
+import { Avatar, Tooltip } from '@material-tailwind/react'
 import defaultAva from 'src/assets/images/default_avatar.png'
-import friendIcon from 'src/assets/images/friendIcon_gray.png'
 import facebookIcon9 from 'src/assets/images/facbook_icon_9.png'
 import facebookIcon3 from 'src/assets/images/facbook_icon_3.png'
 
 import EmojiButton from './components/EmojiButton'
+import { formatDateTime, formatTimeAgo } from 'src/utils/utils'
 import { useRef } from 'react'
+import { PostType } from 'src/types/post.type'
+import { UserInfor } from 'src/types/user.type'
+import { privacyList } from 'src/constants/list'
 
-function UserPost() {
+interface Props {
+  post: PostType
+  userAccount: Partial<UserInfor>
+}
+
+function UserPost({ post, userAccount }: Props) {
   const postRef = useRef(null)
   const postHeaderRef = useRef(null)
 
@@ -21,18 +29,35 @@ function UserPost() {
             size='sm'
             alt='avatar'
             className='h-10 w-10 border-solid border-gray-400 border'
-            src={defaultAva}
+            src={post.author.avatar ? post.author.avatar : defaultAva}
           />
           <div className='flex flex-col'>
             <span className='text-[#050505] text-[15px] font-semibold cursor-pointer hover:underline hover:underline-offset-1'>
-              Thi Tran
+              {post.author.firstName + ' ' + post.author.lastName}
             </span>
-            {/* <div> */}
-            <span className='text-[#65676B] text-[13px] flex items-center hover:underline-offset-1 font-normal'>
-              17 phút &middot;
-              <img src={friendIcon} alt='friend-logo' className='h-3 w-3 text-[#65676B] inline ml-1' />
+            <span className='flex items-center hover:underline-offset-1 font-normal'>
+              <Tooltip
+                placement='bottom'
+                content={formatDateTime(post.createdAt)}
+                className='text-white text-[13px] bg-[rgba(0,0,0,0.8)]'
+              >
+                <span className='text-[#65676B] cursor-pointer text-[13px] hover:underline hover:underline-offset-1 font-normal'>
+                  {formatTimeAgo(post.createdAt)}
+                </span>
+              </Tooltip>
+              <span className='ml-1 text-[#65676B]'> &middot;</span>
+              <Tooltip
+                placement='bottom'
+                content={privacyList.find((icon) => icon.value === post.privacy)?.title}
+                className='text-white text-[13px] bg-[rgba(0,0,0,0.8)]'
+              >
+                <img
+                  src={privacyList.find((icon) => icon.value === post.privacy)?.icon}
+                  alt='friend-logo'
+                  className='h-3 w-3 text-[#65676B] inline ml-1 opacity-60 cursor-pointer'
+                />
+              </Tooltip>
             </span>
-            {/* </div> */}
           </div>
         </div>
         <button className='hover:bg-[#f2f2f2] h-8 w-8 rounded-full flex justify-center items-center mr-4'>
@@ -43,7 +68,7 @@ function UserPost() {
         </button>
       </div>
       {/* content */}
-      <div className='px-4 text-2xl text-[#050505]'>Trời hum nay thặc đẹp</div>
+      <div className='px-4 text-2xl text-[#050505]'>{post.content}</div>
       <hr className='border-gray-300 mx-4 mt-3'></hr>
       {/* emoji, comment,share */}
       <div className='flex px-4 my-1'>
@@ -75,7 +100,7 @@ function UserPost() {
             size='sm'
             alt='avatar'
             className='h-8 w-8 border-solid border-gray-400 border cursor-pointer'
-            src={defaultAva}
+            src={userAccount.avatar ? userAccount.avatar : defaultAva}
           />
           <div className='h-5 w-5 flex justify-center items-center rounded-full absolute mt-[18px] ml-[17px]'>
             <svg viewBox='0 0 16 16' fill='currentColor' className={`h-3 w-3 bg-[#d8dadfe0] rounded-full`}>

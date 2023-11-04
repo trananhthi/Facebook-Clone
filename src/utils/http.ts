@@ -67,7 +67,6 @@ const createHttpInstance = () => {
       if (isAxiosUnauthorizedError<ErrorResponse>(error)) {
         const config = error.response?.config || ({ headers: {} } as InternalAxiosRequestConfig)
         const { url } = config
-        console.log(config)
 
         // Trường hợp token hết hạn và request đó không phải của refresh token
         // thì mới gọi refresh token
@@ -103,7 +102,7 @@ const createHttpInstance = () => {
 
   const handleRefreshToken = async () => {
     try {
-      const res = await http.post<LoginResponse>(URL_REFRESH_TOKEN, refreshToken)
+      const res = await http.post<LoginResponse>(URL_REFRESH_TOKEN, { refreshToken: refreshToken })
       accessToken = res.data.accessToken
       setAccessTokenToLS(accessToken)
     } catch (error) {

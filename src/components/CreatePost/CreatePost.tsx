@@ -14,7 +14,6 @@ function CreatePost() {
   const [content, setContent] = useState<string>('')
 
   const handleOpen = () => setOpen(!open)
-
   useEffect(() => {
     const textField = document.getElementById('create-post-text') as HTMLElement
     const textButton = document.getElementById('create-post-button') as HTMLElement

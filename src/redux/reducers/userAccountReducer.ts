@@ -10,7 +10,8 @@ const initialState: Partial<UserInfor> = {
   birthday: undefined,
   gender: undefined,
   avatar: undefined,
-  timeCreated: undefined
+  timeCreated: undefined,
+  privacyDefault: undefined
 }
 
 const userAccountReducer: Reducer<Partial<UserInfor>> = (state = initialState, action: ActionType) => {
@@ -30,7 +31,8 @@ const userAccountReducer: Reducer<Partial<UserInfor>> = (state = initialState, a
         birthday: undefined,
         gender: undefined,
         avatar: undefined,
-        timeCreated: undefined
+        timeCreated: undefined,
+        privacyDefault: undefined
       }
     default:
       return state

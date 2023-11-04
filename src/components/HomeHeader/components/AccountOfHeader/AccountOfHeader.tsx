@@ -8,15 +8,18 @@ import {
   PopoverHandler,
   Typography
 } from '@material-tailwind/react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import defaultAva from 'src/assets/images/default_avatar.png'
+import { clearUserAccountAction } from 'src/redux/actions/userAccountAction'
 import { RootState } from 'src/redux/store'
 import { clearLS } from 'src/utils/auth'
 
 function AccountOfHeader() {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
+  const dispatch = useDispatch()
   const handleLogout = () => {
     clearLS()
+    dispatch(clearUserAccountAction())
   }
   return (
     <Popover offset={0} placement='bottom-start'>

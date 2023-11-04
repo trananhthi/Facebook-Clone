@@ -17,3 +17,10 @@ export type SuccessResponse = {
 export type ToUndefined<T> = {
   [P in keyof T]?: ToUndefined<T[P]>
 }
+
+export type PrivacyType = {
+  icon: string
+  value: string
+  title?: string
+  description?: string
+}

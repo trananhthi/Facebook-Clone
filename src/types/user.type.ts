@@ -19,12 +19,13 @@ export const userSchema = yup.object({
     .required('Hình như bạn đã nhập sai thông tin. Hãy nhớ dùng ngày sinh thật của mình nhé.'),
   gender: yup.string().required('Vui lòng chọn giới tính. Bạn có thể chọn người có thể xem nội dung này sau.'),
   avatar: yup.string(),
-  timeCreated: yup.date()
+  timeCreated: yup.date(),
+  privacyDefault: yup.string()
 })
 
 export type User = yup.InferType<typeof userSchema>
 
 export type UserInfor = Pick<
   User,
-  'email' | 'lastName' | 'firstName' | 'phone' | 'birthday' | 'gender' | 'avatar' | 'timeCreated'
+  'email' | 'lastName' | 'firstName' | 'phone' | 'birthday' | 'gender' | 'avatar' | 'timeCreated' | 'privacyDefault'
 >

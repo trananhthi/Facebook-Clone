@@ -2,9 +2,25 @@ import UserStory from 'src/components/UserStory'
 import UserPost from 'src/components/UserPost'
 import CreatePost from 'src/components/CreatePost'
 
+import { useQuery } from '@tanstack/react-query'
+import { PostType } from 'src/types/post.type'
+import postApi from 'src/apis/post.api'
+import { useSelector } from 'react-redux'
+import { RootState } from 'src/redux/store'
+
 function HomeFeed() {
+  const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
+
+  const getAllPostQuery = useQuery({
+    queryKey: ['get-all-post'],
+    queryFn: () => postApi.getAllPost(),
+    onError: (err) => console.log(err)
+  })
+
+  //console.log(getAllPostQuery.data?.data)
+
   return (
-    <div className='px-8 flex flex-col items-center mt-4 gap-4'>
+    <div className='px-8 flex flex-col items-center mt-4 gap-4 mb-6'>
       {/* Stories */}
       {/* Đăng story */}
       <div className='flex gap-2 py-2 w-[590px] justify-start'>
@@ -40,12 +56,10 @@ function HomeFeed() {
 
       {/* Đăng bài */}
       <CreatePost />
-      {/* post */}
-      <UserPost />
-      {/* <UserPost />
-      <UserPost />
-      <UserPost />
-      <UserPost /> */}
+      {/* Danh sách bài viết */}
+      {getAllPostQuery.data?.data.map((post: PostType) => (
+        <UserPost key={post.id} post={post} userAccount={userAccount} />
+      ))}
     </div>
   )
 }

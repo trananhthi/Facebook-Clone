@@ -2,6 +2,7 @@ import { Card, CardBody, CardFooter, Typography } from '@material-tailwind/react
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSelector, useDispatch } from 'react-redux'
 import authApi from 'src/apis/auth.api'
+import userAccountApi from 'src/apis/userAccount.api'
 import logo from 'src/assets/images/logo.png'
 import routes from 'src/constants/routes'
 import { clearTempAccountAction } from 'src/redux/actions/tempAccountAction'
@@ -27,7 +28,7 @@ function Wellcome() {
 
   useQuery({
     queryKey: ['profile'],
-    queryFn: () => authApi.getUserInfor(),
+    queryFn: () => userAccountApi.getUserInfor(),
     enabled: signInAccountMutation.isSuccess,
     onSuccess: (data) => {
       dispatch(clearTempAccountAction())

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { /* Link, */ useNavigate } from 'react-router-dom'
 import routes from 'src/constants/routes'
 import authApi from 'src/apis/auth.api'
+import userAccountApi from 'src/apis/userAccount.api'
 import { isAxiosBadRequestError } from 'src/utils/utils'
 import { ErrorResponse } from 'src/types/utils.type'
 import { AppContext } from 'src/contexts/app.context'
@@ -28,7 +29,7 @@ function SignIn() {
 
   const profileQuery = useQuery({
     queryKey: ['profile'],
-    queryFn: () => authApi.getUserInfor(),
+    queryFn: () => userAccountApi.getUserInfor(),
     enabled: signInAccountMutation.isSuccess,
     onSuccess: (data) => {
       const profile = data.data

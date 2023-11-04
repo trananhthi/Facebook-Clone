@@ -27,8 +27,8 @@ const theme = {
     styles: {
       base: {
         backdrop: {
-          backgroundColor: '',
-          backgroundOpacity: '',
+          backgroundColor: 'bg-[#f3f3f4]',
+          backgroundOpacity: 'bg-opacity-80',
           backdropFilter: ''
         }
       },
