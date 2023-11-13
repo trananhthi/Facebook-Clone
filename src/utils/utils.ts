@@ -1,6 +1,8 @@
 import { type AxiosError, isAxiosError, HttpStatusCode } from 'axios'
-import { ErrorResponse } from 'src/types/utils.type'
+import { EmojiType, ErrorResponse } from 'src/types/utils.type'
 import { AES, enc } from 'crypto-js'
+import { ReactionType } from 'src/types/reaction.type'
+import { emojiList } from 'src/constants/list'
 
 export function isAxiosBadRequestError<FormError>(error: unknown): error is AxiosError<FormError> {
   return isAxiosError(error) && error.response?.status === HttpStatusCode.BadRequest
@@ -114,4 +116,32 @@ export const decryptData = (encryptedData: any) => {
   const bytes = AES.decrypt(encryptedData, import.meta.env.VITE_SECRET_KEY as string)
   const decryptedData = JSON.parse(bytes.toString(enc.Utf8))
   return decryptedData
+}
+
+export const isLikedPost = (reactionList: ReactionType[], email: string): EmojiType | null => {
+  const reaction = reactionList.find((reaction) => reaction.userAccount.email === email)
+  if (reaction) return emojiList.find((emoji) => emoji.value === reaction.typeReaction) as EmojiType
+  else return null
+}
+
+export const getTop3Emoji = (emojiList: ReactionType[]): { type: string; count: number }[] => {
+  const countEmojiOccurrences = (emojiList: ReactionType[]) => {
+    const emojiCount: Record<string, number> = {}
+
+    emojiList.forEach((emoji) => {
+      const type = emoji.typeReaction
+      emojiCount[type] = (emojiCount[type] || 0) + 1
+    })
+
+    return Object.entries(emojiCount).map(([type, count]) => ({ type, count }))
+  }
+
+  const emojiOccurrences = countEmojiOccurrences(emojiList)
+
+  // Sắp xếp mảng theo số lượng giảm dần
+  const sortedEmojiArray = emojiOccurrences.sort((a, b) => b.count - a.count)
+
+  // Lấy ba loại emoji nhiều nhất
+  const top3Emojis = sortedEmojiArray.slice(0, 3)
+  return top3Emojis
 }

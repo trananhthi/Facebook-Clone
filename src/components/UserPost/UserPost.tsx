@@ -2,13 +2,19 @@ import { Avatar, Tooltip } from '@material-tailwind/react'
 import defaultAva from 'src/assets/images/default_avatar.png'
 import facebookIcon9 from 'src/assets/images/facbook_icon_9.png'
 import facebookIcon3 from 'src/assets/images/facbook_icon_3.png'
+import { emojiList } from 'src/constants/list'
 
 import EmojiButton from './components/EmojiButton'
-import { formatDateTime, formatTimeAgo } from 'src/utils/utils'
-import { useRef } from 'react'
+import { formatDateTime, formatTimeAgo, getTop3Emoji } from 'src/utils/utils'
+import { useEffect, useRef, useState } from 'react'
 import { PostType } from 'src/types/post.type'
 import { UserInfor } from 'src/types/user.type'
 import { privacyList } from 'src/constants/list'
+import reactionApi from 'src/apis/reaction.api'
+import { useQuery } from '@tanstack/react-query'
+import { ReactionType } from 'src/types/reaction.type'
+import { EmojiType } from 'src/types/utils.type'
+import Comment from './components/Comment'
 
 interface Props {
   post: PostType
@@ -18,6 +24,35 @@ interface Props {
 function UserPost({ post, userAccount }: Props) {
   const postRef = useRef(null)
   const postHeaderRef = useRef(null)
+  const [top3EmojiList, setTop3EmojiList] = useState<EmojiType[]>([])
+
+  const getReaction = useQuery({
+    queryKey: [`get-reaction-${post.id}`],
+    queryFn: () => reactionApi.getAllReactionByPostID(post.id),
+    onError: (err) => console.log(err)
+  })
+
+  const refetch = () => {
+    getReaction.refetch()
+  }
+
+  const reactionList = getReaction.data?.data as ReactionType[]
+  useEffect(() => {
+    const temp: EmojiType[] = []
+    if (reactionList && reactionList.length > 0) {
+      getTop3Emoji(reactionList).forEach((reaction) => {
+        const emoji = emojiList.find((emoji) => emoji.value === reaction.type)
+        if (emoji) temp.push(emoji)
+      })
+      setTop3EmojiList(temp)
+    } else {
+      setTop3EmojiList([])
+    }
+  }, [reactionList])
+
+  if (getReaction.isLoading) {
+    return <div>loading...</div>
+  }
 
   return (
     <div ref={postRef} className='w-[590px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
@@ -68,13 +103,39 @@ function UserPost({ post, userAccount }: Props) {
         </button>
       </div>
       {/* content */}
-      <div className='px-4 text-2xl text-[#050505]'>{post.content}</div>
-      <hr className='border-gray-300 mx-4 mt-3'></hr>
+      <div className='px-4 text-2xl text-[#050505] mb-3'>{post.content}</div>
+      {/* amount of emoji */}
+      <div className='px-4 flex items-center gap-1 ml-1 -mt-1'>
+        <div className='flex'>
+          {top3EmojiList.map((emoji) => (
+            <img
+              key={emoji.value}
+              className='first:z-[90] first:ring-2 first:ring-white first:rounded-full [&:nth-child(2)]:ring-2 [&:nth-child(2)]:ring-white [&:nth-child(2)]:z-[89] [&:nth-child(2)]:rounded-full'
+              height={18}
+              width={18}
+              src={emoji.icon}
+              alt={`Emoji ${emoji.value}`}
+            />
+          ))}
+        </div>
+        <span className='text-[15px] text-[#65676b] hover:underline hover:cursor-pointer'>
+          {reactionList.length > 0 ? reactionList.length : ''}
+        </span>
+      </div>
+
+      <hr className='border-gray-300 mx-4 mt-2'></hr>
       {/* emoji, comment,share */}
       <div className='flex px-4 my-1'>
-        {/* emoji */}
-        <EmojiButton postRef={postRef} postHeaderRef={postHeaderRef} />
-        {/* comment */}
+        {/* emoji button */}
+        <EmojiButton
+          postRef={postRef}
+          postHeaderRef={postHeaderRef}
+          reactionList={reactionList}
+          userAccount={userAccount}
+          postID={post.id}
+          refetch={refetch}
+        />
+        {/* comment button */}
         <button className='h-8 w-[185px] px-3 py-0 hover:bg-[#f2f2f2] rounded-md flex items-center justify-center gap-2'>
           <div
             className='bg-[length:26px_1536px] bg-[0px_-576px] h-5 w-5 opacity-70'
@@ -93,31 +154,7 @@ function UserPost({ post, userAccount }: Props) {
       </div>
       <hr className='border-gray-300 mx-4 mt-1'></hr>
       {/* Send my comment */}
-      <div className='flex gap-2 px-4 py-2'>
-        <>
-          <Avatar
-            variant='circular'
-            size='sm'
-            alt='avatar'
-            className='h-8 w-8 border-solid border-gray-400 border cursor-pointer'
-            src={userAccount.avatar ? userAccount.avatar : defaultAva}
-          />
-          <div className='h-5 w-5 flex justify-center items-center rounded-full absolute mt-[18px] ml-[17px]'>
-            <svg viewBox='0 0 16 16' fill='currentColor' className={`h-3 w-3 bg-[#d8dadfe0] rounded-full`}>
-              <g fillRule='evenodd' transform='translate(-448 -544)'>
-                <path
-                  fillRule='nonzero'
-                  d='M452.707 549.293a1 1 0 0 0-1.414 1.414l4 4a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L456 552.586l-3.293-3.293z'
-                ></path>
-              </g>
-            </svg>
-          </div>
-        </>
-
-        <button className='w-full h-9 bg-[#f0f2f5] rounded-full flex items-center cursor-pointer'>
-          <p className='ml-3 text-[#050505] opacity-60 text-[15px]'>Viết bình luận công khai...</p>
-        </button>
-      </div>
+      <Comment userAccount={userAccount} />
     </div>
   )
 }

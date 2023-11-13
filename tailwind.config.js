@@ -13,6 +13,9 @@ export default withMT({
         header: '#2A2A2A',
         primary: '#EE4D2D'
       },
+      transitionProperty: {
+        'test': '0.3s ease-in-out'
+      },
       animation: {
         'text-reveal': 'text-reveal 1.5s cubic-bezier(0.77, 0, 0.175, 1) 0.5s',
         'slide-in-left': 'slide-in-left 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
@@ -27,7 +30,11 @@ export default withMT({
         'scale-out-tl-box-emoji': 'scale-out-tl-box-emoji 0.3s cubic-bezier(0.550, 0.085, 0.680, 0.530) both',
         'slide-in-bottom-box-emoji': 'slide-in-bottom-box-emoji 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
         'scale-up-bottom-emoji': 'scale-up-bottom-emoji 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) both',
-        'scale-down-bottom-emoji': 'scale-down-bottom-emoji 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both'
+        'scale-down-bottom-emoji': 'scale-down-bottom-emoji 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+        'slide-out-left-post': 'slide-out-left-post 0.1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both',
+        'slide-in-right-post': 'slide-in-right-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+        'slide-out-right-post': 'slide-out-right-post 0.1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both',
+        'slide-in-left-post': 'slide-in-left-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
       },
       keyframes: {
         'text-reveal': {
@@ -167,6 +174,46 @@ export default withMT({
           '100%': {
             transform: 'scale(1)',
             transformOrigin: '50% 100%'
+          }
+        },
+        'slide-out-left-post': {
+          '0%': {
+            transform: 'translateX(0)',
+            opacity: '1'
+          },
+          '100%': {
+            transform: 'translateX(-20px)',
+            opacity: '0'
+          }
+        },
+        'slide-in-right-post': {
+          '0%': {
+            transform: 'translateX(20px)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1'
+          }
+        },
+        'slide-out-right-post': {
+          '0%': {
+            transform: 'translateX(0)',
+            opacity: '1'
+          },
+          '100%': {
+            transform: 'translateX(20px)',
+            opacity: '0'
+          }
+        },
+        'slide-in-left-post': {
+          '0%': {
+            transform: 'translateX(-20px)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1'
           }
         }
       }

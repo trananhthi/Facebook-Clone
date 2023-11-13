@@ -1,26 +1,40 @@
 import { useEffect, useState, useRef } from 'react'
+import { emojiList } from 'src/constants/list'
 import facebook_icon_9 from 'src/assets/images/facbook_icon_9.png'
-import like from 'src/assets/images/emoji_post/like.png'
-import love from 'src/assets/images/emoji_post/love.png'
-import care from 'src/assets/images/emoji_post/care.png'
-import haha from 'src/assets/images/emoji_post/haha.png'
-import wow from 'src/assets/images/emoji_post/wow.png'
-import sad from 'src/assets/images/emoji_post/sad.png'
-import angry from 'src/assets/images/emoji_post/angry.png'
+import { Tooltip } from '@material-tailwind/react'
+import { EmojiType } from 'src/types/utils.type'
+import { ExpressReactionType, ReactionType } from 'src/types/reaction.type'
+import { UserInfor } from 'src/types/user.type'
+import { isLikedPost } from 'src/utils/utils'
+import { useMutation } from '@tanstack/react-query'
+import reactionApi from 'src/apis/reaction.api'
 
 interface Props {
   postRef: React.MutableRefObject<null>
   postHeaderRef: React.MutableRefObject<null>
+  reactionList: ReactionType[]
+  userAccount: Partial<UserInfor>
+  postID: number
+  refetch: () => void
 }
-
-const emojiIcons = [like, love, care, haha, wow, sad, angry]
 
 interface emojiProps {
   isAnimationPopoverEnd: boolean
-  icon: string
+  emoji: EmojiType
+  emojiChoosen: EmojiType | null
+  setEmojiChoosen: React.Dispatch<React.SetStateAction<EmojiType | null>>
+  setOpenPopover: React.Dispatch<React.SetStateAction<boolean>>
+  setIsAnimationPopoverEnd: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-function Emoji({ isAnimationPopoverEnd, icon }: emojiProps) {
+function Emoji({
+  isAnimationPopoverEnd,
+  emoji,
+  emojiChoosen,
+  setEmojiChoosen,
+  setOpenPopover,
+  setIsAnimationPopoverEnd
+}: emojiProps) {
   const [isHoverEmoji, setIsHoverEmoji] = useState<boolean>(false)
   const [isAnimationEmojiEnd, setIsAnimationEmojiEnd] = useState(false)
   const emojiRef = useRef(null)
@@ -31,43 +45,71 @@ function Emoji({ isAnimationPopoverEnd, icon }: emojiProps) {
       emojiElement.classList.add('animate-scale-down-bottom-emoji')
     }
   }, [isHoverEmoji])
+
+  const hanldeClickChooseEmoji = () => {
+    setOpenPopover(false)
+    setIsAnimationPopoverEnd(false)
+    if (emoji === emojiChoosen) {
+      setEmojiChoosen(null)
+    } else {
+      setEmojiChoosen(emoji)
+    }
+  }
   return (
-    <button
-      onMouseOver={() => {
-        setIsHoverEmoji(true)
-      }}
-      onMouseOut={() => {
-        setIsHoverEmoji(false)
-      }}
-      onAnimationEnd={(event: any) => {
-        if (event.animationName === 'scale-up-bottom-emoji') {
-          setIsAnimationEmojiEnd(true)
-        }
-        if (event.animationName === 'scale-down-bottom-emoji' && emojiRef.current) {
-          const emojiElement = emojiRef.current as HTMLElement
-          emojiElement.classList.remove('animate-scale-down-bottom-emoji')
-        }
-      }}
-      className={`rounded-full ${isAnimationPopoverEnd ? '' : 'pointer-events-none'}`}
+    <Tooltip
+      content={emoji.title}
+      offset={13}
+      className='text-white text-[11px] bg-[rgba(0,0,0,0.8)] px-1 py-[2px] rounded-full font-semibold'
     >
-      <img
-        ref={emojiRef}
-        src={icon}
-        className={`w-10 h-10 ${isHoverEmoji ? 'animate-scale-up-bottom-emoji' : ''}`}
-        alt={`Emoji ${icon}`}
-      />
-    </button>
+      <button
+        onClick={hanldeClickChooseEmoji}
+        onMouseOver={() => {
+          setIsHoverEmoji(true)
+        }}
+        onMouseOut={() => {
+          setIsHoverEmoji(false)
+        }}
+        onAnimationEnd={(event: any) => {
+          if (event.animationName === 'scale-up-bottom-emoji') {
+            setIsAnimationEmojiEnd(true)
+          }
+          if (event.animationName === 'scale-down-bottom-emoji' && emojiRef.current) {
+            const emojiElement = emojiRef.current as HTMLElement
+            emojiElement.classList.remove('animate-scale-down-bottom-emoji')
+          }
+        }}
+        className={`rounded-full ${isAnimationPopoverEnd ? '' : 'pointer-events-none'}`}
+      >
+        <img
+          ref={emojiRef}
+          src={emoji.icon}
+          className={`w-10 h-10 ${isHoverEmoji ? 'animate-scale-up-bottom-emoji' : ''}`}
+          alt={`Emoji ${emoji.icon}`}
+        />
+      </button>
+    </Tooltip>
   )
 }
 
-function EmojiButton({ postRef, postHeaderRef }: Props) {
+function EmojiButton({ postRef, postHeaderRef, reactionList, userAccount, postID, refetch }: Props) {
   const popoverRef = useRef(null)
+  const [emojiChoosen, setEmojiChoosen] = useState<EmojiType | null>(
+    isLikedPost(reactionList, userAccount.email as string)
+  )
   const [openPopover, setOpenPopover] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [isHoveredButton, setIsHoveredButton] = useState(false)
   const [isFirstLoad, setIsFirstLoad] = useState(true)
   const [margin, setMargin] = useState('mt-16')
   const [isAnimationPopoverEnd, setIsAnimationPopoverEnd] = useState(false)
+
+  const expressReactionMutation = useMutation({
+    mutationFn: (body: ExpressReactionType) => reactionApi.expressReaction(body, postID),
+    onSuccess: () => {
+      refetch()
+    },
+    onError: (err) => console.log(err)
+  })
 
   const triggersButton = {
     onMouseEnter: () => {
@@ -76,6 +118,15 @@ function EmojiButton({ postRef, postHeaderRef }: Props) {
     onMouseLeave: () => {
       setIsHovered(false)
       setIsHoveredButton(false)
+    },
+    onClick: () => {
+      if (emojiChoosen) {
+        setOpenPopover(false)
+        setEmojiChoosen(null)
+      } else {
+        setOpenPopover(false)
+        setEmojiChoosen(emojiList[0])
+      }
     }
   }
 
@@ -110,10 +161,18 @@ function EmojiButton({ postRef, postHeaderRef }: Props) {
       const elementRect = (postRef.current as HTMLElement).getBoundingClientRect()
       const headerRect = document.getElementById('home-header')?.getBoundingClientRect()
       const distanceToHeader = (elementRect.top - (headerRect?.bottom as number)) as number
-      if (distanceToHeader > -60) {
-        setMargin('mt-16')
+      if (reactionList.length > 0) {
+        if (distanceToHeader > -60) {
+          setMargin('mt-[92px]')
+        } else {
+          setMargin('mt-[175px]')
+        }
       } else {
-        setMargin('mt-36')
+        if (distanceToHeader > -60) {
+          setMargin('mt-[70px]')
+        } else {
+          setMargin('mt-[148px]')
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,6 +199,12 @@ function EmojiButton({ postRef, postHeaderRef }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovered])
+
+  useEffect(() => {
+    if (emojiChoosen) expressReactionMutation.mutate({ typeReaction: emojiChoosen.value as string })
+    else expressReactionMutation.mutate({ typeReaction: 'like', status: 'deleted' })
+  }, [emojiChoosen])
+
   return (
     <div>
       <div
@@ -151,8 +216,16 @@ function EmojiButton({ postRef, postHeaderRef }: Props) {
         ${openPopover ? 'animate-slide-in-bottom-box-emoji' : 'hidden'}  
         absolute ml-4 z-[999] h-[49px] w-[329px] rounded-full bg-white shadow-[0_0px_1px_1px_rgba(0,0,0,0.09)] flex gap-2 px-1`}
       >
-        {emojiIcons.map((icon, index) => (
-          <Emoji isAnimationPopoverEnd={isAnimationPopoverEnd} key={index} icon={icon} />
+        {emojiList.map((emoji, index) => (
+          <Emoji
+            isAnimationPopoverEnd={isAnimationPopoverEnd}
+            key={index}
+            emoji={emoji}
+            setEmojiChoosen={setEmojiChoosen}
+            setOpenPopover={setOpenPopover}
+            setIsAnimationPopoverEnd={setIsAnimationPopoverEnd}
+            emojiChoosen={emojiChoosen}
+          />
         ))}
       </div>
       <button
@@ -161,11 +234,19 @@ function EmojiButton({ postRef, postHeaderRef }: Props) {
           isHoveredButton ? 'bg-[#f2f2f2]' : 'bg-white'
         } h-8 w-[185px] px-3 py-1 hover:bg-[#f2f2f2] rounded-md flex items-center justify-center gap-2`}
       >
-        <div
-          className='bg-[length:26px_1536px] bg-[0px_-774px] h-5 w-5 opacity-70'
-          style={{ backgroundImage: `url(${facebook_icon_9})` }}
-        ></div>
-        <span className='text-[15px] text-[#65676B] font-semibold'>Thích</span>
+        {emojiChoosen && emojiChoosen.value !== 'like' ? (
+          <img src={emojiChoosen.icon} alt={emojiChoosen.value} className='h-5 w-5' />
+        ) : (
+          <div
+            className={`bg-[length:26px_1536px] ${
+              emojiChoosen ? 'bg-[0px_-709px]' : 'bg-[0px_-774px] opacity-70'
+            }  h-5 w-5 `}
+            style={{ backgroundImage: `url(${facebook_icon_9})` }}
+          ></div>
+        )}
+        <span style={{ color: emojiChoosen ? emojiChoosen.color : '#65676B' }} className={`text-[15px] font-semibold`}>
+          {emojiChoosen ? emojiChoosen.title : 'Thích'}
+        </span>
       </button>
     </div>
   )

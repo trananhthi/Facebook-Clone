@@ -24,3 +24,10 @@ export type PrivacyType = {
   title?: string
   description?: string
 }
+
+export type EmojiType = {
+  icon: string
+  value: string
+  title?: string
+  color?: string
+}
