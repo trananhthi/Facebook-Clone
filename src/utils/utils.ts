@@ -145,3 +145,45 @@ export const getTop3Emoji = (emojiList: ReactionType[]): { type: string; count: 
   const top3Emojis = sortedEmojiArray.slice(0, 3)
   return top3Emojis
 }
+
+export const convertNewlinesForStorage = (inputData: string): string => {
+  return inputData.replace(/\n/g, '\\n')
+}
+
+export const restoreNewlinesFromStorage = (savedData: string): string => {
+  return savedData.replace(/\\n/g, '\u000A')
+}
+
+export function formatTimeAgoOfComment(timestamp: Date) {
+  const now = new Date()
+  const postDate = new Date(timestamp)
+
+  const timeDiff = now.getTime() - postDate.getTime()
+  const seconds = Math.floor(timeDiff / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+  const weeks = Math.floor(days / 7)
+  const months = Math.floor(days / 30) // Assuming a month has 30 days
+  const years = Math.floor(days / 365) // Assuming a year has 365 days
+
+  if (years > 0) {
+    return `${years} năm trước`
+  } else if (months > 0) {
+    return `${months} tháng trước`
+  } else if (weeks > 0) {
+    return `${weeks} tuần trước`
+  } else if (days > 0) {
+    if (days === 1) {
+      return 'Hôm qua'
+    } else if (days < 10) {
+      return `${days} ngày trước`
+    }
+  } else if (hours > 0) {
+    return `${hours} giờ trước`
+  } else if (minutes > 0) {
+    return `${minutes} phút trước`
+  } else {
+    return 'vừa xong'
+  }
+}

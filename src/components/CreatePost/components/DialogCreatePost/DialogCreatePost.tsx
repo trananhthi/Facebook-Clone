@@ -7,15 +7,14 @@ import { CreatePostType } from 'src/types/post.type'
 import Picker from '@emoji-mart/react'
 
 /* import image */
-import defaultAva from 'src/assets/images/default_avatar.png'
-import chooseBackGroundIcon from 'src/assets/images/chooseBackGroundIcon.png'
-import facebookIcon7 from 'src/assets/images/facbook_icon_7.png'
-import facebookIcon3 from 'src/assets/images/facbook_icon_3.png'
-import imageIcon from 'src/assets/images/imageIcon.png'
-import tagFriendIcon from 'src/assets/images/tagFriendIcon.png'
-import activityIcon from 'src/assets/images/activityIcon.png'
-import locationIcon from 'src/assets/images/locationIcon.png'
-import gifIcon from 'src/assets/images/gifIcon.png'
+import chooseBackGroundIcon from 'src/assets/images/icon/chooseBackGroundIcon.png'
+import facebookIcon7 from 'src/assets/images/icon-pack/facbook_icon_7.png'
+import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
+import imageIcon from 'src/assets/images/icon/imageIcon.png'
+import tagFriendIcon from 'src/assets/images/icon/tagFriendIcon.png'
+import activityIcon from 'src/assets/images/icon/activityIcon.png'
+import locationIcon from 'src/assets/images/icon/locationIcon.png'
+import gifIcon from 'src/assets/images/icon/gifIcon.png'
 import { useDispatch } from 'react-redux'
 import { setUserAccountAction } from 'src/redux/actions/userAccountAction'
 import postApi from 'src/apis/post.api'
@@ -147,7 +146,7 @@ function DialogMainContent({
                 size='sm'
                 alt='avatar'
                 className='h-10 w-10 border-solid border-gray-400 border'
-                src={defaultAva}
+                src={userAccount.avatar?.url}
               />
               <div className='flex flex-col'>
                 <span className='text-[#050505] text-[15px] font-semibold cursor-pointer'>
@@ -203,7 +202,9 @@ function DialogMainContent({
               >
                 <div
                   style={{ backgroundImage: `url(${facebookIcon7})` }}
-                  className='bg-[length:38px_486px] bg-[0px_-76px] opacity-70 h-6 w-6 hover:opacity-100'
+                  className={`bg-[length:38px_486px] bg-[0px_-76px] ${
+                    openEmoji ? '' : 'opacity-70'
+                  } h-6 w-6 hover:opacity-100`}
                 ></div>
               </button>
               {/* Emoji Picker */}
@@ -268,7 +269,7 @@ function DialogMainContent({
 }
 
 interface PrivacyContentProps {
-  OpenPrivacy: boolean
+  openPrivacy: boolean
   setOpenPrivacy: React.Dispatch<React.SetStateAction<boolean>>
   privacyPost: PrivacyType
   setPrivacyPost: React.Dispatch<React.SetStateAction<PrivacyType>>
@@ -277,7 +278,7 @@ interface PrivacyContentProps {
 }
 
 function DialogPrivacyContent({
-  OpenPrivacy,
+  openPrivacy,
   setOpenPrivacy,
   privacyPost,
   setPrivacyPost,
@@ -288,7 +289,8 @@ function DialogPrivacyContent({
   const [current] = useState(privacyPost)
   const [checked, setChecked] = useState(false)
   const [startAnimationClosePrivacyDialog, setStartAnimationClosePrivacyDialog] = useState(false)
-  const dialogPrivacyContenttRef = useRef(null)
+  const [isStartAnimationOpenPrivacyDialog, setIsStartAnimationOpenPrivacyDialog] = useState<boolean>(openPrivacy)
+  const dialogPrivacyContentRef = useRef(null)
 
   const updatePrivacyDefaultMutation = useMutation({
     mutationFn: (body: { privacyDefault: string }) => userAccountApi.updatePrivacyDefault(body),
@@ -314,10 +316,18 @@ function DialogPrivacyContent({
   }
 
   useEffect(() => {
-    if (dialogPrivacyContenttRef.current) {
-      const dialogMainContentElement = dialogPrivacyContenttRef.current as HTMLElement
-      dialogMainContentElement.addEventListener('animationend', (event) => {
-        if (event.animationName === 'slide-out-right-post') {
+    // //if (startAnimationClosePrivacyDialog) {
+    // document.getElementById('tee')?.classList.add('animate-slide-out-right-createpost')
+    // //}
+    setIsStartAnimationOpenPrivacyDialog(false)
+    if (dialogPrivacyContentRef.current) {
+      const dialogPrivacyContentElement = dialogPrivacyContentRef.current as HTMLElement
+      if (document.getElementById('tee')?.classList.contains('animate-slide-out-right-createpost')) {
+        setOpenPrivacy(false)
+        setIsStartAnimationClosePrivacyDialog(true)
+      }
+      dialogPrivacyContentElement.addEventListener('animationend', (event) => {
+        if (event.animationName === 'slide-out-right-createpost') {
           setOpenPrivacy(false)
           setIsStartAnimationClosePrivacyDialog(true)
         }
@@ -326,12 +336,14 @@ function DialogPrivacyContent({
   }, [startAnimationClosePrivacyDialog])
 
   return (
-    <div ref={dialogPrivacyContenttRef} className='transition-all'>
+    <div ref={dialogPrivacyContentRef}>
       <DialogHeader className='bg-white rounded-t-md h-[60px] border-b border-gray-300 p-4 block'>
         <div
-          data-animationsopen={OpenPrivacy}
+          id='tee'
+          data-animationsopen={isStartAnimationOpenPrivacyDialog}
           data-animationsclose={startAnimationClosePrivacyDialog}
-          className='flex items-center data-[animationsopen=true]:animate-slide-in-right-post data-[animationsclose=true]:animate-slide-out-right-post'
+          className='flex items-center data-[animationsopen=true]:animate-slide-in-right-post 
+          data-[animationsclose=true]:animate-slide-out-right-createpost'
         >
           <div className='absolute w-full flex justify-start'>
             <IconButton
@@ -353,9 +365,10 @@ function DialogPrivacyContent({
       </DialogHeader>
       <DialogBody className='w-full max-h-[340px] h-auto p-0 privacy-scrollbar overflow-y-auto overflow-x-hidden'>
         <div
-          data-animationsopen={OpenPrivacy}
+          data-animationsopen={isStartAnimationOpenPrivacyDialog}
           data-animationsclose={startAnimationClosePrivacyDialog}
-          className='data-[animationsopen=true]:animate-slide-in-right-post data-[animationsclose=true]:animate-slide-out-right-post'
+          className='data-[animationsopen=true]:animate-slide-in-right-post 
+          data-[animationsclose=true]:animate-slide-out-right-createpost'
         >
           <div className='flex flex-col gap-1 p-4 pb-2'>
             <span className='text-[#050505] text-[17px] font-semibold'>Ai có thể xem bài viết của bạn?</span>
@@ -412,9 +425,10 @@ function DialogPrivacyContent({
       </DialogBody>
       <DialogFooter className='mr-3 p-0 pl-2 pt-2 pb-4 border-t-2 block'>
         <div
-          data-animationsopen={OpenPrivacy}
+          data-animationsopen={isStartAnimationOpenPrivacyDialog}
           data-animationsclose={startAnimationClosePrivacyDialog}
-          className='flex flex-col gap-4 data-[animationsopen=true]:animate-slide-in-right-post data-[animationsclose=true]:animate-slide-out-right-post'
+          className='flex flex-col gap-4 data-[animationsopen=true]:animate-slide-in-right-post 
+          data-[animationsclose=true]:animate-slide-out-right-createpost'
         >
           <div className='w-full flex justify-start items-center'>
             <label
@@ -474,7 +488,7 @@ interface Props {
 }
 
 function DialogCreatePost({ open, handleOpen, content, setContent, userAccount }: Props) {
-  const [OpenPrivacy, setOpenPrivacy] = useState<boolean>(false)
+  const [openPrivacy, setOpenPrivacy] = useState<boolean>(false)
   const [privacyPost, setPrivacyPost] = useState<PrivacyType>(
     privacyList.find((p) => p.value === (userAccount.privacyDefault as string)) as PrivacyType
   )
@@ -493,7 +507,7 @@ function DialogCreatePost({ open, handleOpen, content, setContent, userAccount }
   )
   const dialogPrivacyContent: JSX.Element = (
     <DialogPrivacyContent
-      OpenPrivacy={OpenPrivacy}
+      openPrivacy={openPrivacy}
       setOpenPrivacy={setOpenPrivacy}
       privacyPost={privacyPost}
       setPrivacyPost={setPrivacyPost}
@@ -503,16 +517,16 @@ function DialogCreatePost({ open, handleOpen, content, setContent, userAccount }
   )
   useEffect(() => {
     if (!open) setOpenPrivacy(false)
-  }, [open, OpenPrivacy, privacyPost])
+  }, [open, openPrivacy, privacyPost])
 
   return (
     <Dialog
       open={open}
       handler={handleOpen}
-      className={`${OpenPrivacy ? 'w-[500px]' : 'w-[500px]'} bg-white`}
+      className={`${openPrivacy ? 'w-[500px]' : 'w-[500px]'} bg-white`}
       size='xs'
     >
-      {OpenPrivacy ? dialogPrivacyContent : dialogMainContent}
+      {openPrivacy ? dialogPrivacyContent : dialogMainContent}
     </Dialog>
   )
 }

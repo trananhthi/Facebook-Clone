@@ -1,5 +1,4 @@
 import { Avatar, Typography } from '@material-tailwind/react'
-import defaultAva from 'src/assets/images/default_avatar.png'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
@@ -10,7 +9,7 @@ function NavigationOfHome() {
   return (
     <div className='w-[360px] fixed flex flex-col h-[670px] overflow-x-hidden overflow-y-auto custom-scrollbar'>
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 mt-4 p-2'>
-        <Avatar variant='circular' size='sm' alt='avatar' className='h-9 w-9' src={defaultAva} />
+        <Avatar variant='circular' size='sm' alt='avatar' className='h-9 w-9' src={userAccount.avatar?.url} />
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           {userAccount.firstName + ' ' + userAccount.lastName}
         </Typography>

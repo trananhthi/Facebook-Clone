@@ -18,7 +18,9 @@ export const userSchema = yup.object({
     .max(new Date(2019, 1, 1), 'Hình như bạn đã nhập sai thông tin. Hãy nhớ dùng ngày sinh thật của mình nhé.')
     .required('Hình như bạn đã nhập sai thông tin. Hãy nhớ dùng ngày sinh thật của mình nhé.'),
   gender: yup.string().required('Vui lòng chọn giới tính. Bạn có thể chọn người có thể xem nội dung này sau.'),
-  avatar: yup.string(),
+  avatar: yup.object().shape({
+    url: yup.string()
+  }),
   timeCreated: yup.date(),
   privacyDefault: yup.string()
 })

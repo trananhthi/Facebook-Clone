@@ -30,6 +30,9 @@ const theme = {
           backgroundColor: 'bg-[#f3f3f4]',
           backgroundOpacity: 'bg-opacity-80',
           backdropFilter: ''
+        },
+        container: {
+          fontFamily: 'ui-sans-serif'
         }
       },
       sizes: {
@@ -43,6 +46,21 @@ const theme = {
           minWidth: 'min-w-[80%] md:min-w-[66.666667%] lg:min-w-[10%] 2xl:min-w-[10%]',
           maxWidth: 'max-w-[80%] md:max-w-[66.666667%] lg:max-w-[33.3%] 2xl:max-w-[28%]'
         }
+      }
+    }
+  },
+  dialogFooter: {
+    defaultProps: {
+      className: ''
+    },
+    styles: {
+      base: {
+        fontSmoothing: 'antialiased',
+        fontFamily: 'font-sans',
+        fontSize: 'text-base',
+        fontWeight: 'font-light',
+        lineHeight: 'leading-relaxed',
+        flexShrink: 'shrink'
       }
     }
   },

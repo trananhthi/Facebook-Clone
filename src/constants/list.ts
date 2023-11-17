@@ -1,9 +1,12 @@
-import friendIcon from 'src/assets/images/friendIcon.png'
-import publicIcon from 'src/assets/images/publicIcon.png'
-import exceptFriendIcon from 'src/assets/images/exceptFriendIcon.png'
-import specificFriendIcon from 'src/assets/images/specificFriendIcon.png'
-import onlymeIcon from 'src/assets/images/onlymeIcon.png'
-import customIcon from 'src/assets/images/customIcon.png'
+import { PrivacyType, EmojiType } from 'src/types/utils.type'
+
+/* import images */
+import friendIcon from 'src/assets/images/privacy-icon/friendIcon2.png'
+import publicIcon from 'src/assets/images/privacy-icon/publicIcon.png'
+import exceptFriendIcon from 'src/assets/images/privacy-icon/exceptFriendIcon.png'
+import specificFriendIcon from 'src/assets/images/privacy-icon/specificFriendIcon.png'
+import onlymeIcon from 'src/assets/images/privacy-icon/onlymeIcon.png'
+import customIcon from 'src/assets/images/privacy-icon/customIcon.png'
 import like from 'src/assets/images/emoji_post/like.png'
 import love from 'src/assets/images/emoji_post/love.png'
 import care from 'src/assets/images/emoji_post/care.png'
@@ -11,7 +14,6 @@ import haha from 'src/assets/images/emoji_post/haha.png'
 import wow from 'src/assets/images/emoji_post/wow.png'
 import sad from 'src/assets/images/emoji_post/sad.png'
 import angry from 'src/assets/images/emoji_post/angry.png'
-import { PrivacyType, EmojiType } from 'src/types/utils.type'
 
 export const months = Array.from({ length: 12 }, (_, i) => `Tháng ${i + 1}`)
 

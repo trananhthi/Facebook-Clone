@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import DialogCreatePost from './components/DialogCreatePost'
 
 /* import image */
-import defaultAva from 'src/assets/images/default_avatar.png'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
 
@@ -34,7 +33,7 @@ function CreatePost() {
           size='sm'
           alt='avatar'
           className='h-10 w-10 border-solid border-gray-400 border cursor-pointer hover:brightness-90'
-          src={defaultAva}
+          src={userAccount.avatar?.url}
         />
         <button
           id='create-post-button'

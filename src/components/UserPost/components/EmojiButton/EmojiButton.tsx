@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
 import { emojiList } from 'src/constants/list'
-import facebook_icon_9 from 'src/assets/images/facbook_icon_9.png'
 import { Tooltip } from '@material-tailwind/react'
 import { EmojiType } from 'src/types/utils.type'
 import { ExpressReactionType, ReactionType } from 'src/types/reaction.type'
@@ -9,10 +8,15 @@ import { isLikedPost } from 'src/utils/utils'
 import { useMutation } from '@tanstack/react-query'
 import reactionApi from 'src/apis/reaction.api'
 
+/* import images */
+import facebook_icon_9 from 'src/assets/images/icon-pack/facbook_icon_9.png'
+import { Top2LatestCommentsType } from 'src/types/comment.type'
+
 interface Props {
   postRef: React.MutableRefObject<null>
   postHeaderRef: React.MutableRefObject<null>
   reactionList: ReactionType[]
+  top2LatestComments: Top2LatestCommentsType
   userAccount: Partial<UserInfor>
   postID: number
   refetch: () => void
@@ -91,7 +95,15 @@ function Emoji({
   )
 }
 
-function EmojiButton({ postRef, postHeaderRef, reactionList, userAccount, postID, refetch }: Props) {
+function EmojiButton({
+  postRef,
+  postHeaderRef,
+  reactionList,
+  userAccount,
+  postID,
+  refetch,
+  top2LatestComments
+}: Props) {
   const popoverRef = useRef(null)
   const [emojiChoosen, setEmojiChoosen] = useState<EmojiType | null>(
     isLikedPost(reactionList, userAccount.email as string)
@@ -157,21 +169,35 @@ function EmojiButton({ postRef, postHeaderRef, reactionList, userAccount, postID
   }, [])
 
   useEffect(() => {
-    if (postRef.current) {
+    if (postRef.current && postHeaderRef.current) {
       const elementRect = (postRef.current as HTMLElement).getBoundingClientRect()
       const headerRect = document.getElementById('home-header')?.getBoundingClientRect()
-      const distanceToHeader = (elementRect.top - (headerRect?.bottom as number)) as number
-      if (reactionList.length > 0) {
-        if (distanceToHeader > -60) {
-          setMargin('mt-[92px]')
-        } else {
-          setMargin('mt-[175px]')
+      const headerDetailPostElement = document.getElementById('header-detail-post')
+      const postHeaderRect = (postHeaderRef.current as HTMLElement).getBoundingClientRect()
+      if (headerDetailPostElement) {
+        const distanceToHeader = (postHeaderRect.top -
+          (headerDetailPostElement.getBoundingClientRect().bottom as number)) as number
+        if (reactionList.length > 0 || top2LatestComments.total > 0) {
+          if (distanceToHeader > -100) {
+            setMargin('mt-[98px]')
+          } else {
+            setMargin('mt-[180px]')
+          }
         }
       } else {
-        if (distanceToHeader > -60) {
-          setMargin('mt-[70px]')
+        const distanceToHeader = (elementRect.top - (headerRect?.bottom as number)) as number
+        if (reactionList.length > 0 || top2LatestComments.total > 0) {
+          if (distanceToHeader > -60) {
+            setMargin('mt-[92px]')
+          } else {
+            setMargin('mt-[175px]')
+          }
         } else {
-          setMargin('mt-[148px]')
+          if (distanceToHeader > -60) {
+            setMargin('mt-[70px]')
+          } else {
+            setMargin('mt-[148px]')
+          }
         }
       }
     }
@@ -199,6 +225,10 @@ function EmojiButton({ postRef, postHeaderRef, reactionList, userAccount, postID
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovered])
+
+  useEffect(() => {
+    setEmojiChoosen(isLikedPost(reactionList, userAccount.email as string))
+  }, [reactionList])
 
   useEffect(() => {
     if (emojiChoosen) expressReactionMutation.mutate({ typeReaction: emojiChoosen.value as string })
@@ -232,7 +262,7 @@ function EmojiButton({ postRef, postHeaderRef, reactionList, userAccount, postID
         {...triggersButton}
         className={`${
           isHoveredButton ? 'bg-[#f2f2f2]' : 'bg-white'
-        } h-8 w-[185px] px-3 py-1 hover:bg-[#f2f2f2] rounded-md flex items-center justify-center gap-2`}
+        } h-8 w-full px-3 py-1 hover:bg-[#f2f2f2] rounded-md flex items-center justify-center gap-2`}
       >
         {emojiChoosen && emojiChoosen.value !== 'like' ? (
           <img src={emojiChoosen.icon} alt={emojiChoosen.value} className='h-5 w-5' />

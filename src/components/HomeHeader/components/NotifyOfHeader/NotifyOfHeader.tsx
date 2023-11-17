@@ -18,7 +18,7 @@ function NotifyOfHeader() {
           <BellIcon className={`h-[1.55rem] w-[1.5rem]  ${isFocus ? 'text-[#0866ff]' : 'text-black'} `}></BellIcon>
         </IconButton>
       </PopoverHandler>
-      <PopoverContent className='shadow-[0_0px_10px_5px_rgba(0,0,0,1)] px-4 py-1 z-[99999]'>
+      <PopoverContent className='w-[360px] shadow-[0_0px_10px_5px_rgba(0,0,0,1)] px-4 py-1 z-[99999]'>
         <div className='flex flex-col items-center mt-2'>
           {/* header */}
           <div className='flex justify-between items-center w-full'>
