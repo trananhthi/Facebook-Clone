@@ -10,13 +10,10 @@ import reactionApi from 'src/apis/reaction.api'
 
 /* import images */
 import facebook_icon_9 from 'src/assets/images/icon-pack/facbook_icon_9.png'
-import { Top2LatestCommentsType } from 'src/types/comment.type'
 
 interface Props {
-  postRef: React.MutableRefObject<null>
-  postHeaderRef: React.MutableRefObject<null>
+  interactFieldRef: React.MutableRefObject<null>
   reactionList: ReactionType[]
-  top2LatestComments: Top2LatestCommentsType
   userAccount: Partial<UserInfor>
   postID: number
   refetch: () => void
@@ -95,15 +92,7 @@ function Emoji({
   )
 }
 
-function EmojiButton({
-  postRef,
-  postHeaderRef,
-  reactionList,
-  userAccount,
-  postID,
-  refetch,
-  top2LatestComments
-}: Props) {
+function EmojiButton({ interactFieldRef, reactionList, userAccount, postID, refetch }: Props) {
   const popoverRef = useRef(null)
   const [emojiChoosen, setEmojiChoosen] = useState<EmojiType | null>(
     isLikedPost(reactionList, userAccount.email as string)
@@ -159,45 +148,24 @@ function EmojiButton({
   }
 
   useEffect(() => {
-    if (postRef.current && popoverRef.current && postHeaderRef.current) {
-      const parentElement = postRef.current as HTMLElement
-      const popoverElement = popoverRef.current as HTMLElement
-      const postHeaderElement = postHeaderRef.current as HTMLElement
-      parentElement.insertBefore(popoverElement, postHeaderElement)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    if (postRef.current && postHeaderRef.current) {
-      const elementRect = (postRef.current as HTMLElement).getBoundingClientRect()
+    if (interactFieldRef.current) {
+      const interactFieldRect = (interactFieldRef.current as HTMLElement).getBoundingClientRect()
       const headerRect = document.getElementById('home-header')?.getBoundingClientRect()
       const headerDetailPostElement = document.getElementById('header-detail-post')
-      const postHeaderRect = (postHeaderRef.current as HTMLElement).getBoundingClientRect()
       if (headerDetailPostElement) {
-        const distanceToHeader = (postHeaderRect.top -
+        const distanceToHeader = (interactFieldRect.top -
           (headerDetailPostElement.getBoundingClientRect().bottom as number)) as number
-        if (reactionList.length > 0 || top2LatestComments.total > 0) {
-          if (distanceToHeader > -100) {
-            setMargin('mt-[98px]')
-          } else {
-            setMargin('mt-[180px]')
-          }
+        if (distanceToHeader > 55) {
+          setMargin('-mt-[50px]')
+        } else {
+          setMargin('mt-[30px]')
         }
       } else {
-        const distanceToHeader = (elementRect.top - (headerRect?.bottom as number)) as number
-        if (reactionList.length > 0 || top2LatestComments.total > 0) {
-          if (distanceToHeader > -60) {
-            setMargin('mt-[92px]')
-          } else {
-            setMargin('mt-[175px]')
-          }
+        const distanceToHeader = (interactFieldRect.top - (headerRect?.bottom as number)) as number
+        if (distanceToHeader > 55) {
+          setMargin('-mt-[50px]')
         } else {
-          if (distanceToHeader > -60) {
-            setMargin('mt-[70px]')
-          } else {
-            setMargin('mt-[148px]')
-          }
+          setMargin('mt-[30px]')
         }
       }
     }
@@ -244,7 +212,7 @@ function EmojiButton({
         ${margin}
         ${isHoveredButton ? 'cursor-pointer' : ''} 
         ${openPopover ? 'animate-slide-in-bottom-box-emoji' : 'hidden'}  
-        absolute ml-4 z-[999] h-[49px] w-[329px] rounded-full bg-white shadow-[0_0px_1px_1px_rgba(0,0,0,0.09)] flex gap-2 px-1`}
+        absolute z-[999] h-[49px] w-[329px] rounded-full bg-white shadow-[0_0px_1px_1px_rgba(0,0,0,0.09)] flex gap-2 px-1`}
       >
         {emojiList.map((emoji, index) => (
           <Emoji

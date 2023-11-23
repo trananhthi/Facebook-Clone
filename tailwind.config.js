@@ -34,7 +34,7 @@ export default withMT({
         'slide-out-left-post': 'slide-out-left-post 0.1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both',
         'slide-in-right-post': 'slide-in-right-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
         'slide-out-right-createpost': 'slide-out-right-createpost 0.1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both',
-        'slide-in-left-post': 'slide-in-left-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+        'slide-in-left-post': 'slide-in-left-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both'
       },
       keyframes: {
         'text-reveal': {

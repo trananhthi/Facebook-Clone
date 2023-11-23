@@ -25,7 +25,7 @@ function UserComment({ comment, maxW }: Props) {
             src={comment.userAccount.avatar.url}
           />
 
-          <div className={`bg-[#f0f2f5] rounded-2xl max-w-[${maxW}]`}>
+          <div className={`bg-[#f0f2f5] rounded-2xl max-w-[${maxW}]`} style={{ maxWidth: maxW }}>
             <div className='py-2 px-3'>
               <span className='text-[#050505] block text-[13px] leading-[16px] font-semibold'>
                 {comment.userAccount.firstName + ' ' + comment.userAccount.lastName}

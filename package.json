@@ -24,6 +24,7 @@
     "@reduxjs/toolkit": "^1.9.7",
     "@tanstack/react-query": "^4.32.6",
     "@tanstack/react-query-devtools": "^4.32.6",
+    "@types/lodash": "^4.14.202",
     "axios": "^1.4.0",
     "classnames": "^2.3.2",
     "color.js": "^1.2.0",

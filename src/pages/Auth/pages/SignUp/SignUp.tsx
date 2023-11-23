@@ -47,7 +47,8 @@ function SignUp({ open, handleOpen }: Props) {
   const [errorServer, setErrorServer] = useState<string>('')
 
   const signupMutation = useMutation({
-    mutationFn: (body: User) => authApi.signUp(body),
+    mutationFn: (body: Pick<User, 'email' | 'password' | 'lastName' | 'firstName' | 'birthday' | 'gender'>) =>
+      authApi.signUp(body),
     onSuccess: (res, vars) => {
       if (res.status === 201) {
         dispatch(updateTempAccountAction({ email: vars.email, password: vars.password, isConfirmed: false }))

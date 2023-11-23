@@ -1,0 +1,518 @@
+import { Avatar, Dialog, DialogBody, DialogFooter, DialogHeader, IconButton } from '@material-tailwind/react'
+import { useEffect, useRef, useState } from 'react'
+import { UserInfor } from 'src/types/user.type'
+import { useMutation } from '@tanstack/react-query'
+import Picker from '@emoji-mart/react'
+import postApi from 'src/apis/post.api'
+import { PrivacyType } from 'src/types/utils.type'
+import _ from 'lodash'
+
+/* import image */
+import chooseBackGroundIcon from 'src/assets/images/icon/chooseBackGroundIcon.png'
+import facebookIcon7 from 'src/assets/images/icon-pack/facbook_icon_7.png'
+import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
+import imageIcon from 'src/assets/images/icon/imageIcon.png'
+import tagFriendIcon from 'src/assets/images/icon/tagFriendIcon.png'
+import activityIcon from 'src/assets/images/icon/activityIcon.png'
+import locationIcon from 'src/assets/images/icon/locationIcon.png'
+import gifIcon from 'src/assets/images/icon/gifIcon.png'
+import AddImageOrVideo from '../AddImageOrVideo'
+import { convertNewlinesForStorage } from 'src/utils/utils'
+import { PostType } from 'src/types/post.type'
+import imageApi from 'src/apis/image.api'
+
+interface Props {
+  type: string
+  post?: PostType
+  setCurPost?: React.Dispatch<React.SetStateAction<PostType>>
+  handleOpen: () => void
+  content: string
+  setContent: React.Dispatch<React.SetStateAction<string>>
+  userAccount: Partial<UserInfor>
+  setOpenPrivacy: React.Dispatch<React.SetStateAction<boolean>>
+  privacyPost: PrivacyType
+  isStartAnimationClosePrivacyDialog: boolean
+  setIsStartAnimationClosePrivacyDialog: React.Dispatch<React.SetStateAction<boolean>>
+  previewImage: string[]
+  setPreviewImage: React.Dispatch<React.SetStateAction<string[]>>
+  openAddImage: boolean
+  setOpenAddImage: React.Dispatch<React.SetStateAction<boolean>>
+  refetch?: () => void
+}
+
+function DialogMainContent({
+  type,
+  post,
+  setCurPost,
+  handleOpen,
+  content,
+  setContent,
+  userAccount,
+  setOpenPrivacy,
+  privacyPost,
+  isStartAnimationClosePrivacyDialog,
+  setIsStartAnimationClosePrivacyDialog,
+  previewImage,
+  setPreviewImage,
+  openAddImage,
+  setOpenAddImage,
+  refetch
+}: Props) {
+  const [openEmoji, setOpenEmoji] = useState<boolean>(false)
+  const [isClicked, setIsClicked] = useState<boolean>(false)
+  const [startAnimationOpenPrivacyDialog, setStartAnimationOpenPrivacyDialog] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
+  const [isActivedButton, setIsActivedButton] = useState(false)
+  const [openWarning, setOpenWarning] = useState(false)
+
+  const dialogMainContentRef = useRef(null)
+  const textareaRef = useRef(null)
+  const addMoreRef = useRef(null)
+  const fileInputRef = useRef(null)
+
+  const createPostMutation = useMutation({
+    mutationFn: (body: FormData) => postApi.createPost(body),
+    onSuccess: () => {
+      handleOpen()
+      setContent('')
+      handleCloseSelectImage()
+      refetch ? refetch() : null
+    },
+    onError: (err) => console.log(err)
+  })
+
+  const deleteImageMutation = useMutation({
+    mutationFn: (imageID: number) => imageApi.deletePostImage(imageID),
+    onError: (err) => console.log(err)
+  })
+
+  const updatePostMutation = useMutation({
+    mutationFn: (body: FormData) => postApi.updatePost(body, post?.id as number),
+    onSuccess: (data) => {
+      handleOpen()
+      if (setCurPost) {
+        setCurPost(data.data)
+      }
+    },
+    onError: (err) => console.log(err)
+  })
+
+  const handleEmojiSelect = (emoji: any) => {
+    setContent(content + emoji.native)
+  }
+
+  const handleClickOutsideEmojiPicker = () => {
+    if (openEmoji && !isClicked) setOpenEmoji(false)
+  }
+
+  const handleClickEmojiButton = () => {
+    setOpenEmoji((cur) => !cur)
+    setIsClicked(true)
+  }
+
+  /* xử lý tắt mở dialog cảnh báo chưa lưu */
+  const handleOpenWarning = () => setOpenWarning(!openWarning)
+
+  /* xử lý đăng bài viết */
+  const hanldeClickPublishPost = () => {
+    const formData = new FormData()
+    formData.append('content', convertNewlinesForStorage(content))
+    if (selectedImage) {
+      formData.append('typePost', 'image')
+      for (let i = 0; i < selectedImage.length; i++) {
+        formData.append('files', selectedImage[i])
+      }
+    } else {
+      formData.append('typePost', 'text')
+    }
+    formData.append('privacy', privacyPost.value)
+    createPostMutation.mutate(formData)
+  }
+
+  /* xử lý thay đổi bài viết */
+  const handleEditPost = () => {
+    const formData = new FormData()
+    formData.append('content', convertNewlinesForStorage(content))
+    if (previewImage.length > 0) {
+      formData.append('typePost', 'image')
+    } else {
+      formData.append('typePost', 'text')
+    }
+    if (selectedImage) {
+      for (let i = 0; i < selectedImage.length; i++) {
+        formData.append('files', selectedImage[i])
+      }
+    }
+    formData.append('privacy', privacyPost.value)
+    const oldPreviewImage = post?.image.map((image: { url: string }) => image.url)
+    const changedElementsInOldArray = _.difference(oldPreviewImage, previewImage)
+
+    if (changedElementsInOldArray.length > 0) {
+      const deleteImagePromises = changedElementsInOldArray.map((changedElement) => {
+        const imageToDelete = post?.image.find((img) => img.url === changedElement)
+        if (imageToDelete) {
+          return deleteImageMutation.mutateAsync(imageToDelete.id)
+        } else {
+          return Promise.resolve() // Trả về promise đã giải quyết ngay lập tức nếu không tìm thấy ảnh
+        }
+      })
+
+      // Chờ tất cả các promise trong mảng hoàn thành
+      Promise.all(deleteImagePromises)
+        .then(() => {
+          // Tất cả các xóa hình đã hoàn thành, tiếp tục với updatePostMutation
+          updatePostMutation.mutate(formData)
+        })
+        .catch((error) => {
+          console.error('Error deleting images:', error)
+        })
+    } else {
+      // Nếu không có ảnh nào thay đổi, chỉ thực hiện updatePostMutation
+      updatePostMutation.mutate(formData)
+    }
+  }
+
+  const hanldeClickOpenPrivacyDialog = () => {
+    setStartAnimationOpenPrivacyDialog(true)
+  }
+
+  const handleCloseSelectImage = () => {
+    setSelectedImage(null)
+    setPreviewImage([])
+    setOpenAddImage(false)
+    if (fileInputRef.current) {
+      const fileInputElement = fileInputRef.current as HTMLInputElement
+      fileInputElement.value = ''
+    }
+  }
+
+  useEffect(() => {
+    if (dialogMainContentRef.current) {
+      const dialogMainContentElement = dialogMainContentRef.current as HTMLElement
+      dialogMainContentElement.addEventListener('animationend', (event) => {
+        if (event.animationName === 'slide-out-left-post') setOpenPrivacy(true)
+        if (event.animationName === 'slide-in-left-post') setIsStartAnimationClosePrivacyDialog(false)
+      })
+    }
+  }, [isStartAnimationClosePrivacyDialog])
+
+  useEffect(() => {
+    if (textareaRef.current && addMoreRef.current) {
+      const textareaElement = textareaRef.current as HTMLElement
+      const addMoreElement = addMoreRef.current as HTMLElement
+      if (openAddImage) textareaElement.style.height = '20px'
+      else textareaElement.style.height = '103px'
+      textareaElement.style.height = textareaElement.scrollHeight + 'px'
+      if (addMoreElement.scrollHeight + 3 >= 331) {
+        addMoreElement.classList.remove('px-4')
+        addMoreElement.classList.add('pl-4', 'pr-1')
+      } else {
+        addMoreElement.classList.remove('pl-4', 'pr-1')
+        addMoreElement.classList.add('px-4')
+      }
+    }
+  }, [content, openAddImage, selectedImage])
+
+  useEffect(() => {
+    if (type === 'edit' && post) {
+      const oldPreviewImage = post.image.map((image: { url: string }) => image.url)
+      if (
+        (content !== post.content && content !== '') ||
+        !_.isEqual(previewImage, oldPreviewImage) ||
+        privacyPost.value !== post.privacy
+      )
+        setIsActivedButton(true)
+      else setIsActivedButton(false)
+      if (content === '' && previewImage.length === 0) setIsActivedButton(false)
+    } else {
+      if (content !== '' || previewImage.length !== 0) setIsActivedButton(true)
+      else setIsActivedButton(false)
+    }
+  }, [content, previewImage])
+
+  return (
+    <div ref={dialogMainContentRef}>
+      <DialogHeader className='bg-white rounded-t-md h-[132px] p-0 block'>
+        <div
+          data-animationsclose={startAnimationOpenPrivacyDialog}
+          data-animationsopen={isStartAnimationClosePrivacyDialog}
+          className='data-[animationsclose=true]:animate-slide-out-left-post data-[animationsopen=true]:animate-slide-in-left-post'
+        >
+          {/* header */}
+          <div className='flex items-center h-[60px] border-b border-gray-300'>
+            <div className='w-full flex justify-center'>
+              <span className='text-[20px] text-[#050505] font-bold'>
+                {type === 'edit' ? 'Chỉnh sửa bài viết' : 'Tạo bài viết'}
+              </span>
+            </div>
+            <div className='flex justify-end absolute w-full -ml-4'>
+              <IconButton
+                color='blue-gray'
+                className='h-9 w-9 bg-[#e4e6eb] rounded-full hover:bg-[#d8dadf] px-4'
+                variant='text'
+                onClick={type === 'edit' && isActivedButton ? handleOpenWarning : handleOpen}
+              >
+                <div
+                  style={{ backgroundImage: `url(${facebookIcon3})` }}
+                  className='bg-[length:190px_186px] bg-[-22px_-110px] h-5 w-5 opacity-60'
+                ></div>
+              </IconButton>
+            </div>
+          </div>
+          {/* avatar và chỉnh đối tượng xem bài */}
+          <div className='flex justify-between items-center mx-4 py-[14px]'>
+            <div className='flex gap-2 items-center'>
+              <Avatar
+                variant='circular'
+                size='sm'
+                alt='avatar'
+                className='h-10 w-10 border-solid border-gray-400 border'
+                src={userAccount.avatar?.url}
+              />
+              <div className='flex flex-col'>
+                <span className='text-[#050505] text-[15px] font-semibold cursor-pointer'>
+                  {userAccount.firstName + ' ' + userAccount.lastName}
+                </span>
+                {/* <div> */}
+                <button
+                  onClick={hanldeClickOpenPrivacyDialog}
+                  className='text-[#65676B] text-[13px] w-fit min-w-[89px] p-1 h-6 bg-[#e4e6eb] rounded-md flex justify-center items-center gap-1'
+                >
+                  <img src={privacyPost.icon} alt='friend-logo' className='h-3 w-3 text-[#65676B] inline ml-1' />
+                  <span className='text-[#050505] text-[13px] font-semibold'>{privacyPost.title}</span>
+                  <div
+                    style={{ backgroundImage: `url(${facebookIcon3})` }}
+                    className='bg-[length:190px_186px] bg-[0px_-172px] h-3 w-3'
+                  ></div>
+                </button>
+                {/* </div> */}
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogHeader>
+
+      <DialogBody className='w-[500px] p-0 mt-1 max-h-[331px] overflow-y-auto custom-scrollbar-vip'>
+        <div
+          data-animationsclose={startAnimationOpenPrivacyDialog}
+          data-animationsopen={isStartAnimationClosePrivacyDialog}
+          className='data-[animationsclose=true]:animate-slide-out-left-post data-[animationsopen=true]:animate-slide-in-left-post'
+        >
+          {/* viết text và chèn hình video */}
+          <div className='p-0' ref={addMoreRef}>
+            {openAddImage ? (
+              <div className='flex items-end'>
+                <textarea
+                  ref={textareaRef}
+                  className={`w-full h-min-[32px] overflow-x-clip text-[15px] leading-5 text-[#050505] resize-none active:outline-0
+                   focus:outline-0 placeholder:text-[15px] placeholder:opacity-80 placeholder:text-[#65676b]`}
+                  placeholder={userAccount.lastName + ` ơi, bạn đang nghĩ gì thế?`}
+                  value={content}
+                  onChange={(e) => {
+                    setContent(e.target.value)
+                  }}
+                />
+                {/* emoji button */}
+                <button
+                  onMouseLeave={() => setIsClicked(false)}
+                  onClick={handleClickEmojiButton}
+                  className='h-6 w-6 flex justify-end items-center'
+                >
+                  <div
+                    style={{ backgroundImage: `url(${facebookIcon7})` }}
+                    className={`bg-[length:38px_486px] bg-[0px_-76px] ${
+                      openEmoji ? '' : 'opacity-70'
+                    } h-6 w-6 hover:opacity-100`}
+                  ></div>
+                </button>
+              </div>
+            ) : (
+              <textarea
+                ref={textareaRef}
+                className={`w-full overflow-clip min-h-[100px] ${
+                  content.length > 100 ? 'text-[15px] leading-5' : 'text-2xl'
+                } text-[#050505] resize-none active:outline-0 focus:outline-0 placeholder:text-2xl placeholder:text-[#65676b]`}
+                placeholder={userAccount.lastName + ` ơi, bạn đang nghĩ gì thế?`}
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value)
+                }}
+              />
+            )}
+
+            <div className={`flex justify-between items-center mt-1 ${openAddImage ? 'hidden' : ''}`}>
+              <button>
+                <img src={chooseBackGroundIcon} alt='friend-logo' className='h-[38px] w-[38px]' />
+              </button>
+              <button
+                onMouseLeave={() => setIsClicked(false)}
+                onClick={handleClickEmojiButton}
+                className='h-9 w-9 flex justify-end items-center'
+              >
+                <div
+                  style={{ backgroundImage: `url(${facebookIcon7})` }}
+                  className={`bg-[length:38px_486px] bg-[0px_-76px] ${
+                    openEmoji ? '' : 'opacity-70'
+                  } h-6 w-6 hover:opacity-100`}
+                ></div>
+              </button>
+            </div>
+            {/* thêm hình/video */}
+            <AddImageOrVideo
+              openAddImage={openAddImage}
+              selectedImage={selectedImage}
+              setSelectedImage={setSelectedImage}
+              previewImage={previewImage}
+              setPreviewImage={setPreviewImage}
+              fileInputRef={fileInputRef}
+              handleCloseSelectImage={handleCloseSelectImage}
+            />
+          </div>
+        </div>
+      </DialogBody>
+      <DialogFooter className='p-4 justify-center'>
+        <div
+          data-animationsclose={startAnimationOpenPrivacyDialog}
+          data-animationsopen={isStartAnimationClosePrivacyDialog}
+          className='w-full data-[animationsclose=true]:animate-slide-out-left-post data-[animationsopen=true]:animate-slide-in-left-post'
+        >
+          {/* add more */}
+          <div className='h-[58px] w-full flex justify-between items-center rounded-lg border border-gray-500 shadow p-4 mb-4'>
+            <span className='text-[#050505] text-[15px] font-semibold'>Thêm vào bài viết của bạn</span>
+
+            <div className='flex justify-center items-center '>
+              <button
+                className={`h-9 w-9 rounded-full hover:bg-[#f2f2f2] flex items-center justify-center ${
+                  openAddImage ? 'bg-[#f2f2f2]' : ''
+                }`}
+                onClick={() => setOpenAddImage(true)}
+              >
+                <img src={imageIcon} className='h-6 w-6' />
+              </button>
+              <button className='h-9 w-9 rounded-full hover:bg-[#f2f2f2] flex items-center justify-center'>
+                <img src={tagFriendIcon} className='h-6 w-6' />
+              </button>
+              <button className='h-9 w-9 rounded-full hover:bg-[#f2f2f2] flex items-center justify-center'>
+                <img src={activityIcon} className='h-6 w-6' />
+              </button>
+              <button className='h-9 w-9 rounded-full hover:bg-[#f2f2f2] flex items-center justify-center'>
+                <img src={locationIcon} className='h-6 w-6' />
+              </button>
+              <button className='h-9 w-9 rounded-full hover:bg-[#f2f2f2] flex items-center justify-center'>
+                <img src={gifIcon} className='h-6 w-6' />
+              </button>
+              <button className='hover:bg-[#f2f2f2] h-8 w-8 rounded-full flex justify-center items-center'>
+                <div
+                  style={{ backgroundImage: `url(${facebookIcon3})` }}
+                  className='bg-[length:190px_186px] bg-[-44px_-110px] h-5 w-5'
+                ></div>
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={type === 'edit' ? handleEditPost : hanldeClickPublishPost}
+            disabled={!isActivedButton}
+            className='flex gap-2 justify-center items-center py-2 rounded-md bg-[#0866ff] w-full disabled:bg-[#e4e6eb] disabled:cursor-not-allowed'
+          >
+            <svg
+              className={`animate-spin h-5 w-5 text-white ${
+                type === 'create'
+                  ? createPostMutation.isLoading
+                    ? ''
+                    : 'hidden'
+                  : updatePostMutation.isLoading || deleteImageMutation.isLoading
+                  ? ''
+                  : 'hidden'
+              }`}
+              xmlns='http://www.w3.org/2000/svg'
+              fill='none'
+              viewBox='0 0 24 24'
+            >
+              <circle className='opacity-50' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
+              <path
+                className='opacity-100'
+                fill='currentColor'
+                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+              ></path>
+            </svg>
+            <span
+              className={`text-[15px] leading-5 font-semibold ${isActivedButton ? 'text-white' : 'text-[#bcc0c4]'}`}
+            >
+              {type === 'create'
+                ? createPostMutation.isLoading
+                  ? 'Đang đăng...'
+                  : 'Đăng'
+                : updatePostMutation.isLoading || deleteImageMutation.isLoading
+                ? 'Đang lưu...'
+                : 'Lưu'}
+            </span>
+          </button>
+        </div>
+      </DialogFooter>
+      {/* Emoji Picker */}
+      <div className={`${openEmoji ? '' : 'hidden'} absolute ml-[510px] -mt-[520px]`}>
+        <Picker
+          onClickOutside={() => handleClickOutsideEmojiPicker()}
+          theme='light'
+          locale='vi'
+          showReview={true}
+          set='facebook'
+          previewPosition='none'
+          onEmojiSelect={handleEmojiSelect}
+        />
+      </div>
+
+      {/* Thông báo chưa lưu thay đổi */}
+      <Dialog
+        dismiss={{ enabled: false }}
+        open={openWarning}
+        handler={handleOpenWarning}
+        size='xs'
+        className='w-[550px]'
+      >
+        <DialogHeader className='bg-white rounded-t-md p-0 block'>
+          <div className='flex items-center h-[60px] border-b border-gray-300'>
+            <div className='w-full flex justify-center'>
+              <span className='text-[20px] text-[#050505] font-bold'>Thay đổi chưa lưu</span>
+            </div>
+            <div className='flex justify-end absolute w-full -ml-4'>
+              <IconButton
+                color='blue-gray'
+                className='h-9 w-9 bg-[#e4e6eb] rounded-full hover:bg-[#d8dadf] px-4'
+                variant='text'
+                onClick={handleOpenWarning}
+              >
+                <div
+                  style={{ backgroundImage: `url(${facebookIcon3})` }}
+                  className='bg-[length:190px_186px] bg-[-22px_-110px] h-5 w-5 opacity-60'
+                ></div>
+              </IconButton>
+            </div>
+          </div>
+        </DialogHeader>
+        <DialogBody className='p-0 px-4 py-3'>
+          <span className='text-[15px] leading-5 text-[#050505]'>Hệ thống sẽ không lưu các thay đổi của bạn.</span>
+        </DialogBody>
+        <DialogFooter className='gap-2'>
+          <button
+            onClick={handleOpenWarning}
+            className='text-center text-[15px] py-[6px] text-[#0064d1] font-semibold w-[148px] rounded-md hover:bg-[#f2f2f2]'
+          >
+            Tiếp tục chỉnh sửa
+          </button>
+          <button
+            onClick={() => {
+              setOpenWarning(false)
+              handleOpen()
+            }}
+            className='bg-[#0866ff] rounded-md py-[6px] text-center text-[15px] text-white font-semibold w-[98px] hover:brightness-90'
+          >
+            Bỏ
+          </button>
+        </DialogFooter>
+      </Dialog>
+    </div>
+  )
+}
+
+export default DialogMainContent

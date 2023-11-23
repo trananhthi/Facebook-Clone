@@ -10,7 +10,7 @@ const URL_CONFIRM = 'authenticate/confirm'
 const URL_RESEND = 'authenticate/resend'
 
 const authApi = {
-  signUp: (body: User) => {
+  signUp: (body: Pick<User, 'email' | 'password' | 'lastName' | 'firstName' | 'birthday' | 'gender'>) => {
     return http.post<SuccessResponse>(URL_SIGNUP, body)
   },
   signIn: (body: Pick<User, 'email' | 'password'>) => {

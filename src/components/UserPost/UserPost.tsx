@@ -17,7 +17,6 @@ interface Props {
 }
 
 function UserPost({ post, userAccount }: Props) {
-  const postRef = useRef(null)
   const [openCommentDialog, setOpenCommentDialog] = useState(false)
   const [content, setContent] = useState<string>('')
   const textAreaRef = useRef(null)
@@ -53,28 +52,53 @@ function UserPost({ post, userAccount }: Props) {
     getTop2LatestComments.refetch()
   }
 
-  const handleTextInput = (textArea: HTMLElement) => {
-    textArea.style.height = '36px'
-    textArea.style.height = textArea.scrollHeight + 'px'
-  }
-
-  useEffect(() => {}, [openCommentDialog])
+  useEffect(() => {
+    if (textAreaRef.current) {
+      const textAreaElement = textAreaRef.current as HTMLElement
+      textAreaElement.style.height = '36px'
+      textAreaElement.style.height = textAreaElement.scrollHeight + 'px'
+    }
+  }, [content, openCommentDialog])
 
   if (getReaction.isLoading || getTop2LatestComments.isLoading) {
-    return <div>loading...</div>
+    return (
+      <div className='w-[590px] shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg p-4'>
+        <div className='animate-pulse'>
+          <div className='flex gap-2 items-center'>
+            <div className='rounded-full bg-[#f0f2f5] h-10 w-10'></div>
+            <div className='flex-1 py-1 gap-2 flex flex-col'>
+              <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[90px]'></div>
+              <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[110px]'></div>
+            </div>
+          </div>
+          <div className='h-[170px]'></div>
+          <div className='grid grid-flow-col gap-1' style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <div className='flex justify-center'>
+              <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[70px]'></div>
+            </div>
+            <div className='flex justify-center'>
+              <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[70px]'></div>
+            </div>
+            <div className='flex justify-center'>
+              <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[70px]'></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div ref={postRef} className='w-[590px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
+    <div className='w-[590px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
       {/* thông tin bài đăng */}
       <InformationOfPost
         post={post}
         userAccount={userAccount}
         reactionList={reactionList}
         top2LatestComments={top2LatestComments}
-        postRef={postRef}
         refetchReaction={refetchReaction}
         handleClickCommentButton={handleClickCommentButton}
+        isInDetailPost={false}
       />
       {/* xem thêm bình luận */}
       <button
@@ -93,16 +117,19 @@ function UserPost({ post, userAccount }: Props) {
       </div>
 
       {/* Gửi bình luận */}
-      <Comment
-        focus={false}
-        userAccount={userAccount}
-        post={post}
-        textAreaRef={textAreaRef}
-        refetch={refetchComment}
-        content={content}
-        setContent={setContent}
-        handleTextInput={handleTextInput}
-      />
+      <div className='px-4 py-2'>
+        <Comment
+          maxW='512px'
+          focus={false}
+          userAccount={userAccount}
+          post={post}
+          textAreaRef={textAreaRef}
+          refetch={refetchComment}
+          content={content}
+          setContent={setContent}
+        />
+      </div>
+
       {/* Thông tin chi tiết của bài đăng */}
       <DetailUserPost
         openCommentDialog={openCommentDialog}

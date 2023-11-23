@@ -11,7 +11,7 @@ import { PostType } from 'src/types/post.type'
 import InformationOfPost from '../InformationOfPost'
 import { ReactionType } from 'src/types/reaction.type'
 import { UserInfor } from 'src/types/user.type'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface Props {
   openCommentDialog: boolean
@@ -40,6 +40,7 @@ function DetailUserPost({
 }: Props) {
   const postRef = useRef(null)
   const textAreaRef = useRef(null)
+  const footerRef = useRef(null)
 
   const getAllComment = useQuery({
     queryKey: [`get-comment-${post.id}`],
@@ -49,20 +50,30 @@ function DetailUserPost({
 
   const commentList = getAllComment.data?.data as CommentType[]
 
-  const handleTextInput = (textArea: HTMLElement) => {
-    textArea.style.height = '36px'
-    textArea.style.height = textArea.scrollHeight + 'px'
-    if (postRef.current) {
-      const postElement = postRef.current as HTMLElement
-      postElement.style.height = 449 - textArea.offsetHeight + 80 + 'px'
+  useEffect(() => {
+    if (textAreaRef.current) {
+      const textAreaElement = textAreaRef.current as HTMLElement
+      textAreaElement.style.height = '36px'
+      textAreaElement.style.height = textAreaElement.scrollHeight + 'px'
+      if (postRef.current) {
+        const postElement = postRef.current as HTMLElement
+        postElement.style.height = 449 - textAreaElement.offsetHeight + 80 + 'px'
+      }
     }
-  }
+  }, [content, openCommentDialog])
 
-  // useEffect(() => {
-  //   getAllComment.refetch()
-  // })
-
-  //console.log('reload')
+  useEffect(() => {
+    if (footerRef.current) {
+      const footerElement = footerRef.current as HTMLElement
+      if (footerElement.scrollHeight > 363) {
+        footerElement.classList.remove('px-4')
+        footerElement.classList.add('pl-4', 'pr-1')
+      } else {
+        footerElement.classList.remove('pl-4', 'pr-1')
+        footerElement.classList.add('px-4')
+      }
+    }
+  }, [content])
 
   if (getAllComment.isLoading) return <>chờ xíu...</>
   return (
@@ -102,16 +113,16 @@ function DetailUserPost({
           </div>
         </div>
       </DialogHeader>
-      <DialogBody ref={postRef} className='max-h-[491px] min-h-[220px] overflow-y-auto privacy-scrollbar p-0 z-[50]'>
+      <DialogBody ref={postRef} className='max-h-[491px] min-h-[220px] overflow-y-auto custom-scrollbar-vip p-0 z-[50]'>
         {/* thông tin bài đăng */}
         <InformationOfPost
           post={post}
           userAccount={userAccount}
           reactionList={reactionList}
           top2LatestComments={top2LatestComments}
-          postRef={postRef}
           refetchReaction={refetchReaction}
           handleClickCommentButton={handleClickCommentButton}
+          isInDetailPost={true}
         />
         {/* tất cả bình luận */}
         <div className='mt-4 pl-4 pr-2'>
@@ -120,8 +131,12 @@ function DetailUserPost({
           ))}
         </div>
       </DialogBody>
-      <DialogFooter className='min-h-[114px] block p-0 mt-2 border-t-2'>
+      <DialogFooter
+        ref={footerRef}
+        className='min-h-[114px] block p-0 px-4 py-2 mt-2 border-t-2 pb-1 max-h-[370px] overflow-auto custom-scrollbar-vip'
+      >
         <Comment
+          maxW='622px'
           focus={true}
           userAccount={userAccount}
           post={post}
@@ -129,7 +144,6 @@ function DetailUserPost({
           refetch={() => getAllComment.refetch()}
           content={content}
           setContent={setContent}
-          handleTextInput={handleTextInput}
         />
       </DialogFooter>
     </Dialog>

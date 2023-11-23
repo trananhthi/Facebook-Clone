@@ -24,9 +24,10 @@ function AccountOfHeader() {
     <Popover offset={0} placement='bottom-start'>
       <PopoverHandler>
         <Button
+          id='header-avatar-button'
           variant='text'
           color='blue-gray'
-          className='flex items-center gap-1 rounded-full py-0.5 pr-0 pl-0 lg:ml-auto'
+          className='flex items-center gap-1 rounded-full py-0.5 pr-0 pl-0 lg:ml-auto -mr-3'
         >
           <Avatar
             variant='circular'

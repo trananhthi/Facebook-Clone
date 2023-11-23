@@ -1,18 +1,62 @@
-import { Avatar } from '@material-tailwind/react'
+import { Avatar, Dialog } from '@material-tailwind/react'
 import { useEffect, useState } from 'react'
-import DialogCreatePost from './components/DialogCreatePost'
 
 /* import image */
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
+import { privacyList } from 'src/constants/list'
+import { PrivacyType } from 'src/types/utils.type'
+import DialogPrivacyContent from './components/DialogPrivacyContent'
+import DialogMainContent from './components/DialogMainContent'
 
-function CreatePost() {
+interface Props {
+  refetch: () => void
+}
+
+function CreatePost({ refetch }: Props) {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
 
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState<string>('')
-
+  const [openPrivacy, setOpenPrivacy] = useState<boolean>(false)
+  const [privacyPost, setPrivacyPost] = useState<PrivacyType>(
+    privacyList.find((p) => p.value === (userAccount.privacyDefault as string)) as PrivacyType
+  )
+  const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string[]>([])
+  const [openAddImage, setOpenAddImage] = useState<boolean>(false)
   const handleOpen = () => setOpen(!open)
+
+  const dialogMainContent: JSX.Element = (
+    <DialogMainContent
+      type='create'
+      content={content}
+      setContent={setContent}
+      handleOpen={handleOpen}
+      userAccount={userAccount}
+      setOpenPrivacy={setOpenPrivacy}
+      privacyPost={privacyPost}
+      isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
+      setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
+      previewImage={previewImage}
+      setPreviewImage={setPreviewImage}
+      openAddImage={openAddImage}
+      setOpenAddImage={setOpenAddImage}
+      refetch={refetch}
+    />
+  )
+  const dialogPrivacyContent: JSX.Element = (
+    <DialogPrivacyContent
+      type='create'
+      openPrivacy={openPrivacy}
+      setOpenPrivacy={setOpenPrivacy}
+      privacyPost={privacyPost}
+      setPrivacyPost={setPrivacyPost}
+      userAccount={userAccount}
+      setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
+    />
+  )
+
   useEffect(() => {
     const textField = document.getElementById('create-post-text') as HTMLElement
     const textButton = document.getElementById('create-post-button') as HTMLElement
@@ -24,6 +68,10 @@ function CreatePost() {
       textButton.style.height = '40px'
     }
   }, [open])
+
+  useEffect(() => {
+    if (!open) setOpenPrivacy(false)
+  }, [open, openPrivacy, privacyPost])
 
   return (
     <div className='w-[590px] h-auto min-h-[123px] max-h-[144px] bg-white rounded-lg shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)]'>
@@ -83,13 +131,15 @@ function CreatePost() {
       </div>
 
       {/* Dialog đăng bài */}
-      <DialogCreatePost
+      <Dialog
+        dismiss={{ enabled: false }}
         open={open}
-        handleOpen={handleOpen}
-        content={content}
-        setContent={setContent}
-        userAccount={userAccount}
-      />
+        handler={handleOpen}
+        className={`${openPrivacy ? 'w-[500px]' : 'w-[500px]'} bg-white`}
+        size='xs'
+      >
+        {openPrivacy ? dialogPrivacyContent : dialogMainContent}
+      </Dialog>
     </div>
   )
 }

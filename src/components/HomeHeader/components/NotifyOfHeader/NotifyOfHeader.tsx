@@ -3,19 +3,21 @@ import { IconButton, Popover, PopoverContent, PopoverHandler, Typography } from 
 import { useState } from 'react'
 
 function NotifyOfHeader() {
-  const [isFocus, setIsFocus] = useState<boolean>(false)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const handleOpen = () => {
+    setIsOpen(!isOpen)
+  }
   return (
-    <Popover offset={{ mainAxis: 4, crossAxis: 48 }} placement='bottom-start'>
-      <PopoverHandler onClick={() => setIsFocus(true)}>
+    <Popover open={isOpen} handler={setIsOpen} offset={{ mainAxis: 4, crossAxis: 48 }} placement='bottom-start'>
+      <PopoverHandler onClick={handleOpen}>
         <IconButton
-          onBlur={() => setIsFocus(false)}
           variant='text'
           color='blue-gray'
           className={`flex items-center gap-1 rounded-full py-0.5 lg:ml-auto ${
-            isFocus ? ' bg-[#e8f2fc]' : 'bg-[#e4e6eb] hover:bg-gray-400'
+            isOpen ? ' bg-[#e8f2fc]' : 'bg-[#e4e6eb] hover:bg-gray-400'
           }`}
         >
-          <BellIcon className={`h-[1.55rem] w-[1.5rem]  ${isFocus ? 'text-[#0866ff]' : 'text-black'} `}></BellIcon>
+          <BellIcon className={`h-[1.55rem] w-[1.5rem]  ${isOpen ? 'text-[#0866ff]' : 'text-black'} `}></BellIcon>
         </IconButton>
       </PopoverHandler>
       <PopoverContent className='w-[360px] shadow-[0_0px_10px_5px_rgba(0,0,0,1)] px-4 py-1 z-[99999]'>

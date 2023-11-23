@@ -1,27 +1,31 @@
-import { Avatar, Tooltip } from '@material-tailwind/react'
+import { Avatar, Dialog, Popover, PopoverHandler, Tooltip } from '@material-tailwind/react'
 import { emojiList } from 'src/constants/list'
 import EmojiButton from '../EmojiButton'
-import { formatDateTime, formatTimeAgo, getTop3Emoji } from 'src/utils/utils'
-import { useEffect, useRef, useState } from 'react'
+import { formatDateTime, formatTimeAgo, getTop3Emoji, restoreNewlinesFromStorage } from 'src/utils/utils'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { PostType } from 'src/types/post.type'
 import { privacyList } from 'src/constants/list'
-import { EmojiType } from 'src/types/utils.type'
+import { EmojiType, PrivacyType } from 'src/types/utils.type'
+import { ReactionType } from 'src/types/reaction.type'
+import { Top2LatestCommentsType } from 'src/types/comment.type'
+import { UserInfor } from 'src/types/user.type'
+import ShowImageInPost from 'src/components/ShowImageInPost'
+import EditPostPopover from 'src/components/EditPostPopover'
 
 /* import images */
 import facebookIcon9 from 'src/assets/images/icon-pack/facbook_icon_9.png'
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
-import { ReactionType } from 'src/types/reaction.type'
-import { Top2LatestCommentsType } from 'src/types/comment.type'
-import { UserInfor } from 'src/types/user.type'
+import DialogMainContent from 'src/components/CreatePost/components/DialogMainContent'
+import DialogPrivacyContent from 'src/components/CreatePost/components/DialogPrivacyContent'
 
 interface Props {
   post: PostType
   userAccount: Partial<UserInfor>
   reactionList: ReactionType[]
   top2LatestComments: Top2LatestCommentsType
-  postRef: any
   refetchReaction: () => void
   handleClickCommentButton: () => void
+  isInDetailPost: boolean
 }
 
 function InformationOfPost({
@@ -29,12 +33,73 @@ function InformationOfPost({
   userAccount,
   reactionList,
   top2LatestComments,
-  postRef,
   refetchReaction,
-  handleClickCommentButton
+  handleClickCommentButton,
+  isInDetailPost
 }: Props) {
-  const postHeaderRef = useRef(null)
+  const [curPost, setCurPost] = useState<PostType>(post)
   const [top3EmojiList, setTop3EmojiList] = useState<EmojiType[]>([])
+  const [arrowBox, setArrowBox] = useState<string>('arrow-box-top')
+  const interactFieldRef = useRef(null) //Vùng tương tác với bài viết như like, comment
+  const postHeaderRef = useRef(null)
+  const lines = restoreNewlinesFromStorage(curPost.content).split('\n')
+  const [openPopover, setOpenPopover] = useState(false)
+
+  ///////////////////////////////////////////////////////////////////////start
+  const [open, setOpen] = useState(false)
+  const [content, setContent] = useState<string>(curPost.content)
+  const [openPrivacy, setOpenPrivacy] = useState<boolean>(false)
+  const [privacyPost, setPrivacyPost] = useState<PrivacyType>(
+    privacyList.find((p) => p.value === (curPost.privacy as string)) as PrivacyType
+  )
+  const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string[]>([])
+  const [openAddImage, setOpenAddImage] = useState<boolean>(false)
+  const handleOpenEditPostDialog = () => {
+    setOpen(!open)
+    setOpenPopover(false)
+    setContent(curPost.content)
+    setPreviewImage(curPost.image.map((image: { url: string }) => image.url))
+    setPrivacyPost(privacyList.find((p) => p.value === (curPost.privacy as string)) as PrivacyType)
+    setOpenAddImage(curPost.image.length > 0 ? true : false)
+  }
+
+  const handleOpenPopover = () => {
+    setOpenPopover(!openPopover)
+  }
+
+  const dialogMainContent: JSX.Element = (
+    <DialogMainContent
+      type='edit'
+      post={curPost}
+      setCurPost={setCurPost}
+      content={content}
+      setContent={setContent}
+      handleOpen={handleOpenEditPostDialog}
+      userAccount={userAccount}
+      setOpenPrivacy={setOpenPrivacy}
+      privacyPost={privacyPost}
+      isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
+      setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
+      previewImage={previewImage}
+      setPreviewImage={setPreviewImage}
+      openAddImage={openAddImage}
+      setOpenAddImage={setOpenAddImage}
+    />
+  )
+  const dialogPrivacyContent: JSX.Element = (
+    <DialogPrivacyContent
+      type='edit'
+      openPrivacy={openPrivacy}
+      setOpenPrivacy={setOpenPrivacy}
+      privacyPost={privacyPost}
+      setPrivacyPost={setPrivacyPost}
+      userAccount={userAccount}
+      setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
+    />
+  )
+
+  ///////////////////////////////////////////////////////////end
 
   useEffect(() => {
     const temp: EmojiType[] = []
@@ -49,39 +114,52 @@ function InformationOfPost({
     }
   }, [reactionList])
 
+  useEffect(() => {
+    window.addEventListener('scroll', function () {
+      const headerRect = document.getElementById('home-header')?.getBoundingClientRect()
+      if (headerRect && postHeaderRef.current) {
+        const postHeaderRect = (postHeaderRef.current as HTMLElement).getBoundingClientRect()
+        const distanceToHeader = (postHeaderRect.top - headerRect.bottom) as number
+        if (distanceToHeader < 218) setArrowBox('arrow-box-top')
+        else setArrowBox('arrow-box-bottom')
+      }
+    })
+  }, [])
+
   return (
     <>
-      <div ref={postHeaderRef} id='post-header' className='flex justify-between items-center'>
+      <div ref={postHeaderRef} className='flex justify-between items-center'>
+        {/* thông tin về bài viết */}
         <div className='flex gap-2 px-4 pt-3 pb-2'>
           <Avatar
             variant='circular'
             size='sm'
             alt='avatar'
             className='h-10 w-10 border-solid border-gray-400 border'
-            src={post.author.avatar.url}
+            src={curPost.author.avatar.url}
           />
           <div className='flex flex-col'>
             <span className='text-[#050505] text-[15px] font-semibold cursor-pointer hover:underline hover:underline-offset-1'>
-              {post.author.firstName + ' ' + post.author.lastName}
+              {curPost.author.firstName + ' ' + curPost.author.lastName}
             </span>
             <span className='flex items-center hover:underline-offset-1 font-normal'>
               <Tooltip
                 placement='bottom'
-                content={formatDateTime(post.createdAt)}
+                content={formatDateTime(curPost.createdAt)}
                 className='text-white text-[13px] bg-[rgba(0,0,0,0.8)]'
               >
                 <span className='text-[#65676B] cursor-pointer text-[13px] hover:underline hover:underline-offset-1 font-normal'>
-                  {formatTimeAgo(post.createdAt)}
+                  {formatTimeAgo(curPost.createdAt)}
                 </span>
               </Tooltip>
               <span className='ml-1 text-[#65676B]'> &middot;</span>
               <Tooltip
                 placement='bottom'
-                content={privacyList.find((icon) => icon.value === post.privacy)?.title}
+                content={privacyList.find((icon) => icon.value === curPost.privacy)?.title}
                 className='text-white text-[13px] bg-[rgba(0,0,0,0.8)]'
               >
                 <img
-                  src={privacyList.find((icon) => icon.value === post.privacy)?.icon}
+                  src={privacyList.find((icon) => icon.value === curPost.privacy)?.icon}
                   alt='friend-logo'
                   className='h-3 w-3 text-[#65676B] inline ml-1 opacity-60 cursor-pointer'
                 />
@@ -89,17 +167,52 @@ function InformationOfPost({
             </span>
           </div>
         </div>
-        <button className='hover:bg-[#f2f2f2] h-9 w-9 rounded-full flex justify-center items-center mr-4'>
-          <div
-            style={{ backgroundImage: `url(${facebookIcon3})` }}
-            className='bg-[length:190px_186px] bg-[-44px_-110px] h-5 w-5 opacity-60'
-          ></div>
-        </button>
+        {/* edit button */}
+        <Popover
+          placement='bottom'
+          offset={{ mainAxis: 10, crossAxis: -160 }}
+          open={openPopover}
+          handler={setOpenPopover}
+        >
+          <PopoverHandler onClick={handleOpenPopover}>
+            <button
+              className={`hover:bg-[#f2f2f2] h-9 w-9 rounded-full flex justify-center items-center ${
+                isInDetailPost ? 'mr-1' : 'mr-4'
+              }`}
+            >
+              <div
+                style={{ backgroundImage: `url(${facebookIcon3})` }}
+                className='bg-[length:190px_186px] bg-[-44px_-110px] h-5 w-5 opacity-60'
+              ></div>
+            </button>
+          </PopoverHandler>
+          <EditPostPopover
+            arrowBox={arrowBox}
+            handleOpenEditPostDialog={handleOpenEditPostDialog}
+            userAccount={userAccount}
+            post={post}
+          />
+        </Popover>
       </div>
       {/* content */}
-      <div className='px-4 text-2xl text-[#050505] mb-3'>{post.content}</div>
+      <div className={`px-4 text-[#050505] ${curPost.image.length !== 0 ? 'text-[15px] leading-5' : 'text-2xl'}`}>
+        {lines.map((line, index) => (
+          <Fragment key={index}>
+            {line}
+            {index < lines.length - 1 && <br />}
+          </Fragment>
+        ))}
+      </div>
+      {/* hình ảnh/ video */}
+
+      {curPost.image.length !== 0 ? <ShowImageInPost listImage={curPost.image} /> : ''}
+
       {/* amount of emoji */}
-      <div className='px-4 flex items-center ml-1 -mt-1 justify-between'>
+      <div
+        className={`px-4 ${
+          top3EmojiList.length !== 0 || top2LatestComments.total !== 0 ? 'py-[10px]' : 'mt-[10px]'
+        } flex items-center ml-1 justify-between ${isInDetailPost ? 'pr-1' : ''}`}
+      >
         <div className='flex items-center gap-1'>
           <div className='flex'>
             {top3EmojiList.map((emoji) => (
@@ -126,18 +239,20 @@ function InformationOfPost({
         </span>
       </div>
 
-      <hr className='border-gray-300 mx-4 mt-2'></hr>
+      <hr className={`border-gray-300 mx-4 ${isInDetailPost ? 'mr-1' : ''}`}></hr>
       {/* emoji, comment,share */}
-      <div className=' px-4 my-1 grid grid-flow-col gap-1' style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+      <div
+        ref={interactFieldRef}
+        className={`px-4 my-1 grid grid-flow-col gap-1 ${isInDetailPost ? 'pr-1' : ''}`}
+        style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
+      >
         {/* emoji button */}
         <EmojiButton
-          postRef={postRef}
-          postHeaderRef={postHeaderRef}
+          interactFieldRef={interactFieldRef}
           reactionList={reactionList}
           userAccount={userAccount}
-          postID={post.id}
+          postID={curPost.id}
           refetch={refetchReaction}
-          top2LatestComments={top2LatestComments}
         />
         {/* comment button */}
         <button
@@ -159,7 +274,16 @@ function InformationOfPost({
           <span className='text-[15px] text-[#65676B] font-semibold'>Chia sẻ</span>
         </button>
       </div>
-      <hr className='border-gray-300 mx-4 mt-1'></hr>
+      <hr className={`border-gray-300 mx-4 mt-1 ${isInDetailPost ? 'mr-1' : ''}`}></hr>
+      <Dialog
+        dismiss={{ enabled: false }}
+        open={open}
+        handler={handleOpenEditPostDialog}
+        className={`w-[500px] bg-white`}
+        size='xs'
+      >
+        {openPrivacy ? dialogPrivacyContent : dialogMainContent}
+      </Dialog>
     </>
   )
 }

@@ -20,10 +20,10 @@ interface Props {
   refetch: () => void
   content: string
   setContent: React.Dispatch<React.SetStateAction<string>>
-  handleTextInput: (textArea: HTMLElement) => void
+  maxW: string
 }
 
-function Comment({ userAccount, post, textAreaRef, refetch, focus, content, setContent, handleTextInput }: Props) {
+function Comment({ userAccount, post, textAreaRef, refetch, focus, content, setContent, maxW }: Props) {
   const [isFocusInputField, setIsFocusInputField] = useState<boolean>(focus)
   //const [content, setContent] = useState<string>('')
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
@@ -57,28 +57,23 @@ function Comment({ userAccount, post, textAreaRef, refetch, focus, content, setC
     setIsClicked(true)
   }
 
-  // const handleTextInput = (textArea: HTMLElement) => {
-  //   textArea.style.height = '36px'
-  //   textArea.style.height = textArea.scrollHeight + 'px'
-  // }
-
   const handleCreateComment = () => {
     createCommentMutation.mutate({ content: convertNewlinesForStorage(content) })
   }
 
   return (
-    <div className='flex gap-2 px-4 py-2'>
+    <div className='flex gap-2'>
       <>
-        <div className='w-8 h-8'>
-          <Avatar
-            variant='circular'
-            size='sm'
-            alt='avatar'
-            className='h-8 w-8 border-solid border-gray-400 border cursor-pointer '
-            src={userAccount.avatar?.url}
-          />
-        </div>
-        <div className='h-5 w-5 flex justify-center items-center rounded-full absolute mt-[18px] ml-[17px]'>
+        {/* <div className='w-8 h-8'> */}
+        <Avatar
+          variant='circular'
+          size='sm'
+          alt='avatar'
+          className='h-8 w-8 border-solid border-gray-400 border cursor-pointer '
+          src={userAccount.avatar?.url}
+        />
+        {/* </div> */}
+        <div className='h-5 w-5 flex justify-center items-center rounded-full sticky mt-[18px] -ml-[22px]'>
           <svg viewBox='0 0 16 16' fill='currentColor' className={`h-3 w-3 bg-[#d8dadfe0] rounded-full`}>
             <g fillRule='evenodd' transform='translate(-448 -544)'>
               <path
@@ -93,23 +88,23 @@ function Comment({ userAccount, post, textAreaRef, refetch, focus, content, setC
       <div className='flex flex-col flex-1'>
         <div
           className={`w-full h-auto bg-[#f0f2f5] flex items-center ${
-            isFocusInputField ? 'rounded-t-2xl' : 'rounded-full'
+            isFocusInputField || content !== '' ? 'rounded-t-2xl' : 'rounded-full'
           }`}
         >
           <textarea
             ref={textAreaRef}
             onFocus={() => setIsFocusInputField(true)}
-            onInput={(event) => handleTextInput(event.target as HTMLElement)}
             value={content}
             onChange={(e) => {
               setContent(e.target.value)
             }}
-            className={`w-full h-9 pt-[6.5px] px-3 overflow-hidden text-[#050505] text-[15px] resize-none bg-[#f0f2f5] placeholder:text-[#050505] placeholder:opacity-60 active:outline-0 focus:outline-0 ${
-              isFocusInputField ? 'rounded-t-2xl' : 'rounded-full'
+            style={{ maxWidth: maxW }}
+            className={`w-full h-9 pt-[6.5px] px-3 overflow-clip text-[#050505] text-[15px] resize-none bg-[#f0f2f5] placeholder:text-[#050505] placeholder:opacity-60 active:outline-0 focus:outline-0 ${
+              isFocusInputField || content !== '' ? 'rounded-t-2xl' : 'rounded-full'
             }`}
             placeholder='Viết bình luận công khai...'
           ></textarea>
-          <div className={`flex ${isFocusInputField ? 'hidden' : ''}`}>
+          <div className={`flex ${isFocusInputField || content !== '' ? 'hidden' : ''}`}>
             {/* nhãn dán avatar */}
             <button className='h-9 w-9 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
               <div
@@ -158,7 +153,7 @@ function Comment({ userAccount, post, textAreaRef, refetch, focus, content, setC
         {/* các button như icon, nhãn dán,... */}
         <div
           className={`w-full bg-[#f0f2f5] rounded-b-2xl flex justify-between items-center ${
-            isFocusInputField ? '' : 'hidden'
+            isFocusInputField || content !== '' ? '' : 'hidden'
           }`}
         >
           <div className='flex p-1 pb-1 pt-1'>

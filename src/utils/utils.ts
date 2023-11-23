@@ -187,3 +187,27 @@ export function formatTimeAgoOfComment(timestamp: Date) {
     return 'vừa xong'
   }
 }
+
+export const mergeFileLists = (fileList1: FileList | null, fileList2: FileList): FileList => {
+  // Chuyển FileList thành mảng
+  if (fileList1) {
+    const array1 = Array.from(fileList1)
+    const array2 = Array.from(fileList2)
+
+    // Gộp hai mảng
+    const mergedArray = array1.concat(array2)
+
+    // Tạo một đối tượng FileList mới từ mảng gộp
+    const dataTransfer = new DataTransfer()
+
+    // Thêm các tệp vào đối tượng DataTransfer
+    mergedArray.forEach((file) => {
+      dataTransfer.items.add(file)
+    })
+
+    // Lấy FileList từ đối tượng DataTransfer
+    const mergedFileList = dataTransfer.files
+
+    return mergedFileList
+  } else return fileList2
+}
