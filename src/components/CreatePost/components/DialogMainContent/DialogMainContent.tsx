@@ -33,6 +33,8 @@ interface Props {
   privacyPost: PrivacyType
   isStartAnimationClosePrivacyDialog: boolean
   setIsStartAnimationClosePrivacyDialog: React.Dispatch<React.SetStateAction<boolean>>
+  selectedImage: FileList | null
+  setSelectedImage: React.Dispatch<React.SetStateAction<FileList | null>>
   previewImage: string[]
   setPreviewImage: React.Dispatch<React.SetStateAction<string[]>>
   openAddImage: boolean
@@ -52,6 +54,8 @@ function DialogMainContent({
   privacyPost,
   isStartAnimationClosePrivacyDialog,
   setIsStartAnimationClosePrivacyDialog,
+  selectedImage,
+  setSelectedImage,
   previewImage,
   setPreviewImage,
   openAddImage,
@@ -61,7 +65,6 @@ function DialogMainContent({
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [isClicked, setIsClicked] = useState<boolean>(false)
   const [startAnimationOpenPrivacyDialog, setStartAnimationOpenPrivacyDialog] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
   const [isActivedButton, setIsActivedButton] = useState(false)
   const [openWarning, setOpenWarning] = useState(false)
 
@@ -231,7 +234,10 @@ function DialogMainContent({
   }, [content, previewImage])
 
   return (
-    <div ref={dialogMainContentRef}>
+    <div
+      ref={dialogMainContentRef}
+      className={`${createPostMutation.isLoading || updatePostMutation.isLoading ? 'pointer-events-none' : ''}`}
+    >
       <DialogHeader className='bg-white rounded-t-md h-[132px] p-0 block'>
         <div
           data-animationsclose={startAnimationOpenPrivacyDialog}
@@ -358,15 +364,17 @@ function DialogMainContent({
               </button>
             </div>
             {/* thêm hình/video */}
-            <AddImageOrVideo
-              openAddImage={openAddImage}
-              selectedImage={selectedImage}
-              setSelectedImage={setSelectedImage}
-              previewImage={previewImage}
-              setPreviewImage={setPreviewImage}
-              fileInputRef={fileInputRef}
-              handleCloseSelectImage={handleCloseSelectImage}
-            />
+            {openAddImage ? (
+              <AddImageOrVideo
+                openAddImage={openAddImage}
+                selectedImage={selectedImage}
+                setSelectedImage={setSelectedImage}
+                previewImage={previewImage}
+                setPreviewImage={setPreviewImage}
+                fileInputRef={fileInputRef}
+                handleCloseSelectImage={handleCloseSelectImage}
+              />
+            ) : null}
           </div>
         </div>
       </DialogBody>

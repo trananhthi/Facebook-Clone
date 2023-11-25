@@ -27,7 +27,7 @@ function AddImageOrVideo({
   fileInputRef,
   handleCloseSelectImage
 }: Props) {
-  const [temp, setTemp] = useState<any>()
+  const [temp, setTemp] = useState<any>(selectedImage)
 
   // const handleAddImage = (event: ChangeEvent<HTMLInputElement>) => {
   //   const files = event.target.files

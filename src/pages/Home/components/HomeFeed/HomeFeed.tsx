@@ -2,24 +2,69 @@ import UserStory from 'src/components/UserStory'
 import UserPost from 'src/components/UserPost'
 import CreatePost from 'src/components/CreatePost'
 
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { PostType } from 'src/types/post.type'
 import postApi from 'src/apis/post.api'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
+import { useCallback, useRef } from 'react'
 
 function HomeFeed() {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
 
-  const getAllPostQuery = useQuery({
-    queryKey: ['get-all-post'],
-    queryFn: () => postApi.getAllPost(),
-    onError: (err) => console.log(err)
+  const {
+    fetchNextPage, //function
+    hasNextPage, // boolean
+    isFetchingNextPage, // boolean
+    data,
+    status,
+    error,
+    isLoading,
+    refetch
+  } = useInfiniteQuery(['get-all-post'], ({ pageParam = 0 }) => postApi.getPost(pageParam, 5), {
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.data.last ? undefined : allPages.length
+    }
   })
 
-  const refetch = () => {
-    getAllPostQuery.refetch()
+  const intObserver = useRef<IntersectionObserver | null>(null)
+  const lastPostRef = useCallback(
+    (post: Element) => {
+      if (isFetchingNextPage) return
+
+      if (intObserver.current) intObserver.current.disconnect()
+
+      intObserver.current = new IntersectionObserver((posts) => {
+        if (posts[0].isIntersecting && hasNextPage) {
+          fetchNextPage()
+        }
+      })
+
+      if (post) intObserver.current.observe(post)
+    },
+    [isFetchingNextPage, fetchNextPage, hasNextPage]
+  )
+
+  const content = data?.pages.map((pg) => {
+    return pg.data.content.map((post: PostType, i) => {
+      if (pg.data.content.length === i + 1) {
+        return <UserPost ref={lastPostRef} key={post.id} post={post} userAccount={userAccount} />
+      }
+      return <UserPost key={post.id} post={post} userAccount={userAccount} />
+    })
+  })
+
+  // const getPostQuery = useQuery({
+  //   queryKey: ['get-all-post'],
+  //   queryFn: () => postApi.getPost(),
+  //   onError: (err) => console.log(err)
+  // })
+
+  const handleRefetch = () => {
+    refetch()
   }
+
+  if (status === 'error') return <p className='center'>Error: {(error as any).message}</p>
 
   return (
     <div className='px-8 flex flex-col items-center mt-4 gap-4 mb-6'>
@@ -57,11 +102,35 @@ function HomeFeed() {
       </div>
 
       {/* Đăng bài */}
-      <CreatePost refetch={refetch} />
+      <CreatePost refetch={handleRefetch} />
       {/* Danh sách bài viết */}
-      {getAllPostQuery.data?.data.map((post: PostType) => (
-        <UserPost key={post.id} post={post} userAccount={userAccount} />
-      ))}
+      {content}
+      {(isFetchingNextPage || isLoading) &&
+        Array.from({ length: 2 }, (_, index) => index).map((_, index) => (
+          <div key={index} className='w-[590px] shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg p-4'>
+            <div className='animate-pulse'>
+              <div className='flex gap-2 items-center'>
+                <div className='rounded-full bg-[#f0f2f5] h-10 w-10'></div>
+                <div className='flex-1 py-1 gap-2 flex flex-col'>
+                  <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[90px]'></div>
+                  <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[110px]'></div>
+                </div>
+              </div>
+              <div className='h-[170px]'></div>
+              <div className='grid grid-flow-col gap-1' style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                <div className='flex justify-center'>
+                  <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[70px]'></div>
+                </div>
+                <div className='flex justify-center'>
+                  <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[70px]'></div>
+                </div>
+                <div className='flex justify-center'>
+                  <div className='h-[10px] bg-[#f0f2f5e3] rounded-full w-[70px]'></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
 
       <div className='h-[100px]'></div>
     </div>

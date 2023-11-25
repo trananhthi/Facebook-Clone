@@ -24,8 +24,11 @@ function CreatePost({ refetch }: Props) {
   )
   const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
   const [previewImage, setPreviewImage] = useState<string[]>([])
+  const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
   const [openAddImage, setOpenAddImage] = useState<boolean>(false)
   const handleOpen = () => setOpen(!open)
+
+  console.log(selectedImage)
 
   const dialogMainContent: JSX.Element = (
     <DialogMainContent
@@ -38,6 +41,8 @@ function CreatePost({ refetch }: Props) {
       privacyPost={privacyPost}
       isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
+      selectedImage={selectedImage}
+      setSelectedImage={setSelectedImage}
       previewImage={previewImage}
       setPreviewImage={setPreviewImage}
       openAddImage={openAddImage}
@@ -45,6 +50,7 @@ function CreatePost({ refetch }: Props) {
       refetch={refetch}
     />
   )
+
   const dialogPrivacyContent: JSX.Element = (
     <DialogPrivacyContent
       type='create'

@@ -1,4 +1,4 @@
-import { Dialog, DialogBody, DialogFooter, DialogHeader, IconButton } from '@material-tailwind/react'
+import { DialogBody, DialogFooter, DialogHeader, IconButton } from '@material-tailwind/react'
 import UserComment from 'src/components/UserComment'
 import { useQuery } from '@tanstack/react-query'
 import commentApi from 'src/apis/comment.api'
@@ -14,8 +14,8 @@ import { UserInfor } from 'src/types/user.type'
 import { useEffect, useRef } from 'react'
 
 interface Props {
-  openCommentDialog: boolean
-  handleOpenCommentDialog: () => void
+  openDetailPost: boolean
+  handleOpenDetailPost: () => void
   post: PostType
   userAccount: Partial<UserInfor>
   reactionList: ReactionType[]
@@ -27,8 +27,8 @@ interface Props {
 }
 
 function DetailUserPost({
-  openCommentDialog,
-  handleOpenCommentDialog,
+  openDetailPost,
+  handleOpenDetailPost,
   post,
   userAccount,
   reactionList,
@@ -42,13 +42,13 @@ function DetailUserPost({
   const textAreaRef = useRef(null)
   const footerRef = useRef(null)
 
-  const getAllComment = useQuery({
-    queryKey: [`get-comment-${post.id}`],
+  const getAllCommentOfPost = useQuery({
+    queryKey: [`get-all-comment-${post.id}`],
     queryFn: () => commentApi.getAllCommentByPostID(post.id),
     onError: (err) => console.log(err)
   })
 
-  const commentList = getAllComment.data?.data as CommentType[]
+  const commentList = getAllCommentOfPost.data?.data as CommentType[]
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -60,7 +60,7 @@ function DetailUserPost({
         postElement.style.height = 449 - textAreaElement.offsetHeight + 80 + 'px'
       }
     }
-  }, [content, openCommentDialog])
+  }, [content, openDetailPost])
 
   useEffect(() => {
     if (footerRef.current) {
@@ -75,19 +75,8 @@ function DetailUserPost({
     }
   }, [content])
 
-  if (getAllComment.isLoading) return <>chờ xíu...</>
   return (
-    <Dialog
-      dismiss={{ enabled: false }}
-      animate={{
-        mount: { scale: 1, y: 0 },
-        unmount: { scale: 0.9, y: -100 }
-      }}
-      open={openCommentDialog}
-      handler={handleOpenCommentDialog}
-      className={`w-[700px] h-[665px] bg-white`}
-      size='xs'
-    >
+    <>
       <DialogHeader
         id='header-detail-post'
         className='bg-white rounded-t-md h-[60px] border-b border-gray-300 p-4 block'
@@ -103,7 +92,7 @@ function DetailUserPost({
               color='blue-gray'
               className='h-9 w-9 bg-[#e4e6eb] rounded-full hover:bg-[#d8dadf] px-4'
               variant='text'
-              onClick={handleOpenCommentDialog}
+              onClick={handleOpenDetailPost}
             >
               <div
                 style={{ backgroundImage: `url(${facebookIcon3})` }}
@@ -125,11 +114,36 @@ function DetailUserPost({
           isInDetailPost={true}
         />
         {/* tất cả bình luận */}
-        <div className='mt-4 pl-4 pr-2'>
-          {commentList.map((comment) => (
-            <UserComment key={comment.id} comment={comment} maxW='585px' />
-          ))}
-        </div>
+        {getAllCommentOfPost.isLoading ? (
+          <div className='w-full bg-white rounded-lg p-4 '>
+            <div className='animate-pulse flex flex-col gap-2'>
+              <div className='flex gap-2 items-start'>
+                <div className='rounded-full mt-1 bg-[#f0f2f5] h-10 w-10'></div>
+                <div className='flex-1 py-1 gap-2 flex flex-col'>
+                  <div className='h-[70px] bg-[#f0f2f5e3] rounded-2xl w-[390px]'></div>
+                </div>
+              </div>
+              <div className='flex gap-2 items-start'>
+                <div className='rounded-full mt-1 bg-[#f0f2f5] h-10 w-10'></div>
+                <div className='flex-1 py-1 gap-2 flex flex-col'>
+                  <div className='h-[50px] bg-[#f0f2f5e3] rounded-2xl w-[490px]'></div>
+                </div>
+              </div>
+              <div className='flex gap-2 items-start'>
+                <div className='rounded-full mt-1 bg-[#f0f2f5] h-10 w-10'></div>
+                <div className='flex-1 py-1 gap-2 flex flex-col'>
+                  <div className='h-[100px] bg-[#f0f2f5e3] rounded-2xl w-[430px]'></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className='mt-4 pl-4 pr-2'>
+            {commentList.map((comment) => (
+              <UserComment key={comment.id} comment={comment} maxW='585px' />
+            ))}
+          </div>
+        )}
       </DialogBody>
       <DialogFooter
         ref={footerRef}
@@ -141,12 +155,12 @@ function DetailUserPost({
           userAccount={userAccount}
           post={post}
           textAreaRef={textAreaRef}
-          refetch={() => getAllComment.refetch()}
+          refetch={() => getAllCommentOfPost.refetch()}
           content={content}
           setContent={setContent}
         />
       </DialogFooter>
-    </Dialog>
+    </>
   )
 }
 

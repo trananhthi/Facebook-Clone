@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, forwardRef, LegacyRef } from 'react'
 import { PostType } from 'src/types/post.type'
 import { UserInfor } from 'src/types/user.type'
 import reactionApi from 'src/apis/reaction.api'
@@ -10,14 +10,15 @@ import commentApi from 'src/apis/comment.api'
 import { Top2LatestCommentsType } from 'src/types/comment.type'
 import UserComment from '../UserComment'
 import InformationOfPost from './components/InformationOfPost'
+import { Dialog } from '@material-tailwind/react'
 
 interface Props {
   post: PostType
   userAccount: Partial<UserInfor>
 }
 
-function UserPost({ post, userAccount }: Props) {
-  const [openCommentDialog, setOpenCommentDialog] = useState(false)
+const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
+  const [openDetailPost, setOpenDetailPost] = useState(false)
   const [content, setContent] = useState<string>('')
   const textAreaRef = useRef(null)
 
@@ -36,7 +37,7 @@ function UserPost({ post, userAccount }: Props) {
   const reactionList = getReaction.data?.data as ReactionType[]
   const top2LatestComments = getTop2LatestComments.data?.data as Top2LatestCommentsType
 
-  const handleOpenCommentDialog = () => setOpenCommentDialog(!openCommentDialog)
+  const handleOpenDetailPost = () => setOpenDetailPost(!openDetailPost)
   const handleClickCommentButton = () => {
     if (textAreaRef.current) {
       const textAreaElement = textAreaRef.current as HTMLElement
@@ -58,7 +59,7 @@ function UserPost({ post, userAccount }: Props) {
       textAreaElement.style.height = '36px'
       textAreaElement.style.height = textAreaElement.scrollHeight + 'px'
     }
-  }, [content, openCommentDialog])
+  }, [content, openDetailPost])
 
   if (getReaction.isLoading || getTop2LatestComments.isLoading) {
     return (
@@ -88,7 +89,7 @@ function UserPost({ post, userAccount }: Props) {
     )
   }
 
-  return (
+  const postBody = (
     <div className='w-[590px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
       {/* thông tin bài đăng */}
       <InformationOfPost
@@ -105,7 +106,7 @@ function UserPost({ post, userAccount }: Props) {
         className={`px-4 mt-2 text-[15px] text-[#65676b] leading-5 font-semibold hover:underline hover:cursor-pointer ${
           top2LatestComments.total > 2 ? '' : 'hidden'
         }`}
-        onClick={handleOpenCommentDialog}
+        onClick={handleOpenDetailPost}
       >
         Xem thêm bình luận
       </button>
@@ -131,20 +132,34 @@ function UserPost({ post, userAccount }: Props) {
       </div>
 
       {/* Thông tin chi tiết của bài đăng */}
-      <DetailUserPost
-        openCommentDialog={openCommentDialog}
-        handleOpenCommentDialog={handleOpenCommentDialog}
-        post={post}
-        userAccount={userAccount}
-        reactionList={reactionList}
-        top2LatestComments={top2LatestComments}
-        refetchReaction={refetchReaction}
-        handleClickCommentButton={handleClickCommentButton}
-        content={content}
-        setContent={setContent}
-      />
+      <Dialog
+        dismiss={{ enabled: false }}
+        animate={{
+          mount: { scale: 1, y: 0 },
+          unmount: { scale: 0.9, y: -100 }
+        }}
+        open={openDetailPost}
+        handler={handleOpenDetailPost}
+        className={`w-[700px] h-[665px] bg-white`}
+        size='xs'
+      >
+        <DetailUserPost
+          openDetailPost={openDetailPost}
+          handleOpenDetailPost={handleOpenDetailPost}
+          post={post}
+          userAccount={userAccount}
+          reactionList={reactionList}
+          top2LatestComments={top2LatestComments}
+          refetchReaction={refetchReaction}
+          handleClickCommentButton={handleClickCommentButton}
+          content={content}
+          setContent={setContent}
+        />
+      </Dialog>
     </div>
   )
-}
+
+  return ref ? <div ref={ref as LegacyRef<HTMLDivElement>}>{postBody}</div> : postBody
+})
 
 export default UserPost

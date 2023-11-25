@@ -1,4 +1,4 @@
-import { PopoverContent } from '@material-tailwind/react'
+import { PopoverContent, Spinner } from '@material-tailwind/react'
 import { PostType } from 'src/types/post.type'
 import { UserInfor } from 'src/types/user.type'
 import { useEffect, useState } from 'react'
@@ -154,7 +154,9 @@ function EditPostPopover({ arrowBox, handleOpenEditPostDialog, post, userAccount
           </button>
         </div>
       ) : (
-        <div className='h-[60px] w-[344px] bg-red-500'>loading...</div>
+        <div className='h-[60px] w-[344px] flex justify-center items-center'>
+          <Spinner className='h-6 w-6' />
+        </div>
       )}
     </PopoverContent>
   )

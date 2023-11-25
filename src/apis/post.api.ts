@@ -1,6 +1,6 @@
 import http from 'src/utils/http'
 import { SuccessResponse } from 'src/types/utils.type'
-import { PostType } from 'src/types/post.type'
+import { PostListType, PostType } from 'src/types/post.type'
 
 const URL_CREATE_POST = 'post/create'
 const URL_UPDATE_POST = 'post/update'
@@ -21,8 +21,8 @@ const postApi = {
       }
     })
   },
-  getAllPost: () => {
-    return http.get<PostType[]>(URL_GET_POST)
+  getPost: (pageNumber: number = -1, pageSize: number = 0, signal?: AbortSignal) => {
+    return http.get<PostListType>(`${URL_GET_POST}?page=${pageNumber}&size=${pageSize}`, { signal })
   }
 }
 

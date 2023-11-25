@@ -54,6 +54,7 @@ function InformationOfPost({
   )
   const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
   const [previewImage, setPreviewImage] = useState<string[]>([])
+  const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
   const [openAddImage, setOpenAddImage] = useState<boolean>(false)
   const handleOpenEditPostDialog = () => {
     setOpen(!open)
@@ -81,6 +82,8 @@ function InformationOfPost({
       privacyPost={privacyPost}
       isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
+      selectedImage={selectedImage}
+      setSelectedImage={setSelectedImage}
       previewImage={previewImage}
       setPreviewImage={setPreviewImage}
       openAddImage={openAddImage}
@@ -186,6 +189,7 @@ function InformationOfPost({
               ></div>
             </button>
           </PopoverHandler>
+
           <EditPostPopover
             arrowBox={arrowBox}
             handleOpenEditPostDialog={handleOpenEditPostDialog}
