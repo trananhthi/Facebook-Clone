@@ -1,9 +1,9 @@
 import { DialogBody, DialogFooter, DialogHeader, IconButton } from '@material-tailwind/react'
 import UserComment from 'src/components/UserComment'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import commentApi from 'src/apis/comment.api'
 import { CommentType, Top2LatestCommentsType } from 'src/types/comment.type'
-import Comment from '../Comment'
+import CreateComment from '../CreateComment'
 
 /* import images */
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
@@ -11,7 +11,7 @@ import { PostType } from 'src/types/post.type'
 import InformationOfPost from '../InformationOfPost'
 import { ReactionType } from 'src/types/reaction.type'
 import { UserInfor } from 'src/types/user.type'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 interface Props {
   openDetailPost: boolean
@@ -42,13 +42,59 @@ function DetailUserPost({
   const textAreaRef = useRef(null)
   const footerRef = useRef(null)
 
-  const getAllCommentOfPost = useQuery({
-    queryKey: [`get-all-comment-${post.id}`],
-    queryFn: () => commentApi.getAllCommentByPostID(post.id),
-    onError: (err) => console.log(err)
-  })
+  // const getAllCommentOfPost = useQuery({
+  //   queryKey: [`get-all-comment-${post.id}`],
+  //   queryFn: () => commentApi.getCommentByPostID(post.id),
+  //   onError: (err) => console.log(err)
+  // })
 
-  const commentList = getAllCommentOfPost.data?.data as CommentType[]
+  // const commentList = getAllCommentOfPost.data?.data as CommentType[]
+
+  const {
+    fetchNextPage, //function
+    hasNextPage, // boolean
+    isFetchingNextPage, // boolean
+    data,
+    status,
+    error,
+    isLoading,
+    refetch
+  } = useInfiniteQuery(
+    [`get-all-comment-${post.id}`],
+    ({ pageParam = 0 }) => commentApi.getCommentByPostID(post.id, pageParam, 7),
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.data.last ? undefined : allPages.length
+      }
+    }
+  )
+
+  const intObserver = useRef<IntersectionObserver | null>(null)
+  const lastPostRef = useCallback(
+    (comment: Element) => {
+      if (isFetchingNextPage) return
+
+      if (intObserver.current) intObserver.current.disconnect()
+
+      intObserver.current = new IntersectionObserver((comments) => {
+        if (comments[0].isIntersecting && hasNextPage) {
+          fetchNextPage()
+        }
+      })
+
+      if (comment) intObserver.current.observe(comment)
+    },
+    [isFetchingNextPage, fetchNextPage, hasNextPage]
+  )
+
+  const commentData = data?.pages.map((pg) => {
+    return pg.data.content.map((comment: CommentType, i) => {
+      if (pg.data.content.length === i + 1) {
+        return <UserComment ref={lastPostRef} key={comment.id} comment={comment} maxW='585px' />
+      }
+      return <UserComment key={comment.id} comment={comment} maxW='585px' />
+    })
+  })
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -74,6 +120,8 @@ function DetailUserPost({
       }
     }
   }, [content])
+
+  if (status === 'error') return <p className='center'>Error: {(error as any).message}</p>
 
   return (
     <>
@@ -114,8 +162,9 @@ function DetailUserPost({
           isInDetailPost={true}
         />
         {/* tất cả bình luận */}
-        {getAllCommentOfPost.isLoading ? (
-          <div className='w-full bg-white rounded-lg p-4 '>
+        <div className='mt-4 pl-4 pr-2'>{commentData}</div>
+        {(isFetchingNextPage || isLoading) && (
+          <div className='w-full bg-white rounded-lg p-4'>
             <div className='animate-pulse flex flex-col gap-2'>
               <div className='flex gap-2 items-start'>
                 <div className='rounded-full mt-1 bg-[#f0f2f5] h-10 w-10'></div>
@@ -137,25 +186,19 @@ function DetailUserPost({
               </div>
             </div>
           </div>
-        ) : (
-          <div className='mt-4 pl-4 pr-2'>
-            {commentList.map((comment) => (
-              <UserComment key={comment.id} comment={comment} maxW='585px' />
-            ))}
-          </div>
         )}
       </DialogBody>
       <DialogFooter
         ref={footerRef}
         className='min-h-[114px] block p-0 px-4 py-2 mt-2 border-t-2 pb-1 max-h-[370px] overflow-auto custom-scrollbar-vip'
       >
-        <Comment
+        <CreateComment
           maxW='622px'
           focus={true}
           userAccount={userAccount}
           post={post}
           textAreaRef={textAreaRef}
-          refetch={() => getAllCommentOfPost.refetch()}
+          refetch={refetch}
           content={content}
           setContent={setContent}
         />

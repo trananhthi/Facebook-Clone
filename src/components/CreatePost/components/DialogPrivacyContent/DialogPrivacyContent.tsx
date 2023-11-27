@@ -78,7 +78,7 @@ function DialogPrivacyContent({
   }, [startAnimationClosePrivacyDialog])
 
   return (
-    <div ref={dialogPrivacyContentRef}>
+    <div ref={dialogPrivacyContentRef} className='w-[500px] '>
       <DialogHeader className='bg-white rounded-t-md h-[60px] border-b border-gray-300 p-4 block'>
         <div
           data-animationsopen={isStartAnimationOpenPrivacyDialog}

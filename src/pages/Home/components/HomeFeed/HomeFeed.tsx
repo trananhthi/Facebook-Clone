@@ -45,7 +45,7 @@ function HomeFeed() {
     [isFetchingNextPage, fetchNextPage, hasNextPage]
   )
 
-  const content = data?.pages.map((pg) => {
+  const postData = data?.pages.map((pg) => {
     return pg.data.content.map((post: PostType, i) => {
       if (pg.data.content.length === i + 1) {
         return <UserPost ref={lastPostRef} key={post.id} post={post} userAccount={userAccount} />
@@ -104,7 +104,7 @@ function HomeFeed() {
       {/* Đăng bài */}
       <CreatePost refetch={handleRefetch} />
       {/* Danh sách bài viết */}
-      {content}
+      {postData}
       {(isFetchingNextPage || isLoading) &&
         Array.from({ length: 2 }, (_, index) => index).map((_, index) => (
           <div key={index} className='w-[590px] shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg p-4'>

@@ -1,5 +1,5 @@
 import { Avatar, Tooltip } from '@material-tailwind/react'
-import { Fragment } from 'react'
+import { Fragment, LegacyRef, forwardRef } from 'react'
 import { CommentType } from 'src/types/comment.type'
 import { formatDateTime, formatTimeAgoOfComment, restoreNewlinesFromStorage } from 'src/utils/utils'
 
@@ -11,9 +11,10 @@ interface Props {
   maxW: string
 }
 
-function UserComment({ comment, maxW }: Props) {
+const UserComment = forwardRef(({ comment, maxW }: Props, ref) => {
   const lines = restoreNewlinesFromStorage(comment.content).split('\n')
-  return (
+
+  const commentBody = (
     <div className='mb-2 last:mb-0 group'>
       <div className='flex items-center gap-1'>
         <div className='flex gap-2'>
@@ -70,6 +71,7 @@ function UserComment({ comment, maxW }: Props) {
       </div>
     </div>
   )
-}
+  return ref ? <div ref={ref as LegacyRef<HTMLDivElement>}>{commentBody}</div> : commentBody
+})
 
 export default UserComment

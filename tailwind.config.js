@@ -13,8 +13,8 @@ export default withMT({
         header: '#2A2A2A',
         primary: '#EE4D2D'
       },
-      transitionProperty: {
-        'test': '0.3s ease-in-out'
+      boxShadow: {
+        'custom': "#ffffff 0px 0px 0px 2px,#0866ff 0px 0px 0px 4px"
       },
       animation: {
         'text-reveal': 'text-reveal 1.5s cubic-bezier(0.77, 0, 0.175, 1) 0.5s',
@@ -34,7 +34,9 @@ export default withMT({
         'slide-out-left-post': 'slide-out-left-post 0.1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both',
         'slide-in-right-post': 'slide-in-right-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
         'slide-out-right-createpost': 'slide-out-right-createpost 0.1s cubic-bezier(0.550, 0.085, 0.680, 0.530) both',
-        'slide-in-left-post': 'slide-in-left-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both'
+        'slide-in-left-post': 'slide-in-left-post 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+        'scale-in-hor-center': 'scale-in-hor-center 0.1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+        'scale-out-hor-center': 'scale-out-hor-center 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both'
       },
       keyframes: {
         'text-reveal': {
@@ -215,7 +217,28 @@ export default withMT({
             transform: 'translateX(0)',
             opacity: '1'
           }
+        },
+        'scale-in-hor-center': {
+          '0%': {
+            transform: 'scaleX(0)',
+            opacity: '1'
+          },
+          '100%': {
+            transform: 'scaleX(1)',
+            opacity: '1'
+          }
+        },
+        'scale-out-hor-center': {
+          '0%': {
+            transform: 'scaleX(1)',
+            opacity: '1'
+          },
+          '100%': {
+            transform: 'scaleX(0.5)',
+            opacity: '1'
+          }
         }
+
       }
     },
     fontFamily: {

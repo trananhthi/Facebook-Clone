@@ -4,7 +4,7 @@ import { UserInfor } from 'src/types/user.type'
 import reactionApi from 'src/apis/reaction.api'
 import { useQuery } from '@tanstack/react-query'
 import { ReactionType } from 'src/types/reaction.type'
-import Comment from './components/Comment'
+import CreateComment from './components/CreateComment'
 import DetailUserPost from './components/DetailUserPost'
 import commentApi from 'src/apis/comment.api'
 import { Top2LatestCommentsType } from 'src/types/comment.type'
@@ -119,7 +119,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
 
       {/* Gửi bình luận */}
       <div className='px-4 py-2'>
-        <Comment
+        <CreateComment
           maxW='512px'
           focus={false}
           userAccount={userAccount}

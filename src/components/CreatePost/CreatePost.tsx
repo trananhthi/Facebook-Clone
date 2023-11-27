@@ -1,13 +1,12 @@
 import { Avatar, Dialog } from '@material-tailwind/react'
-import { useEffect, useState } from 'react'
-
-/* import image */
+import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
 import { privacyList } from 'src/constants/list'
 import { PrivacyType } from 'src/types/utils.type'
 import DialogPrivacyContent from './components/DialogPrivacyContent'
 import DialogMainContent from './components/DialogMainContent'
+import DialogEditImage from './components/DialogEditImage'
 
 interface Props {
   refetch: () => void
@@ -15,10 +14,13 @@ interface Props {
 
 function CreatePost({ refetch }: Props) {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
+  const curDialogRef = useRef(null)
+  const [width, setWidth] = useState('')
 
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState<string>('')
   const [openPrivacy, setOpenPrivacy] = useState<boolean>(false)
+  const [openEditImage, setOpenEditImage] = useState<boolean>(false)
   const [privacyPost, setPrivacyPost] = useState<PrivacyType>(
     privacyList.find((p) => p.value === (userAccount.privacyDefault as string)) as PrivacyType
   )
@@ -28,8 +30,6 @@ function CreatePost({ refetch }: Props) {
   const [openAddImage, setOpenAddImage] = useState<boolean>(false)
   const handleOpen = () => setOpen(!open)
 
-  console.log(selectedImage)
-
   const dialogMainContent: JSX.Element = (
     <DialogMainContent
       type='create'
@@ -38,6 +38,7 @@ function CreatePost({ refetch }: Props) {
       handleOpen={handleOpen}
       userAccount={userAccount}
       setOpenPrivacy={setOpenPrivacy}
+      setOpenEditImage={setOpenEditImage}
       privacyPost={privacyPost}
       isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
@@ -63,6 +64,17 @@ function CreatePost({ refetch }: Props) {
     />
   )
 
+  const dialogEditImage: JSX.Element = (
+    <DialogEditImage
+      setOpenEditImage={setOpenEditImage}
+      curDialogRef={curDialogRef}
+      selectedImage={selectedImage}
+      setSelectedImage={setSelectedImage}
+      previewImage={previewImage}
+      setPreviewImage={setPreviewImage}
+    />
+  )
+
   useEffect(() => {
     const textField = document.getElementById('create-post-text') as HTMLElement
     const textButton = document.getElementById('create-post-button') as HTMLElement
@@ -78,6 +90,15 @@ function CreatePost({ refetch }: Props) {
   useEffect(() => {
     if (!open) setOpenPrivacy(false)
   }, [open, openPrivacy, privacyPost])
+
+  useEffect(() => {
+    if (curDialogRef.current) {
+      const curDialogElement = curDialogRef.current as HTMLElement
+      setWidth(`w-[${curDialogElement.offsetWidth}px]`)
+    } else {
+      setWidth('w-[500px]')
+    }
+  }, [openEditImage, previewImage, selectedImage])
 
   return (
     <div className='w-[590px] h-auto min-h-[123px] max-h-[144px] bg-white rounded-lg shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)]'>
@@ -141,10 +162,10 @@ function CreatePost({ refetch }: Props) {
         dismiss={{ enabled: false }}
         open={open}
         handler={handleOpen}
-        className={`${openPrivacy ? 'w-[500px]' : 'w-[500px]'} bg-white`}
+        className={`bg-white ${width} transition-[width] duration-100 ease-in-out`}
         size='xs'
       >
-        {openPrivacy ? dialogPrivacyContent : dialogMainContent}
+        {openPrivacy ? dialogPrivacyContent : openEditImage ? dialogEditImage : dialogMainContent}
       </Dialog>
     </div>
   )

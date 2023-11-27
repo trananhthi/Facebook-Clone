@@ -16,6 +16,7 @@ interface Props {
   setPreviewImage: React.Dispatch<React.SetStateAction<string[]>>
   fileInputRef: React.MutableRefObject<null>
   handleCloseSelectImage: () => void
+  setOpenEditImage: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 function AddImageOrVideo({
@@ -25,7 +26,8 @@ function AddImageOrVideo({
   previewImage,
   setPreviewImage,
   fileInputRef,
-  handleCloseSelectImage
+  handleCloseSelectImage,
+  setOpenEditImage
 }: Props) {
   const [temp, setTemp] = useState<any>(selectedImage)
 
@@ -80,7 +82,13 @@ function AddImageOrVideo({
 
       {previewImage.length > 0 ? (
         <div>
-          <button className='bg-white absolute rounded-md px-[10px] py-[6px] flex gap-1 items-center justify-center mt-2 ml-2 hover:bg-gray-200'>
+          <button
+            onClick={() => setOpenEditImage(true)}
+            disabled={previewImage.length === 1}
+            className={`bg-white absolute rounded-md px-[10px] py-[6px] flex gap-1 items-center justify-center mt-2 ml-2 ${
+              previewImage.length === 1 ? 'hidden' : ''
+            } hover:bg-gray-200`}
+          >
             <div
               className='bg-[length:26px_606px] bg-[0px_-488px] h-4 w-4'
               style={{ backgroundImage: `url(${facebookIcon11})` }}
@@ -88,7 +96,11 @@ function AddImageOrVideo({
             <span className='text-[15px] leading-5 text-[#050505] font-semibold'>Chỉnh sửa</span>
           </button>
           <div className='group'>
-            <button className='bg-white absolute rounded-md px-[10px] py-[6px] flex gap-1 items-center justify-center mt-2 ml-[130px] group-hover:bg-gray-200'>
+            <button
+              className={`bg-white absolute rounded-md px-[10px] py-[6px] flex gap-1 items-center justify-center mt-2 ${
+                previewImage.length === 1 ? 'ml-[10px]' : 'ml-[130px]'
+              } group-hover:bg-gray-200`}
+            >
               <div
                 className='bg-[length:26px_606px] bg-[0px_-506px] h-4 w-4'
                 style={{ backgroundImage: `url(${facebookIcon11})` }}
@@ -101,7 +113,9 @@ function AddImageOrVideo({
               title=''
               accept='image/*, video/*'
               onChange={handleAddImage}
-              className='w-[154px] h-[32px] opacity-0 absolute mt-2 ml-[130px] cursor-pointer rounded-lg file:cursor-pointer'
+              className={`w-[154px] h-[32px] opacity-0 absolute mt-2 ${
+                previewImage.length === 1 ? 'ml-[10px]' : 'ml-[130px]'
+              } cursor-pointer rounded-lg file:cursor-pointer`}
               multiple
             />
           </div>

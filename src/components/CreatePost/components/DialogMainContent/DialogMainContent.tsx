@@ -30,6 +30,7 @@ interface Props {
   setContent: React.Dispatch<React.SetStateAction<string>>
   userAccount: Partial<UserInfor>
   setOpenPrivacy: React.Dispatch<React.SetStateAction<boolean>>
+  setOpenEditImage: React.Dispatch<React.SetStateAction<boolean>>
   privacyPost: PrivacyType
   isStartAnimationClosePrivacyDialog: boolean
   setIsStartAnimationClosePrivacyDialog: React.Dispatch<React.SetStateAction<boolean>>
@@ -51,6 +52,7 @@ function DialogMainContent({
   setContent,
   userAccount,
   setOpenPrivacy,
+  setOpenEditImage,
   privacyPost,
   isStartAnimationClosePrivacyDialog,
   setIsStartAnimationClosePrivacyDialog,
@@ -179,6 +181,7 @@ function DialogMainContent({
     setStartAnimationOpenPrivacyDialog(true)
   }
 
+  /* Xử lý tắt tùy chọn thêm hình ảnh */
   const handleCloseSelectImage = () => {
     setSelectedImage(null)
     setPreviewImage([])
@@ -231,12 +234,16 @@ function DialogMainContent({
       if (content !== '' || previewImage.length !== 0) setIsActivedButton(true)
       else setIsActivedButton(false)
     }
+
+    if (previewImage.length === 0) setOpenAddImage(false)
   }, [content, previewImage])
 
   return (
     <div
       ref={dialogMainContentRef}
-      className={`${createPostMutation.isLoading || updatePostMutation.isLoading ? 'pointer-events-none' : ''}`}
+      className={`${
+        createPostMutation.isLoading || updatePostMutation.isLoading ? 'pointer-events-none' : ''
+      } w-[500px]`}
     >
       <DialogHeader className='bg-white rounded-t-md h-[132px] p-0 block'>
         <div
@@ -373,6 +380,7 @@ function DialogMainContent({
                 setPreviewImage={setPreviewImage}
                 fileInputRef={fileInputRef}
                 handleCloseSelectImage={handleCloseSelectImage}
+                setOpenEditImage={setOpenEditImage}
               />
             ) : null}
           </div>
