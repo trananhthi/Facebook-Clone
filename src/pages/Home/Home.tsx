@@ -4,7 +4,7 @@ import ContactOfHome from './components/ContactOfHome'
 
 function Home() {
   return (
-    <div className='flex'>
+    <div className='flex bg-[#f2f4f7] '>
       <div className='w-[360px]'>
         <NavigationOfHome />
       </div>

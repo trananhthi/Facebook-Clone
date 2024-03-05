@@ -6,7 +6,7 @@ function Auth() {
     <div>
       <Helmet>
         <title>Facebook - Đăng nhập hoặc đăng ký</title>
-        <meta name='description' content='Đăng nhập để truy cập vào Nón Trùm' />
+        <meta name='description' content='Đăng nhập để truy cập vào Facebook' />
       </Helmet>
       <SignIn />
     </div>

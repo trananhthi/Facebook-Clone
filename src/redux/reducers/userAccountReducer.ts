@@ -3,6 +3,7 @@ import { ActionType } from 'src/types/redux.type'
 import { UserInfor } from 'src/types/user.type'
 
 const initialState: Partial<UserInfor> = {
+  id: undefined,
   email: undefined,
   lastName: undefined,
   firstName: undefined,
@@ -24,6 +25,7 @@ const userAccountReducer: Reducer<Partial<UserInfor>> = (state = initialState, a
     case 'userAccount/CLEAR':
       return {
         ...state,
+        id: undefined,
         email: undefined,
         lastName: undefined,
         firstName: undefined,

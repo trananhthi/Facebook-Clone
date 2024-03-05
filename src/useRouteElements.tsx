@@ -15,6 +15,8 @@ import ConfirmAccount from './pages/Auth/pages/ConfirmAccount'
 import Wellcome from './pages/Auth/pages/Wellcome'
 import Friend from './pages/Friend'
 import Group from './pages/Group'
+import UserProfile from './pages/UserProfile'
+import Messenger from './pages/Messenger'
 
 function ProtectedRoute() {
   const { isAuthenticated } = useContext(AppContext)
@@ -39,6 +41,7 @@ function ProtectedRouteIfEmailExists() {
 function useRouteElements() {
   const isConfirmed = useSelector((state: RootState) => state.rootReducer.tempAccountReducer.isConfirmed)
   const routeElements = useRoutes([
+    //Login, Register
     {
       path: '',
       element: <RejectedRoute />,
@@ -65,6 +68,7 @@ function useRouteElements() {
         }
       ]
     },
+    //private route
     {
       path: '',
       element: <ProtectedRoute />,
@@ -84,6 +88,14 @@ function useRouteElements() {
             {
               path: routes.group,
               element: <Group />
+            },
+            {
+              path: routes.profile,
+              element: <UserProfile />
+            },
+            {
+              path: routes.messenger,
+              element: <Messenger />
             }
           ]
         }

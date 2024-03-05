@@ -15,7 +15,7 @@ html {
   --scrollbarBG: #f0f2f5;
   --thumbBG: #bcc0c4;
   --display: none;
-
+  overflow-y: scroll;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

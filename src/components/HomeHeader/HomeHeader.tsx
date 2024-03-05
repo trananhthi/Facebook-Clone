@@ -11,7 +11,7 @@ import {
   CardBody
 } from '@material-tailwind/react'
 import { useState } from 'react'
-import { useNavigate, NavLink, useLocation } from 'react-router-dom'
+import { useNavigate, NavLink, useLocation, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import logo from 'src/assets/images/logo.png'
 import routes from 'src/constants/routes'
@@ -37,7 +37,6 @@ function HomeHeader() {
     dispatch(clearTempAccountAction())
     navigate(routes.home)
   }
-
   return (
     <div
       id='home-header'
@@ -51,7 +50,7 @@ function HomeHeader() {
           </CardBody>
         </Card>
         <div className='flex gap-2'>
-          <a href={routes.home}>
+          <Link to={routes.home}>
             <img
               src={logo}
               alt='icon'
@@ -59,7 +58,7 @@ function HomeHeader() {
                 isFocus ? 'animate-flip-out-hor-top-logo hidden' : 'animate-flip-in-hor-bottom-logo'
               }`}
             />
-          </a>
+          </Link>
           <IconButton
             variant='text'
             onClick={() => setIsFocus(false)}
@@ -212,37 +211,41 @@ function HomeHeader() {
         </Menu>
         {/* messenger */}
 
-        <Menu open={isMessengerOpen} handler={setIsMessengerOpen} placement='bottom-end'>
-          <MenuHandler>
-            <IconButton
-              variant='text'
-              color='blue-gray'
-              className='hover:bg-gray-400 flex items-center gap-1 rounded-full py-0.5 bg-[#e4e6eb] lg:ml-auto'
-            >
-              <svg
-                viewBox='0 0 24 24'
-                width='1em'
-                height='1em'
-                fill='currentColor'
-                className='h-[1.3rem] w-[1.3rem] text-black'
-              >
-                <path d='M.5 12C.5 5.649 5.649.5 12 .5S23.5 5.649 23.5 12 18.351 23.5 12 23.5c-1.922 0-3.736-.472-5.33-1.308a.63.63 0 0 0-.447-.069l-3.4.882a1.5 1.5 0 0 1-1.828-1.829l.882-3.4a.63.63 0 0 0-.07-.445A11.454 11.454 0 0 1 .5 12zm17.56-1.43a.819.819 0 0 0-1.125-1.167L14 11.499l-3.077-2.171a1.5 1.5 0 0 0-2.052.308l-2.93 3.793a.819.819 0 0 0 1.123 1.167L10 12.5l3.076 2.172a1.5 1.5 0 0 0 2.052-.308l2.931-3.793z'></path>
-              </svg>
-            </IconButton>
-          </MenuHandler>
-          <MenuList className='p-1'>
-            <MenuItem className='flex items-center gap-2 rounded-none border-b border-gray-500'>
-              <Typography as='span' variant='small' className='font-normal' color='black'>
-                <div>{useSelector((state: RootState) => state.rootReducer.tempAccountReducer.email)}</div>
-              </Typography>
-            </MenuItem>
-            <MenuItem onClick={hanldeLogout} className='flex items-center gap-2 rounded '>
-              <Typography as='span' variant='small' className='font-normal' color='red'>
-                Đăng xuất
-              </Typography>
-            </MenuItem>
-          </MenuList>
-        </Menu>
+        <div style={{ display: !location.pathname.startsWith('/messenger') ? 'block' : 'none' }}>
+          <Menu open={isMessengerOpen} /* handler={setIsMessengerOpen} */ placement='bottom-end'>
+            <MenuHandler>
+              <Link to='/messenger' className='flex items-center gap-1'>
+                <IconButton
+                  variant='text'
+                  color='blue-gray'
+                  className={`hover:bg-gray-400 flex items-center gap-1 rounded-full py-0.5 bg-[#e4e6eb] lg:ml-auto`}
+                >
+                  <svg
+                    viewBox='0 0 24 24'
+                    width='1em'
+                    height='1em'
+                    fill='currentColor'
+                    className='h-[1.3rem] w-[1.3rem] text-black'
+                  >
+                    <path d='M.5 12C.5 5.649 5.649.5 12 .5S23.5 5.649 23.5 12 18.351 23.5 12 23.5c-1.922 0-3.736-.472-5.33-1.308a.63.63 0 0 0-.447-.069l-3.4.882a1.5 1.5 0 0 1-1.828-1.829l.882-3.4a.63.63 0 0 0-.07-.445A11.454 11.454 0 0 1 .5 12zm17.56-1.43a.819.819 0 0 0-1.125-1.167L14 11.499l-3.077-2.171a1.5 1.5 0 0 0-2.052.308l-2.93 3.793a.819.819 0 0 0 1.123 1.167L10 12.5l3.076 2.172a1.5 1.5 0 0 0 2.052-.308l2.931-3.793z'></path>
+                  </svg>
+                </IconButton>
+              </Link>
+            </MenuHandler>
+            <MenuList className='p-1'>
+              <MenuItem className='flex items-center gap-2 rounded-none border-b border-gray-500'>
+                <Typography as='span' variant='small' className='font-normal' color='black'>
+                  <div>{useSelector((state: RootState) => state.rootReducer.tempAccountReducer.email)}</div>
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={hanldeLogout} className='flex items-center gap-2 rounded '>
+                <Typography as='span' variant='small' className='font-normal' color='red'>
+                  Đăng xuất
+                </Typography>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </div>
         {/* notify */}
         <NotifyOfHeader />
 

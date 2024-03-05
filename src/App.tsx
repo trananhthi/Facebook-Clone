@@ -1,4 +1,3 @@
-import './App.css'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -6,11 +5,12 @@ import useRouteElements from './useRouteElements'
 import { useContext, useEffect } from 'react'
 import { LocalStorageEventTarget } from './utils/auth'
 import { AppContext } from './contexts/app.context'
+import 'animate.css'
 
 function App() {
   const routeElements = useRouteElements()
 
-  const { reset } = useContext(AppContext)
+  const { reset, stompClient, isAuthenticated } = useContext(AppContext)
 
   useEffect(() => {
     LocalStorageEventTarget.addEventListener('clearLS', reset)
@@ -18,6 +18,17 @@ function App() {
       LocalStorageEventTarget.removeEventListener('clearLS', reset)
     }
   }, [reset])
+
+  useEffect(() => {
+    if (isAuthenticated && !stompClient.connected) {
+      stompClient.activate()
+      return
+    }
+    if (!isAuthenticated && stompClient.connected) {
+      stompClient.deactivate()
+      return
+    }
+  }, [isAuthenticated])
   return (
     <div>
       {routeElements}

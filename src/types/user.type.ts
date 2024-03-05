@@ -29,5 +29,14 @@ export type User = yup.InferType<typeof userSchema>
 
 export type UserInfor = Pick<
   User,
-  'email' | 'lastName' | 'firstName' | 'phone' | 'birthday' | 'gender' | 'avatar' | 'timeCreated' | 'privacyDefault'
+  | 'id'
+  | 'email'
+  | 'lastName'
+  | 'firstName'
+  | 'phone'
+  | 'birthday'
+  | 'gender'
+  | 'avatar'
+  | 'timeCreated'
+  | 'privacyDefault'
 >

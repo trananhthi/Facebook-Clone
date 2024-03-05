@@ -13,6 +13,7 @@ import SignUp from '../SignUp'
 import { useDispatch } from 'react-redux'
 import { updateTempAccountAction } from 'src/redux/actions/tempAccountAction'
 import { setUserAccountAction } from 'src/redux/actions/userAccountAction'
+import logoFacbook from 'src/assets/images/icon/logo_facbook.svg'
 
 function SignIn() {
   const queryClient = useQueryClient()
@@ -80,13 +81,7 @@ function SignIn() {
       <div className='content'>
         <div className='flex justify-center items-start'>
           <div className='me-[3rem] mt-8'>
-            <img
-              src='https://static.xx.fbcdn.net/rsrc.php/y8/r/dF5SId3UHWd.svg'
-              width={301}
-              height={106}
-              alt='Facebook'
-              className='ms-[-28px]'
-            ></img>
+            <img src={logoFacbook} width={301} height={106} alt='Facebook' className='ms-[-28px]'></img>
             <div className='w-[500px] mt-[-1rem]'>
               <p className='font-sans text-[28px] font-normal'>
                 Connect with friends and the world around you on Facebook.

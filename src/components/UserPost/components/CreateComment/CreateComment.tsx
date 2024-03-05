@@ -61,6 +61,58 @@ function CreateComment({ userAccount, post, textAreaRef, refetch, focus, content
     createCommentMutation.mutate({ content: convertNewlinesForStorage(content) })
   }
 
+  const mediaAttachContent = (
+    <>
+      {/* nhãn dán avatar */}
+      <button className='h-9 w-9 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
+        <div
+          className='bg-[length:26px_1536px] bg-[0px_-1130px] h-4 w-4 opacity-50'
+          style={{ backgroundImage: `url(${facebookIcon9})` }}
+        ></div>
+      </button>
+
+      {/* icon cảm xúc */}
+      <button
+        onMouseLeave={() => setIsClicked(false)}
+        onClick={handleClickEmojiButton}
+        className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'
+      >
+        <div
+          className={`h-4 w-4 ${
+            openEmoji
+              ? 'bg-[length:15.5px_15.5px] bg-[0.2px_0.15px]'
+              : 'bg-[length:26px_1536px] bg-[0px_-1238px] opacity-50'
+          }`}
+          style={{ backgroundImage: `url(${openEmoji ? emojiIconActive : facebookIcon9})` }}
+        ></div>
+      </button>
+
+      {/* camera */}
+      <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
+        <div
+          className='bg-[length:26px_1536px] bg-[0px_-1166px] h-4 w-4 opacity-50'
+          style={{ backgroundImage: `url(${facebookIcon9})` }}
+        ></div>
+      </button>
+
+      {/* gif */}
+      <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
+        <div
+          className='bg-[length:26px_1536px] bg-[0px_-1274px] h-4 w-4 opacity-50'
+          style={{ backgroundImage: `url(${facebookIcon9})` }}
+        ></div>
+      </button>
+
+      {/* nhãn dán thường */}
+      <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
+        <div
+          className='bg-[length:26px_1536px] bg-[0px_-1418px] h-4 w-4 opacity-50'
+          style={{ backgroundImage: `url(${facebookIcon9})` }}
+        ></div>
+      </button>
+    </>
+  )
+
   return (
     <div className='flex gap-2'>
       <>
@@ -104,51 +156,7 @@ function CreateComment({ userAccount, post, textAreaRef, refetch, focus, content
             }`}
             placeholder='Viết bình luận công khai...'
           ></textarea>
-          <div className={`flex ${isFocusInputField || content !== '' ? 'hidden' : ''}`}>
-            {/* nhãn dán avatar */}
-            <button className='h-9 w-9 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1130px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* icon cảm xúc */}
-            <button
-              onMouseLeave={() => setIsClicked(false)}
-              onClick={handleClickEmojiButton}
-              className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'
-            >
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1238px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* camera */}
-            <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1166px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* gif */}
-            <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1274px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* nhãn dán thường */}
-            <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1418px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-          </div>
+          <div className={`flex ${isFocusInputField || content !== '' ? 'hidden' : ''}`}>{mediaAttachContent}</div>
         </div>
         {/* các button như icon, nhãn dán,... */}
         <div
@@ -156,55 +164,7 @@ function CreateComment({ userAccount, post, textAreaRef, refetch, focus, content
             isFocusInputField || content !== '' ? '' : 'hidden'
           }`}
         >
-          <div className='flex p-1 pb-1 pt-1'>
-            {/* nhãn dán avatar */}
-            <button className='h-9 w-9 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1130px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* icon cảm xúc */}
-            <button
-              onMouseLeave={() => setIsClicked(false)}
-              onClick={handleClickEmojiButton}
-              className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'
-            >
-              <div
-                className={`h-4 w-4 ${
-                  openEmoji
-                    ? 'bg-[length:15.5px_15.5px] bg-[0.2px_0.15px]'
-                    : 'bg-[length:26px_1536px] bg-[0px_-1238px] opacity-50'
-                }`}
-                style={{ backgroundImage: `url(${openEmoji ? emojiIconActive : facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* camera */}
-            <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1166px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* gif */}
-            <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1274px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-
-            {/* nhãn dán thường */}
-            <button className='h-9 w-9 -ml-2 hover:bg-[#e4e6e9] rounded-full flex justify-center items-center'>
-              <div
-                className='bg-[length:26px_1536px] bg-[0px_-1418px] h-4 w-4 opacity-50'
-                style={{ backgroundImage: `url(${facebookIcon9})` }}
-              ></div>
-            </button>
-          </div>
+          <div className='flex p-1 pb-1 pt-1'>{mediaAttachContent}</div>
           {/* create button */}
           <button
             onClick={handleCreateComment}
@@ -221,7 +181,7 @@ function CreateComment({ userAccount, post, textAreaRef, refetch, focus, content
               style={{ backgroundImage: `url(${content !== '' ? sendCmtActive : facebookIcon9})` }}
             ></div>
           </button>
-          <div className={`${openEmoji ? '' : 'hidden'} absolute ml-[480px] mb-[200px] z-[99]`}>
+          <div className={`${openEmoji ? '' : 'hidden'} absolute ml-[480px] mb-[400px] z-[99]`}>
             <Picker
               onClickOutside={() => handleClickOutsideEmojiPicker()}
               theme='light'

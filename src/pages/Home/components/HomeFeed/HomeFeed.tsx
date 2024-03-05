@@ -73,8 +73,8 @@ function HomeFeed() {
       <div className='flex gap-2 py-2 w-[590px] justify-start'>
         <div className=''>
           <div
-            className='h-[201px] w-[141px] bg-cover rounded-t-lg
-              bg-[url(https://scontent.fsgn2-9.fna.fbcdn.net/v/t39.30808-6/361915590_3653939708258984_1524398243926436617_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeF0Bj1L5zIiFLq5Hi1KAppWWjJCG21xzqtaMkIbbXHOq1IQGmds2sOMzv-UgelR5hvtrMFpcxy58_F348zvev5k&_nc_ohc=6DF1ARMFCrEAX_Z07C8&_nc_ht=scontent.fsgn2-9.fna&oh=00_AfAKv74SsCqRX0kyrSEAQVV7T_daCZlDLHjTlwTtYlz1OA&oe=6561B045)]'
+            style={{ backgroundImage: `url(${userAccount.avatar?.url})` }}
+            className='h-[201px] w-[141px] bg-cover rounded-t-lg'
           ></div>
           <div className='h-[49px] rounded-b-lg bg-white flex justify-center items-end'>
             <div className='h-10 w-10 mb-7 flex justify-center items-center absolute bg-white rounded-full'>
@@ -131,8 +131,6 @@ function HomeFeed() {
             </div>
           </div>
         ))}
-
-      <div className='h-[100px]'></div>
     </div>
   )
 }

@@ -2,6 +2,9 @@ import { Avatar, Typography } from '@material-tailwind/react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
+import facebookIcon6 from 'src/assets/images/icon-pack/facbook_icon_6.png'
+import facebookIcon7 from 'src/assets/images/icon-pack/facbook_icon_7.png'
+import facebookIcon8 from 'src/assets/images/icon-pack/facbook_icon_8.png'
 
 function NavigationOfHome() {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
@@ -18,8 +21,8 @@ function NavigationOfHome() {
       {/* find friend */}
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
         <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-304px] h-9 w-9'
+          style={{ backgroundImage: `url(${facebookIcon6})` }}
+          className={`bg-[length:38px_570px] bg-[0px_-304px] h-9 w-9`}
         ></div>
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           Tìm bạn bè
@@ -40,8 +43,8 @@ function NavigationOfHome() {
       {/* memories */}
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
         <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-456px] h-9 w-9'
+          style={{ backgroundImage: `url(${facebookIcon6})` }}
+          className={`bg-[length:38px_570px] bg-[0px_-456px] h-9 w-9`}
         ></div>
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           Kỷ niệm
@@ -51,8 +54,8 @@ function NavigationOfHome() {
       {/* saved */}
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
         <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-190px] h-9 w-9'
+          style={{ backgroundImage: `url(${facebookIcon6})` }}
+          className={`bg-[length:38px_570px] bg-[0px_-190px] h-9 w-9`}
         ></div>
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           Đã lưu
@@ -62,8 +65,8 @@ function NavigationOfHome() {
       {/* group */}
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
         <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-38px] h-9 w-9'
+          style={{ backgroundImage: `url(${facebookIcon6})` }}
+          className={`bg-[length:38px_570px] bg-[0px_-38px] h-9 w-9`}
         ></div>
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           Nhóm
@@ -73,8 +76,8 @@ function NavigationOfHome() {
       {/* video */}
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
         <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-532px] h-9 w-9'
+          style={{ backgroundImage: `url(${facebookIcon6})` }}
+          className={`bg-[length:38px_570px] bg-[0px_-532px] h-9 w-9`}
         ></div>
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           Video
@@ -83,8 +86,8 @@ function NavigationOfHome() {
       {/* market place */}
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
         <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-418px] h-9 w-9'
+          style={{ backgroundImage: `url(${facebookIcon6})` }}
+          className={`bg-[length:38px_570px] bg-[0px_-418px] h-9 w-9`}
         ></div>
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           Marketplace
@@ -102,8 +105,8 @@ function NavigationOfHome() {
       {/* messenger */}
       <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
         <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/yW/r/Ue7hxB2U7UX.png)] 
-                            bg-[length:38px_464px] bg-[0px_0px] h-9 w-9'
+          style={{ backgroundImage: `url(${facebookIcon7})` }}
+          className='bg-[length:38px_464px] bg-[0px_0px] h-9 w-9'
         ></div>
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           Messenger
@@ -116,8 +119,8 @@ function NavigationOfHome() {
             {/* games */}
             <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
               <div
-                className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-76px] h-9 w-9'
+                style={{ backgroundImage: `url(${facebookIcon6})` }}
+                className={`bg-[length:38px_570px] bg-[0px_-76px] h-9 w-9`}
               ></div>
               <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
                 Chơi game
@@ -127,8 +130,8 @@ function NavigationOfHome() {
             {/* page */}
             <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
               <div
-                className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/MXx87JcFKzH.png)] 
-                            bg-[length:38px_570px] bg-[0px_-114px] h-9 w-9'
+                style={{ backgroundImage: `url(${facebookIcon6})` }}
+                className={`bg-[length:38px_570px] bg-[0px_-114px] h-9 w-9`}
               ></div>
               <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
                 Messenger
@@ -137,8 +140,8 @@ function NavigationOfHome() {
             {/* event */}
             <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
               <div
-                className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/vWSUA-u7jLw.png)] 
-                            bg-[length:38px_76px] bg-[0px_-38px] h-9 w-9'
+                style={{ backgroundImage: `url(${facebookIcon8})` }}
+                className='bg-[length:38px_76px] bg-[0px_-38px] h-9 w-9'
               ></div>
               <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
                 Sự kiện
