@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 import ChatMessage from 'src/base-components/ChatMessage'
 import { ChatMessageType } from 'src/types/chat.type'
 import { createRoot } from 'react-dom/client'
+import { text } from '@fortawesome/fontawesome-svg-core'
 /* import images */
 
 const animateZoomOut = (element: string, animationConfig: string) =>
@@ -133,7 +134,12 @@ export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; c
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement
 
     messageTextAreaElement.style.width = '973px'
-  }, [])
+
+    if (textAreaRef.current) {
+      const textAreaElement = textAreaRef.current as HTMLTextAreaElement
+      textAreaElement.focus()
+    }
+  }, [roomId])
 
   const fastEmojiButton = (
     <button
@@ -257,7 +263,6 @@ export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; c
           >
             <textarea
               ref={textAreaRef}
-              onFocus={() => setIsFocusInputField(true)}
               onKeyDown={(e) => handleEnterPress(e)}
               value={message}
               onChange={(e) => {

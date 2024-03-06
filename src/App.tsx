@@ -5,9 +5,10 @@ import useRouteElements from './useRouteElements'
 import { useContext, useEffect } from 'react'
 import { LocalStorageEventTarget } from './utils/auth'
 import { AppContext } from './contexts/app.context'
+import { RouterProvider } from 'react-router-dom'
 
 function App() {
-  const routeElements = useRouteElements()
+  const router = useRouteElements()
 
   const { reset, stompClient, isAuthenticated } = useContext(AppContext)
 
@@ -28,9 +29,10 @@ function App() {
       return
     }
   }, [isAuthenticated])
+
   return (
     <div>
-      {routeElements}
+      <RouterProvider router={router} />
       <ToastContainer />
     </div>
   )

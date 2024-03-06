@@ -1,5 +1,5 @@
 import { /* Suspense, lazy,  */ useContext } from 'react'
-import { Navigate, Outlet, useRoutes } from 'react-router-dom'
+import { Navigate, Outlet, createBrowserRouter } from 'react-router-dom'
 import routes from './constants/routes'
 import { AppContext } from './contexts/app.context'
 import { useSelector } from 'react-redux'
@@ -40,7 +40,8 @@ function ProtectedRouteIfEmailExists() {
 
 function useRouteElements() {
   const isConfirmed = useSelector((state: RootState) => state.rootReducer.tempAccountReducer.isConfirmed)
-  const routeElements = useRoutes([
+
+  const router = createBrowserRouter([
     //Login, Register
     {
       path: '',
@@ -77,9 +78,11 @@ function useRouteElements() {
           path: '',
           element: <MainLayout />,
           children: [
+            // test,
             {
               path: routes.home,
-              element: <Home />
+              element: <Home />,
+              handle: { scrollMode: 'pathname' }
             },
             {
               path: routes.friend,
@@ -113,7 +116,7 @@ function useRouteElements() {
     }
   ])
 
-  return routeElements
+  return router
 }
 
 export default useRouteElements
