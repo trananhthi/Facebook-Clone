@@ -5,7 +5,6 @@ import useRouteElements from './useRouteElements'
 import { useContext, useEffect } from 'react'
 import { LocalStorageEventTarget } from './utils/auth'
 import { AppContext } from './contexts/app.context'
-import 'animate.css'
 
 function App() {
   const routeElements = useRouteElements()

@@ -251,6 +251,26 @@ export default withMT({
             transform: 'scaleX(0.5)',
             opacity: '1'
           }
+        },
+        'scale-out-center': {
+          '0%': {
+            transform: 'scale(1)',
+            opacity: '1'
+          },
+          '100%': {
+            transform: 'scale(0)',
+            opacity: '1'
+          }
+        },
+        'scale-in-center': {
+          '0%': {
+            transform: 'scale(0)',
+            opacity: '1'
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '1'
+          }
         }
 
       }

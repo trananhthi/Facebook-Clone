@@ -7,19 +7,19 @@ import { ChatRoomType } from 'src/types/chat.type'
 import no_message_icon from 'src/assets/images/icon-pack/no_message_icon.png'
 import ChatMessageView from 'src/components/ChatMessageView'
 import ChatBox from 'src/components/ChatBox'
+import { IMessage } from '@stomp/stompjs'
+import { useRef } from 'react'
 
-export const ChatWindow = () => {
+export const ChatWindow = ({ messageReceived }: { messageReceived: IMessage | null }) => {
   const { roomId } = useParams()
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
+  const chatMessageContainerRef = useRef(null)
 
   const getChatRoom = useQuery({
     queryKey: [roomId],
     enabled: roomId ? true : false,
     queryFn: () => chatApi.getChatRoomById(roomId as any, userAccount.id as number),
-    onError: (err) => console.log(err),
-    onSuccess: (data) => {
-      console.log(data)
-    }
+    onError: (err) => console.log(err)
   })
 
   const room = getChatRoom.data?.data as ChatRoomType
@@ -106,9 +106,13 @@ export const ChatWindow = () => {
           </div>
           {/* END: receiver information */}
           {/* BEGIN: Chat message center */}
-          <ChatMessageView chatRoom={room} />
+          <ChatMessageView
+            chatRoom={room}
+            messageReceived={messageReceived}
+            chatMessageContainerRef={chatMessageContainerRef}
+          />
           {/* <div className='min-h-[160px] max-h-[300px] overflow-auto'> */}
-          <ChatBox />
+          <ChatBox roomId={roomId} chatMessageContainerRef={chatMessageContainerRef} />
           {/* </div> */}
           {/* END: Chat message center */}
         </div>

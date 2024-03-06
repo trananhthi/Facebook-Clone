@@ -9,8 +9,8 @@ import { Helmet } from 'react-helmet-async'
 
 const Messenger = () => {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
-  const [message, setMessage] = useState('')
   const { stompClient } = useContext(AppContext)
+  const [messageReceived, setMessageReceived] = useState<IMessage | null>(null)
 
   stompClient.onConnect = () => {
     console.log('connected')
@@ -21,22 +21,7 @@ const Messenger = () => {
   }
 
   function onMessageReceived(message: IMessage): void {
-    console.log(message.body)
-  }
-
-  const sendMessage = () => {
-    const messageContent = message.trim()
-    if (messageContent && stompClient) {
-      const chatMessage = {
-        roomId: 1,
-        senderId: userAccount.id,
-        content: messageContent,
-        status: 'active',
-        createdAt: new Date()
-      }
-      stompClient.publish({ destination: '/app/chat', body: JSON.stringify(chatMessage) })
-      setMessage('')
-    }
+    setMessageReceived(message)
   }
 
   return (
@@ -49,7 +34,7 @@ const Messenger = () => {
         <ChatRoomList />
       </div>
       <div className='flex-1'>
-        <ChatWindow />
+        <ChatWindow messageReceived={messageReceived} />
       </div>
     </div>
   )

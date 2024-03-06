@@ -211,3 +211,10 @@ export const mergeFileLists = (fileList1: FileList | null, fileList2: FileList):
     return mergedFileList
   } else return fileList2
 }
+
+// export const isAllWhitespaceString = (str: string) => {
+//   // Tạo biểu thức chính quy để kiểm tra
+//   const whitespaceRegex = /^\s*$/
+//   // Kiểm tra chuỗi có chứa toàn khoảng trắng hay không
+//   return whitespaceRegex.test(str)
+// }

@@ -1,4 +1,5 @@
 import { UserInfor } from './user.type'
+import { PageableType } from './utils.type'
 
 export type ChatRoomType = {
   id: number
@@ -28,11 +29,29 @@ export type ChatRoomListType = {
   empty: boolean
 }
 
-export type MessageType = {
-  id: number
-  roomId: number
+export type ChatMessageType = {
+  id?: number
+  roomId: number | string
   senderId: number
   content: string
   status: string
   createdAt: Date
+}
+
+export type MessageListType = {
+  content: ChatMessageType[]
+  pageable: string | PageableType
+  last: boolean
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+  sort: {
+    empty: boolean
+    sorted: boolean
+    unsorted: boolean
+  }
+  numberOfElements: number
+  first: boolean
+  empty: boolean
 }

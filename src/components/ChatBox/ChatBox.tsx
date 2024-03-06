@@ -1,26 +1,24 @@
-import { useEffect, useRef, useState } from 'react'
+import { KeyboardEvent, useContext, useEffect, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import Picker from '@emoji-mart/react'
 import { convertNewlinesForStorage } from 'src/utils/utils'
-
+import { AppContext } from 'src/contexts/app.context'
+import { RootState } from 'src/redux/store'
+import { useSelector } from 'react-redux'
+import ChatMessage from 'src/base-components/ChatMessage'
+import { ChatMessageType } from 'src/types/chat.type'
+import { createRoot } from 'react-dom/client'
 /* import images */
 
-const animateZoomOut = (element: string, secDelay: number) =>
+const animateZoomOut = (element: string, animationConfig: string) =>
   new Promise((resolve) => {
-    const prefix = 'animate__'
-    const animationName = `${prefix}zoomOut`
     const node = document.querySelector(element) as HTMLElement
-    node?.classList.add(`${prefix}animated`, animationName, 'animate__delay-1s')
+    node?.classList.add(animationConfig)
 
-    const delay = `${secDelay * 1}s`
-    node?.style.setProperty('--animate-delay', delay)
-
-    node?.style.setProperty('--animate-duration', '0.3s')
     function handleAnimationEnd(event: any) {
-      if (event.animationName === 'zoomOut') {
+      if (event.animationName === 'scale-out-center') {
         event.stopPropagation()
-        node?.classList.remove(`${prefix}animated`, animationName, 'animate__delay-1s')
-        node?.style.removeProperty('--animate-delay')
+        node?.classList.remove(animationConfig)
         resolve('Animation ended')
         node?.classList.add('hidden')
       }
@@ -29,27 +27,20 @@ const animateZoomOut = (element: string, secDelay: number) =>
     node?.addEventListener('animationend', handleAnimationEnd, { once: false })
   })
 
-const animateZoomIn = (element: string, secDelay: number) =>
+const animateZoomIn = (element: string, animationConfig: string) =>
   new Promise((resolve) => {
-    const prefix = 'animate__'
-    const animationName = `${prefix}zoomIn`
     const node = document.querySelector(element) as HTMLElement
 
     setTimeout(() => {
       node?.classList.remove('hidden')
     }, 150)
 
-    node?.classList.add(`${prefix}animated`, animationName, 'animate__delay-1s')
+    node?.classList.add(animationConfig)
 
-    const delay = `${secDelay * 1}s`
-    node?.style.setProperty('--animate-delay', delay)
-
-    node?.style.setProperty('--animate-duration', '0.3s')
     function handleAnimationEnd(event: any) {
-      if (event.animationName === 'zoomIn') {
+      if (event.animationName === 'scale-in-center') {
         event.stopPropagation()
-        node?.classList.remove(`${prefix}animated`, animationName, 'animate__delay-1s')
-        node?.style.removeProperty('--animate-delay')
+        node?.classList.remove(animationConfig)
         resolve('Animation ended')
       }
     }
@@ -57,9 +48,12 @@ const animateZoomIn = (element: string, secDelay: number) =>
     node?.addEventListener('animationend', handleAnimationEnd, { once: false })
   })
 
-export const ChatBox = () => {
+export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; chatMessageContainerRef: any }) => {
   const colorButton = '#0084ff'
-  const [content, setContent] = useState('')
+  const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
+  const { stompClient } = useContext(AppContext)
+
+  const [message, setMessage] = useState('')
   const [isFocusInputField, setIsFocusInputField] = useState<boolean>(false)
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [isClicked, setIsClicked] = useState<boolean>(false)
@@ -78,27 +72,62 @@ export const ChatBox = () => {
   }
 
   const handleEmojiSelect = (emoji: any) => {
-    setContent(content + emoji.native)
+    setMessage(message + emoji.native)
+  }
+
+  const sendMessage = () => {
+    const messageContent = message.trim()
+    if (messageContent && stompClient) {
+      const chatMessage: ChatMessageType = {
+        roomId: roomId,
+        senderId: userAccount.id as number,
+        content: messageContent,
+        status: 'active',
+        createdAt: new Date()
+      }
+      stompClient.publish({ destination: '/app/chat', body: JSON.stringify(chatMessage) })
+      setMessage('')
+      const newMessageElement = <ChatMessage message={chatMessage} userAccount={userAccount} />
+      const chatMessageContainer = chatMessageContainerRef.current as HTMLElement
+      const tempContainer = document.createElement('div')
+      createRoot(tempContainer).render(newMessageElement)
+      // Lấy phần tử đầu tiên trong danh sách các phần tử con của thẻ container
+      const firstChild = chatMessageContainer?.firstChild
+      // Thêm phần tử mới vào trước phần tử đầu tiên
+      chatMessageContainer?.insertBefore(tempContainer as Node, firstChild as Node)
+      setTimeout(() => {
+        tempContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      }, 100)
+    }
+  }
+
+  const handleEnterPress = (event: KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+    }
+    if (event.key === 'Enter' && !event.shiftKey && message.trim().length !== 0) {
+      sendMessage() // Gọi hàm để gửi tin nhắn
+    }
   }
 
   useEffect(() => {
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement
 
-    if (content.length !== 0 && !isTyping) {
-      animateZoomOut('#media-gif', 0)
-      animateZoomOut('#media-sticker', 0.05)
-      animateZoomOut('#media-image', 0.1)
+    if (message.length !== 0 && !isTyping && message.trim() !== '') {
+      animateZoomOut('#media-gif', 'animate-[scale-out-center_0.1s_ease-in-out_both_0ms]')
+      animateZoomOut('#media-sticker', 'animate-[scale-out-center_0.1s_ease-in-out_both_50ms]')
+      animateZoomOut('#media-image', 'animate-[scale-out-center_0.1s_ease-in-out_both_100ms]')
       setIsTyping(true)
       messageTextAreaElement.style.width = '1073px'
     }
-    if (content.length === 0 && isTyping) {
-      animateZoomIn('#media-image', 0)
-      animateZoomIn('#media-sticker', 0.05)
-      animateZoomIn('#media-gif', 0.1)
+    if (message.length === 0 && isTyping) {
+      animateZoomIn('#media-image', 'animate-[scale-in-center_0.1s_ease-in-out_both_0ms]')
+      animateZoomIn('#media-sticker', 'animate-[scale-in-center_0.1s_ease-in-out_both_50ms]')
+      animateZoomIn('#media-gif', 'animate-[scale-in-center_0.1s_ease-in-out_both_100ms]')
       setIsTyping(false)
       messageTextAreaElement.style.width = '973px'
     }
-  }, [content])
+  }, [message])
 
   useEffect(() => {
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement
@@ -229,9 +258,10 @@ export const ChatBox = () => {
             <textarea
               ref={textAreaRef}
               onFocus={() => setIsFocusInputField(true)}
-              value={content}
+              onKeyDown={(e) => handleEnterPress(e)}
+              value={message}
               onChange={(e) => {
-                setContent(e.target.value)
+                setMessage(e.target.value)
               }}
               className={`w-full h-9 pt-[6.5px] px-3 overflow-clip text-[#050505] text-[15px] resize-none bg-[#f0f2f5] placeholder:text-[#050505] placeholder:opacity-60 active:outline-0 focus:outline-0 rounded-full`}
               placeholder='Aa'
@@ -244,36 +274,36 @@ export const ChatBox = () => {
       {/* END: Chat box */}
 
       {/* BEGIN: fast emoji button */}
-      <button
-        className={` ${
-          content === '' ? '' : 'hidden'
-        } hover:bg-[#f2f2f2] h-9 w-9 flex justify-center items-center rounded-full`}
-      >
-        <svg height='20' viewBox='0 0 16 16' width='20'>
-          <path
-            d='M16,9.1c0-0.8-0.3-1.1-0.6-1.3c0.2-0.3,0.3-0.7,0.3-1.2c0-1-0.8-1.7-2.1-1.7h-3.1c0.1-0.5,0.2-1.3,0.2-1.8 c0-1.1-0.3-2.4-1.2-3C9.3,0.1,9,0,8.7,0C8.1,0,7.7,0.2,7.6,0.4C7.5,0.5,7.5,0.6,7.5,0.7L7.6,3c0,0.2,0,0.4-0.1,0.5L5.7,6.6 c0,0-0.1,0.1-0.1,0.1l0,0l0,0L5.3,6.8C5.1,7,5,7.2,5,7.4v6.1c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,1,1,2,1h5.2c0.9,0,1.4-0.3,1.8-0.9 c0.3-0.5,0.2-1,0.1-1.4c0.5-0.2,0.9-0.5,1.1-1.2c0.1-0.4,0-0.8-0.2-1C15.6,10.3,16,9.9,16,9.1z'
-            fill={colorButton}
-          ></path>
-          <path
-            d='M3.3,6H0.7C0.3,6,0,6.3,0,6.7v8.5C0,15.7,0.3,16,0.7,16h2.5C3.7,16,4,15.7,4,15.3V6.7C4,6.3,3.7,6,3.3,6z'
-            fill={colorButton}
-          ></path>
-        </svg>
-      </button>
-
-      <button
-        className={` ${
-          content !== '' ? '' : 'hidden'
-        } hover:bg-[#f2f2f2] h-9 w-9 flex justify-center items-center rounded-full`}
-      >
-        <svg height='20px' viewBox='0 0 24 24' width='20px'>
-          <title>Nhấn Enter để gửi</title>
-          <path
-            d='M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z'
-            fill={colorButton}
-          ></path>
-        </svg>
-      </button>
+      {message.trim() === '' && (
+        <button className={`hover:bg-[#f2f2f2] h-9 w-9 flex justify-center items-center rounded-full`}>
+          <svg height='20' viewBox='0 0 16 16' width='20'>
+            <path
+              d='M16,9.1c0-0.8-0.3-1.1-0.6-1.3c0.2-0.3,0.3-0.7,0.3-1.2c0-1-0.8-1.7-2.1-1.7h-3.1c0.1-0.5,0.2-1.3,0.2-1.8 c0-1.1-0.3-2.4-1.2-3C9.3,0.1,9,0,8.7,0C8.1,0,7.7,0.2,7.6,0.4C7.5,0.5,7.5,0.6,7.5,0.7L7.6,3c0,0.2,0,0.4-0.1,0.5L5.7,6.6 c0,0-0.1,0.1-0.1,0.1l0,0l0,0L5.3,6.8C5.1,7,5,7.2,5,7.4v6.1c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,1,1,2,1h5.2c0.9,0,1.4-0.3,1.8-0.9 c0.3-0.5,0.2-1,0.1-1.4c0.5-0.2,0.9-0.5,1.1-1.2c0.1-0.4,0-0.8-0.2-1C15.6,10.3,16,9.9,16,9.1z'
+              fill={colorButton}
+            ></path>
+            <path
+              d='M3.3,6H0.7C0.3,6,0,6.3,0,6.7v8.5C0,15.7,0.3,16,0.7,16h2.5C3.7,16,4,15.7,4,15.3V6.7C4,6.3,3.7,6,3.3,6z'
+              fill={colorButton}
+            ></path>
+          </svg>
+        </button>
+      )}
+      {message.trim() !== '' && (
+        <button
+          onClick={sendMessage}
+          className={` ${
+            message !== '' ? '' : 'hidden'
+          } hover:bg-[#f2f2f2] h-9 w-9 flex justify-center items-center rounded-full`}
+        >
+          <svg height='20px' viewBox='0 0 24 24' width='20px'>
+            <title>Nhấn Enter để gửi</title>
+            <path
+              d='M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z'
+              fill={colorButton}
+            ></path>
+          </svg>
+        </button>
+      )}
 
       {/* END: fast emoji button */}
 

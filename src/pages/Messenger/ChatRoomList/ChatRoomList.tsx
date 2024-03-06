@@ -4,7 +4,7 @@ import { IconButton, Input } from '@material-tailwind/react'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import chatApi from 'src/apis/chat.api'
 import userAccountApi from 'src/apis/userAccount.api'
 import ChatRoom from 'src/base-components/ChatRoom'
@@ -15,6 +15,7 @@ import { UserInfor } from 'src/types/user.type'
 
 const ChatRoomList = () => {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
+  const { roomId } = useParams()
   const [isFocus, setIsFocus] = useState(false)
   const [isSCroll, setIsScroll] = useState(false)
   const [maxHeight, setMaxHeight] = useState(0)
@@ -80,7 +81,8 @@ const ChatRoomList = () => {
         navigate('/messenger/' + getChatRoom.data?.data.id, { replace: true })
         setSelectedUser(null)
       } else {
-        navigate('/messenger/' + data.pages[0].data.content[0].id, { replace: true })
+        if (roomId) navigate('/messenger/' + roomId, { replace: true })
+        else navigate('/messenger/' + data.pages[0].data.content[0].id, { replace: true })
       }
     }
 
