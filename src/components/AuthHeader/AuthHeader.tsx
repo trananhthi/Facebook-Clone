@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import logo from 'src/assets/images/logo.png'
-import defaultAva from 'src/assets/images/default_avatar.png'
 import routes from 'src/constants/routes'
 import { clearTempAccountAction } from 'src/redux/actions/tempAccountAction'
 import { RootState } from 'src/redux/store'
@@ -37,7 +36,7 @@ function AuthHeader() {
               size='sm'
               alt='tania andrew'
               className='border border-gray-900 p-0.5'
-              src={defaultAva}
+              src='https://s3-hcm-r1.longvan.net/2502-facebook/default_avatar.png'
             />
             <ChevronDownIcon
               strokeWidth={2.5}
