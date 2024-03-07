@@ -1,7 +1,7 @@
 import { KeyboardEvent, useContext, useEffect, useRef, useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+// import { useMutation } from '@tanstack/react-query'
 import Picker from '@emoji-mart/react'
-import { convertNewlinesForStorage } from 'src/utils/utils'
+// import { convertNewlinesForStorage } from 'src/utils/utils'
 import { AppContext } from 'src/contexts/app.context'
 import { RootState } from 'src/redux/store'
 import { useSelector } from 'react-redux'
@@ -54,11 +54,11 @@ export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; c
   const { stompClient } = useContext(AppContext)
 
   const [message, setMessage] = useState('')
-  const [isFocusInputField, setIsFocusInputField] = useState<boolean>(false)
+  // const [isFocusInputField, setIsFocusInputField] = useState<boolean>(false)
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [isClicked, setIsClicked] = useState<boolean>(false)
   const textAreaRef = useRef(null)
-  const [messageTextAreaWidth, setMessageTextAreaWidth] = useState<number>(0)
+  // const [messageTextAreaWidth, setMessageTextAreaWidth] = useState<number>(0)
   const [isTyping, setIsTyping] = useState<boolean>(false)
 
   const handleClickOutsideEmojiPicker = () => {
@@ -66,7 +66,7 @@ export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; c
   }
 
   const handleClickEmojiButton = () => {
-    setIsFocusInputField(true)
+    // setIsFocusInputField(true)
     setOpenEmoji((cur) => !cur)
     setIsClicked(true)
   }

@@ -22,18 +22,4 @@ const ChatMessage = forwardRef(({ message, userAccount, chatRoom }: ChatMessageP
   return ref ? <div ref={ref as LegacyRef<HTMLDivElement>}>{body}</div> : body
 })
 
-// const ChatMessage = ({ message, userAccount, chatRoom }: ChatMessageProps) => {
-//   const isSender = message.senderId === userAccount.id ? true : false
-
-//   const body = (
-//     <div className={`flex ${isSender ? 'justify-end' : 'justify-start'} h-[100px] px-4 mb-[2px] gap-2 items-end`}>
-//       {!isSender && <img src={chatRoom?.receiver.avatar.url} className=' w-7 h-7 rounded-full' />}
-//       <div className={`${isSender ? 'bg-[#0084ff] text-white' : 'bg-[#f0f0f0]'} w-fit rounded-full px-3 py-1`}>
-//         <span className='leading-5 text-[15px]'>{message.content}</span>
-//       </div>
-//     </div>
-//   )
-//   return body
-// }
-
 export default ChatMessage
