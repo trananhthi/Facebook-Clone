@@ -34,6 +34,7 @@ interface Props {
   privacyPost: PrivacyType
   isStartAnimationClosePrivacyDialog: boolean
   setIsStartAnimationClosePrivacyDialog: React.Dispatch<React.SetStateAction<boolean>>
+  //sau này sửa lại kiểu dữ liệu
   selectedImage: FileList | null
   setSelectedImage: React.Dispatch<React.SetStateAction<FileList | null>>
   previewImage: string[]

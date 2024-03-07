@@ -17,6 +17,7 @@ import facebookIcon9 from 'src/assets/images/icon-pack/facbook_icon_9.png'
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
 import DialogMainContent from 'src/components/CreatePost/components/DialogMainContent'
 import DialogPrivacyContent from 'src/components/CreatePost/components/DialogPrivacyContent'
+import DialogEditImage from 'src/components/CreatePost/components/DialogEditImage'
 
 interface Props {
   post: PostType
@@ -56,6 +57,11 @@ function InformationOfPost({
   const [previewImage, setPreviewImage] = useState<string[]>([])
   const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
   const [openAddImage, setOpenAddImage] = useState<boolean>(false)
+  const [openEditImage, setOpenEditImage] = useState<boolean>(false)
+  const [width, setWidth] = useState('')
+  const curDialogRef = useRef(null)
+
+  //hàm mở dialog chỉnh sửa bài viết
   const handleOpenEditPostDialog = () => {
     setOpen(!open)
     setOpenPopover(false)
@@ -88,6 +94,7 @@ function InformationOfPost({
       setPreviewImage={setPreviewImage}
       openAddImage={openAddImage}
       setOpenAddImage={setOpenAddImage}
+      setOpenEditImage={setOpenEditImage}
     />
   )
   const dialogPrivacyContent: JSX.Element = (
@@ -99,6 +106,17 @@ function InformationOfPost({
       setPrivacyPost={setPrivacyPost}
       userAccount={userAccount}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
+    />
+  )
+
+  const dialogEditImage: JSX.Element = (
+    <DialogEditImage
+      setOpenEditImage={setOpenEditImage}
+      curDialogRef={curDialogRef}
+      selectedImage={selectedImage}
+      setSelectedImage={setSelectedImage}
+      previewImage={previewImage}
+      setPreviewImage={setPreviewImage}
     />
   )
 
@@ -128,6 +146,15 @@ function InformationOfPost({
       }
     })
   }, [])
+
+  useEffect(() => {
+    if (curDialogRef.current) {
+      const curDialogElement = curDialogRef.current as HTMLElement
+      setWidth(`w-[${curDialogElement.offsetWidth}px]`)
+    } else {
+      setWidth('w-[500px]')
+    }
+  }, [openEditImage, previewImage, selectedImage])
 
   return (
     <>
@@ -283,10 +310,10 @@ function InformationOfPost({
         dismiss={{ enabled: false }}
         open={open}
         handler={handleOpenEditPostDialog}
-        className={`w-[500px] bg-white`}
+        className={`bg-white ${width} transition-[width] duration-100 ease-in-out`}
         size='xs'
       >
-        {openPrivacy ? dialogPrivacyContent : dialogMainContent}
+        {openPrivacy ? dialogPrivacyContent : openEditImage ? dialogEditImage : dialogMainContent}
       </Dialog>
     </>
   )

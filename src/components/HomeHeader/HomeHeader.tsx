@@ -26,7 +26,7 @@ import NotifyOfHeader from './components/NotifyOfHeader'
 
 function HomeHeader() {
   const location = useLocation()
-  const [isMessengerOpen, setIsMessengerOpen] = useState(false)
+  // const [isMessengerOpen, setIsMessengerOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isFocus, setIsFocus] = useState(false)
   const dispatch = useDispatch()
@@ -212,7 +212,7 @@ function HomeHeader() {
         {/* messenger */}
 
         <div style={{ display: !location.pathname.startsWith('/messenger') ? 'block' : 'none' }}>
-          <Menu open={isMessengerOpen} /* handler={setIsMessengerOpen} */ placement='bottom-end'>
+          <Menu /* open={isMessengerOpen} */ /* handler={setIsMessengerOpen} */ placement='bottom-end'>
             <MenuHandler>
               <Link to='/messenger' className='flex items-center gap-1'>
                 <IconButton
