@@ -31,7 +31,7 @@ export type ChatRoomListType = {
 
 export type ChatMessageType = {
   id?: number
-  roomId: number | string
+  roomId: number
   senderId: number
   content: string
   status: string

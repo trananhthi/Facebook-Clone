@@ -1,12 +1,13 @@
 import { LegacyRef, forwardRef } from 'react'
-import { ChatRoomType } from 'src/types/chat.type'
+import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
 import { Link, useParams } from 'react-router-dom'
 
 interface ChatRoomProps {
   chatRoom: ChatRoomType
+  messageReceived?: ChatMessageType
 }
 
-export const ChatRoom = forwardRef(({ chatRoom }: ChatRoomProps, ref) => {
+export const ChatRoom = forwardRef(({ chatRoom, messageReceived }: ChatRoomProps, ref) => {
   const { roomId } = useParams()
 
   const body = (
@@ -21,7 +22,9 @@ export const ChatRoom = forwardRef(({ chatRoom }: ChatRoomProps, ref) => {
         <span className='text-[15px] leading-5 font-medium'>
           {chatRoom.receiver.firstName + ' ' + chatRoom.receiver.lastName}
         </span>
-        <span className='text-[13px] leading-4 text-textgray'>Bạn: mai đi chơi bạn · 1 phút</span>
+        <span className='text-[13px] leading-4 text-textgray'>
+          {messageReceived ? messageReceived.content : 'Bạn: mai đi chơi bạn · 1 phút'}
+        </span>
       </div>
     </Link>
   )

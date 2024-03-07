@@ -31,7 +31,7 @@ const Messenger = () => {
         <meta name='description' content='Facebook' />
       </Helmet>
       <div className='sm:w-[360px]'>
-        <ChatRoomList />
+        <ChatRoomList messageReceived={messageReceived} />
       </div>
       <div className='flex-1'>
         <ChatWindow messageReceived={messageReceived} />

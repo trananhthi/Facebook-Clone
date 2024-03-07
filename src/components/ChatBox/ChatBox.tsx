@@ -8,7 +8,6 @@ import { useSelector } from 'react-redux'
 import ChatMessage from 'src/base-components/ChatMessage'
 import { ChatMessageType } from 'src/types/chat.type'
 import { createRoot } from 'react-dom/client'
-import { text } from '@fortawesome/fontawesome-svg-core'
 /* import images */
 
 const animateZoomOut = (element: string, animationConfig: string) =>
@@ -80,7 +79,7 @@ export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; c
     const messageContent = message.trim()
     if (messageContent && stompClient) {
       const chatMessage: ChatMessageType = {
-        roomId: roomId,
+        roomId: parseInt(roomId),
         senderId: userAccount.id as number,
         content: messageContent,
         status: 'active',

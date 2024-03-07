@@ -164,7 +164,6 @@ html {
 .spinner-loader-circle {
   position: relative;
   margin: 0 auto;
-  width: 70px;
 }
 
 .spinner-loader-circle:before {

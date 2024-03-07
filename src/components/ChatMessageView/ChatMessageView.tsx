@@ -17,7 +17,9 @@ interface ChatMessageViewProps {
 export const ChatMessageView = ({ chatRoom, messageReceived, chatMessageContainerRef }: ChatMessageViewProps) => {
   const [maxHeight, setMaxHeight] = useState(0)
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
+  const [isLoadingFake, setIsLoadingFake] = useState(false) //loading giả , sau này xóa
 
+  //lấy tin nhắn trong cuộc trò chuyện
   const {
     fetchNextPage, //function
     hasNextPage, // boolean
@@ -36,11 +38,13 @@ export const ChatMessageView = ({ chatRoom, messageReceived, chatMessageContaine
     }
   )
 
+  //set chiều cao tối đa cho khung chat
   useEffect(() => {
     const messengerContainer = document.getElementById('messenger-client-container')
     setMaxHeight((messengerContainer?.clientHeight as number) - 65 - 60)
   }, [])
 
+  //thêm tin nhắn mới vào cuộc trò chuyện
   useEffect(() => {
     if (messageReceived) {
       const newMessage = JSON.parse(messageReceived.body) as ChatMessageType
@@ -57,10 +61,44 @@ export const ChatMessageView = ({ chatRoom, messageReceived, chatMessageContaine
         setTimeout(() => {
           tempContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
         }, 100)
+
+        return () => tempContainer.remove()
       }
     }
   }, [messageReceived])
 
+  //thêm thông tin người nhận vào đầu cuộc trò chuyện
+  useEffect(() => {
+    if (
+      chatMessageContainerRef.current &&
+      data &&
+      data?.pages[data.pages.length - 1].data.last &&
+      data.pages.length > 1
+    ) {
+      const chatMessageContainer = chatMessageContainerRef.current as HTMLElement
+      const tempContainer = document.createElement('div')
+      const receiverBasicInforElement = (
+        <div className='relative flex flex-col justify-center items-center gap-2 my-10'>
+          <div className='flex w-[60px] h-[60px] rounded-full'>
+            <img src={chatRoom.receiver.avatar.url} className=' w-full h-full rounded-full' />
+            <div className='w-5 h-5 absolute ml-10 mt-10 bg-green-600 rounded-full border-2 border-white'></div>
+          </div>
+          <span className='text-[17px] leading-5 font-semibold'>
+            {chatRoom.receiver.firstName + ' ' + chatRoom.receiver.lastName}
+          </span>
+          <span className='text-[12px] leading-4 text-textgray'>Các bạn là bạn bè trên Facebook</span>
+        </div>
+      )
+
+      createRoot(tempContainer).render(receiverBasicInforElement)
+
+      chatMessageContainer.appendChild(tempContainer)
+
+      return () => tempContainer.remove()
+    }
+  }, [data])
+
+  //lấy tin nhắn tiếp theo khi cuộc trò chuyện kéo xuống cuối
   const intObserver = useRef<IntersectionObserver | null>(null)
   const lastChatMessageRef = useCallback(
     (chatMessage: Element) => {
@@ -68,17 +106,25 @@ export const ChatMessageView = ({ chatRoom, messageReceived, chatMessageContaine
 
       if (intObserver.current) intObserver.current.disconnect()
 
-      intObserver.current = new IntersectionObserver((chatMessages) => {
-        if (chatMessages[0].isIntersecting && hasNextPage) {
-          fetchNextPage()
-        }
-      })
+      intObserver.current = new IntersectionObserver(
+        (chatMessages) => {
+          if (chatMessages[0].isIntersecting && hasNextPage) {
+            setIsLoadingFake(true) //loading giả , sau này xóa
+            setTimeout(() => {
+              fetchNextPage()
+              setIsLoadingFake(false) //loading giả , sau này xóa
+            }, 300)
+          }
+        },
+        { threshold: 0.05 }
+      )
 
       if (chatMessage) intObserver.current.observe(chatMessage)
     },
     [isFetchingNextPage, fetchNextPage, hasNextPage]
   )
 
+  //hiển thị tin nhắn
   const chatMessageData = data?.pages.map((pg) => {
     return pg.data.content.map((chatMessage: ChatMessageType, i) => {
       if (pg.data.content.length === i + 1) {
@@ -104,7 +150,7 @@ export const ChatMessageView = ({ chatRoom, messageReceived, chatMessageContaine
         style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px` }}
         className='flex justify-center items-center w-full'
       >
-        <div className='spinner-loader-circle'>
+        <div className='spinner-loader-circle w-[70px]'>
           <svg className='spinner-circular' viewBox='25 25 50 50'>
             <circle className='spinner-path' cx='50' cy='50' r='20' fill='none' strokeWidth='5' strokeMiterlimit='10' />
           </svg>
@@ -115,13 +161,33 @@ export const ChatMessageView = ({ chatRoom, messageReceived, chatMessageContaine
   return (
     <div
       ref={chatMessageContainerRef}
-      className='flex flex-col-reverse h-full overflow-y-scroll'
-      style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px` }}
+      className='flex flex-col-reverse overflow-y-scroll'
+      style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px`, overflowAnchor: 'none' }}
     >
       {chatMessageData}
+      {(isFetchingNextPage || isLoadingFake) && (
+        <div
+          style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px` }}
+          className='flex justify-center items-center w-full'
+        >
+          <div className='spinner-loader-circle w-[30px]'>
+            <svg className='spinner-circular' viewBox='25 25 50 50'>
+              <circle
+                className='spinner-path'
+                cx='50'
+                cy='50'
+                r='20'
+                fill='none'
+                strokeWidth='5'
+                strokeMiterlimit='10'
+              />
+            </svg>
+          </div>
+        </div>
+      )}
 
-      <div
-        style={{ display: (data?.pages[0].data.content.length as number) > 0 ? 'flex' : 'none' }}
+      {/* <div
+        style={{ display: (data?.pages[0].data.content.length as number) > 0 || !isFetchingNextPage ? 'flex' : 'none' }}
         className='relative flex-col justify-center items-center gap-2 my-10'
       >
         <div className='flex w-[60px] h-[60px] rounded-full'>
@@ -132,7 +198,7 @@ export const ChatMessageView = ({ chatRoom, messageReceived, chatMessageContaine
           {chatRoom.receiver.firstName + ' ' + chatRoom.receiver.lastName}
         </span>
         <span className='text-[12px] leading-4 text-textgray'>Các bạn là bạn bè trên Facebook</span>
-      </div>
+      </div> */}
 
       <div
         style={{

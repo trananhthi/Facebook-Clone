@@ -1,6 +1,7 @@
 import { faArrowLeft, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconButton, Input } from '@material-tailwind/react'
+import { IMessage } from '@stomp/stompjs'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -10,10 +11,10 @@ import userAccountApi from 'src/apis/userAccount.api'
 import ChatRoom from 'src/base-components/ChatRoom'
 import CircleIconButton from 'src/base-components/CircleIconButton'
 import { RootState } from 'src/redux/store'
-import { ChatRoomType } from 'src/types/chat.type'
+import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
 import { UserInfor } from 'src/types/user.type'
 
-const ChatRoomList = () => {
+const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null }) => {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const { roomId } = useParams()
   const [isFocus, setIsFocus] = useState(false)
@@ -101,6 +102,15 @@ const ChatRoomList = () => {
     setSearchKeyword('')
   }, [isFocus])
 
+  // useEffect(() => {
+  //   if (messageReceived) {
+  //     const newMessage = JSON.parse(messageReceived.body) as ChatMessageType
+  //     if (parseInt(roomId as string) !== newMessage.senderId) {
+  //       console.log('khác')
+  //     }
+  //   }
+  // }, [messageReceived])
+
   //Scroll loading infinite
   const intObserver = useRef<IntersectionObserver | null>(null)
   const lastChatRoomRef = useCallback(
@@ -122,10 +132,31 @@ const ChatRoomList = () => {
 
   const chatRoomData = data?.pages.map((pg) => {
     return pg.data.content.map((chatRoom: ChatRoomType, i) => {
-      if (pg.data.content.length === i + 1) {
-        return <ChatRoom ref={lastChatRoomRef} key={chatRoom.id} chatRoom={chatRoom} />
+      if (messageReceived) {
+        const newMessage = JSON.parse((messageReceived as IMessage).body) as ChatMessageType
+
+        const isTrue =
+          roomId !== newMessage.roomId.toString() &&
+          newMessage.senderId.toString() === (chatRoom.receiver.id?.toString() as string)
+        // console.log(newMessage.roomId.toString())
+        // console.log(isTrue, '  ', chatRoom)
+        if (pg.data.content.length === i + 1) {
+          return (
+            <ChatRoom
+              ref={lastChatRoomRef}
+              key={chatRoom.id}
+              chatRoom={chatRoom}
+              messageReceived={isTrue ? newMessage : undefined}
+            />
+          )
+        }
+        return <ChatRoom key={chatRoom.id} chatRoom={chatRoom} messageReceived={isTrue ? newMessage : undefined} />
+      } else {
+        if (pg.data.content.length === i + 1) {
+          return <ChatRoom ref={lastChatRoomRef} key={chatRoom.id} chatRoom={chatRoom} />
+        }
+        return <ChatRoom key={chatRoom.id} chatRoom={chatRoom} />
       }
-      return <ChatRoom key={chatRoom.id} chatRoom={chatRoom} />
     })
   })
 
