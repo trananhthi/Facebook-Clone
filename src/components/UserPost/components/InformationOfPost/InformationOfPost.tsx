@@ -166,7 +166,7 @@ function InformationOfPost({
             size='sm'
             alt='avatar'
             className='h-10 w-10 border-solid border-gray-400 border'
-            src={curPost.author.avatar.url}
+            src={curPost.author.avatar}
           />
           <div className='flex flex-col'>
             <span className='text-[#050505] text-[15px] font-semibold cursor-pointer hover:underline hover:underline-offset-1'>

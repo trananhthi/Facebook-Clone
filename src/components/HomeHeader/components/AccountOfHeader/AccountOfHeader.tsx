@@ -41,7 +41,7 @@ function AccountOfHeader() {
             size='sm'
             alt='avatar'
             className='h-10 w-10 border-solid border-gray-400 border'
-            src={userAccount.avatar?.url}
+            src={userAccount.avatar}
           />
         </Button>
       </PopoverHandler>
@@ -58,7 +58,7 @@ function AccountOfHeader() {
                       size='sm'
                       alt='avatar'
                       className='h-9 w-9 border-solid border-gray-400 border'
-                      src={userAccount.avatar?.url}
+                      src={userAccount.avatar}
                     />
                     <Typography as='span' className='font-semibold w-[230px]' color='black'>
                       {userAccount.firstName + ' ' + userAccount.lastName}

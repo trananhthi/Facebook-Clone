@@ -218,3 +218,30 @@ export const mergeFileLists = (fileList1: FileList | null, fileList2: FileList):
 //   // Kiểm tra chuỗi có chứa toàn khoảng trắng hay không
 //   return whitespaceRegex.test(str)
 // }
+
+export function timeElapsedSince(date: Date) {
+  const currentTime = new Date()
+  const elapsedTime = currentTime.getTime() - new Date(date).getTime() // Thời gian đã trôi qua tính bằng mili giây
+
+  // Chuyển đổi thời gian đã trôi qua từ mili giây sang phút, giờ, ngày, tuần và năm
+  const secondsElapsed = Math.floor(elapsedTime / 1000)
+  const minutesElapsed = Math.floor(secondsElapsed / 60)
+  const hoursElapsed = Math.floor(minutesElapsed / 60)
+  const daysElapsed = Math.floor(hoursElapsed / 24)
+  const weeksElapsed = Math.floor(daysElapsed / 7)
+  const yearsElapsed = Math.floor(weeksElapsed / 52)
+
+  if (yearsElapsed > 0) {
+    return `${yearsElapsed} năm`
+  } else if (weeksElapsed > 0) {
+    return `${weeksElapsed} tuần`
+  } else if (daysElapsed > 0) {
+    return `${daysElapsed} ngày`
+  } else if (hoursElapsed > 0) {
+    return `${hoursElapsed} giờ`
+  } else if (minutesElapsed > 0) {
+    return `${minutesElapsed} phút`
+  } else {
+    return `1 phút`
+  }
+}

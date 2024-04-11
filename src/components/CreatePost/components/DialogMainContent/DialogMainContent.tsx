@@ -281,7 +281,7 @@ function DialogMainContent({
                 size='sm'
                 alt='avatar'
                 className='h-10 w-10 border-solid border-gray-400 border'
-                src={userAccount.avatar?.url}
+                src={userAccount.avatar}
               />
               <div className='flex flex-col'>
                 <span className='text-[#050505] text-[15px] font-semibold cursor-pointer'>

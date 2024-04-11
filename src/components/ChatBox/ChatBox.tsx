@@ -5,9 +5,7 @@ import Picker from '@emoji-mart/react'
 import { AppContext } from 'src/contexts/app.context'
 import { RootState } from 'src/redux/store'
 import { useSelector } from 'react-redux'
-import ChatMessage from 'src/base-components/ChatMessage'
 import { ChatMessageType } from 'src/types/chat.type'
-import { createRoot } from 'react-dom/client'
 /* import images */
 
 const animateZoomOut = (element: string, animationConfig: string) =>
@@ -48,7 +46,7 @@ const animateZoomIn = (element: string, animationConfig: string) =>
     node?.addEventListener('animationend', handleAnimationEnd, { once: false })
   })
 
-export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; chatMessageContainerRef: any }) => {
+export const ChatBox = ({ roomId }: { roomId: string }) => {
   const colorButton = '#0084ff'
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const { stompClient } = useContext(AppContext)
@@ -61,43 +59,53 @@ export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; c
   // const [messageTextAreaWidth, setMessageTextAreaWidth] = useState<number>(0)
   const [isTyping, setIsTyping] = useState<boolean>(false)
 
+  //xử lý ấn ra ngoài emoji picker
   const handleClickOutsideEmojiPicker = () => {
     if (openEmoji && !isClicked) setOpenEmoji(false)
   }
 
+  //xử lý hiển thị emoji picker
   const handleClickEmojiButton = () => {
     // setIsFocusInputField(true)
     setOpenEmoji((cur) => !cur)
     setIsClicked(true)
   }
 
+  //xử lý chọn emoji
   const handleEmojiSelect = (emoji: any) => {
     setMessage(message + emoji.native)
   }
 
+  //xử lý gửi emoji nhanh
+  const sendFastEmoji = () => {
+    const emoji = '👍'
+    setMessage(emoji)
+    sendMessage()
+  }
+
   const sendMessage = () => {
-    const messageContent = message.trim()
-    if (messageContent && stompClient) {
+    if (message && stompClient) {
       const chatMessage: ChatMessageType = {
         roomId: parseInt(roomId),
         senderId: userAccount.id as number,
-        content: messageContent,
+        content: message,
         status: 'active',
         createdAt: new Date()
       }
+
       stompClient.publish({ destination: '/app/chat', body: JSON.stringify(chatMessage) })
       setMessage('')
-      const newMessageElement = <ChatMessage message={chatMessage} userAccount={userAccount} />
-      const chatMessageContainer = chatMessageContainerRef.current as HTMLElement
-      const tempContainer = document.createElement('div')
-      createRoot(tempContainer).render(newMessageElement)
-      // Lấy phần tử đầu tiên trong danh sách các phần tử con của thẻ container
-      const firstChild = chatMessageContainer?.firstChild
-      // Thêm phần tử mới vào trước phần tử đầu tiên
-      chatMessageContainer?.insertBefore(tempContainer as Node, firstChild as Node)
-      setTimeout(() => {
-        tempContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
-      }, 100)
+      // const newMessageElement = <ChatMessage message={chatMessage} userAccount={userAccount} />
+      // const chatMessageContainer = chatMessageContainerRef.current as HTMLElement
+      // const tempContainer = document.createElement('div')
+      // createRoot(tempContainer).render(newMessageElement)
+      // // Lấy phần tử đầu tiên trong danh sách các phần tử con của thẻ container
+      // const firstChild = chatMessageContainer?.firstChild
+      // // Thêm phần tử mới vào trước phần tử đầu tiên
+      // chatMessageContainer?.insertBefore(tempContainer as Node, firstChild as Node)
+      // setTimeout(() => {
+      //   tempContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      // }, 100)
     }
   }
 
@@ -279,7 +287,10 @@ export const ChatBox = ({ roomId, chatMessageContainerRef }: { roomId: string; c
 
       {/* BEGIN: fast emoji button */}
       {message.trim() === '' && (
-        <button className={`hover:bg-[#f2f2f2] h-9 w-9 flex justify-center items-center rounded-full`}>
+        <button
+          className={`hover:bg-[#f2f2f2] h-9 w-9 flex justify-center items-center rounded-full`}
+          onClick={sendFastEmoji}
+        >
           <svg height='20' viewBox='0 0 16 16' width='20'>
             <path
               d='M16,9.1c0-0.8-0.3-1.1-0.6-1.3c0.2-0.3,0.3-0.7,0.3-1.2c0-1-0.8-1.7-2.1-1.7h-3.1c0.1-0.5,0.2-1.3,0.2-1.8 c0-1.1-0.3-2.4-1.2-3C9.3,0.1,9,0,8.7,0C8.1,0,7.7,0.2,7.6,0.4C7.5,0.5,7.5,0.6,7.5,0.7L7.6,3c0,0.2,0,0.4-0.1,0.5L5.7,6.6 c0,0-0.1,0.1-0.1,0.1l0,0l0,0L5.3,6.8C5.1,7,5,7.2,5,7.4v6.1c0,0.2,0.1,0.4,0.2,0.5c0.1,0.1,1,1,2,1h5.2c0.9,0,1.4-0.3,1.8-0.9 c0.3-0.5,0.2-1,0.1-1.4c0.5-0.2,0.9-0.5,1.1-1.2c0.1-0.4,0-0.8-0.2-1C15.6,10.3,16,9.9,16,9.1z'

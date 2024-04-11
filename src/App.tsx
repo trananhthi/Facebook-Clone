@@ -6,11 +6,15 @@ import { useContext, useEffect } from 'react'
 import { LocalStorageEventTarget } from './utils/auth'
 import { AppContext } from './contexts/app.context'
 import { RouterProvider } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { RootState } from './redux/store'
+import { IMessage } from '@stomp/stompjs'
 
 function App() {
   const router = useRouteElements()
+  const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
 
-  const { reset, stompClient, isAuthenticated } = useContext(AppContext)
+  const { reset, stompClient, isAuthenticated, setMessageReceived } = useContext(AppContext)
 
   useEffect(() => {
     LocalStorageEventTarget.addEventListener('clearLS', reset)
@@ -22,13 +26,21 @@ function App() {
   useEffect(() => {
     if (isAuthenticated && !stompClient.connected) {
       stompClient.activate()
+      stompClient.onConnect = () => {
+        stompClient.subscribe(`/user/${userAccount.id}/queue/messages`, onMessageReceived)
+      }
       return
     }
     if (!isAuthenticated && stompClient.connected) {
       stompClient.deactivate()
+      console.log('disconnected')
       return
     }
   }, [isAuthenticated])
+
+  function onMessageReceived(message: IMessage): void {
+    setMessageReceived(message)
+  }
 
   return (
     <div>

@@ -22,7 +22,7 @@ function MainLayout() {
           <meta name='description' content='Facebook' />
         </Helmet>
         <HomeHeader />
-        <div className='mt-[56px] h-full '>
+        <div className='mt-[56px] h-full'>
           <Outlet />
         </div>
       </div>

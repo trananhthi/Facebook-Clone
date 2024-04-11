@@ -108,7 +108,7 @@ function CreatePost({ refetch }: Props) {
           size='sm'
           alt='avatar'
           className='h-10 w-10 border-solid border-gray-400 border cursor-pointer hover:brightness-90'
-          src={userAccount.avatar?.url}
+          src={userAccount.avatar}
         />
         <button
           id='create-post-button'

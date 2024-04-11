@@ -8,12 +8,14 @@ import no_message_icon from 'src/assets/images/icon-pack/no_message_icon.png'
 import ChatMessageView from 'src/components/ChatMessageView'
 import ChatBox from 'src/components/ChatBox'
 import { IMessage } from '@stomp/stompjs'
-import { useRef } from 'react'
 
-export const ChatWindow = ({ messageReceived }: { messageReceived: IMessage | null }) => {
+interface ChatWindowProps {
+  messageReceived: IMessage | null
+}
+
+export const ChatWindow = ({ messageReceived }: ChatWindowProps) => {
   const { roomId } = useParams()
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
-  const chatMessageContainerRef = useRef(null)
 
   const getChatRoom = useQuery({
     queryKey: [roomId],
@@ -39,7 +41,7 @@ export const ChatWindow = ({ messageReceived }: { messageReceived: IMessage | nu
               className={`h-[52px] px-2 w-fit rounded-md text-left hover:bg-[#f2f2f2] cursor-pointer flex items-center gap-2 `}
             >
               <div className='flex w-10 h-10 rounded-full'>
-                <img src={room.receiver.avatar.url} className=' w-full h-full rounded-full' />
+                <img src={room.receiver.avatar} className=' w-full h-full rounded-full' />
                 <div className='w-3 h-3 absolute ml-7 mt-7 bg-green-600 rounded-full border-2 border-white'></div>
               </div>
               <div className='flex flex-col'>
@@ -106,13 +108,9 @@ export const ChatWindow = ({ messageReceived }: { messageReceived: IMessage | nu
           </div>
           {/* END: receiver information */}
           {/* BEGIN: Chat message center */}
-          <ChatMessageView
-            chatRoom={room}
-            messageReceived={messageReceived}
-            chatMessageContainerRef={chatMessageContainerRef}
-          />
+          <ChatMessageView chatRoom={room} messageReceived={messageReceived} />
           {/* <div className='min-h-[160px] max-h-[300px] overflow-auto'> */}
-          <ChatBox roomId={roomId} chatMessageContainerRef={chatMessageContainerRef} />
+          <ChatBox roomId={roomId} />
           {/* </div> */}
           {/* END: Chat message center */}
         </div>

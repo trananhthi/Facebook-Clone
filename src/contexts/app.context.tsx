@@ -1,6 +1,6 @@
 import { createContext, useState } from 'react'
 import { getAccessTokenFromLS } from '../utils/auth'
-import { Client } from '@stomp/stompjs'
+import { Client, IMessage } from '@stomp/stompjs'
 
 const WS_URL = import.meta.env.VITE_WEBSOCKET_SERVER_URL as string
 
@@ -9,6 +9,8 @@ type AppContextType = {
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
   reset: () => void
   stompClient: Client
+  messageReceived: IMessage | null
+  setMessageReceived: React.Dispatch<React.SetStateAction<IMessage | null>>
 }
 
 const inititalAppContext: AppContextType = {
@@ -17,13 +19,17 @@ const inititalAppContext: AppContextType = {
   reset: () => null,
   stompClient: new Client({
     brokerURL: WS_URL
-  })
+  }),
+  messageReceived: null,
+  setMessageReceived: () => null
 }
 
 export const AppContext = createContext<AppContextType>(inititalAppContext)
 
 const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(inititalAppContext.isAuthenticated)
+  const [messageReceived, setMessageReceived] = useState<IMessage | null>(inititalAppContext.messageReceived)
+
   // const [stompClient, setStompClient] = useState<Client | null>(null)
 
   const reset = () => {
@@ -38,7 +44,9 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
         isAuthenticated,
         setIsAuthenticated,
         reset,
-        stompClient
+        stompClient,
+        messageReceived,
+        setMessageReceived
       }}
     >
       {children}

@@ -17,14 +17,14 @@ function UserStory({ url }: Props) {
   })
 
   return (
-    <div className='flex h-[250px] w-[141px]' style={{ backgroundColor: bgColor, borderRadius: '8px' }}>
+    <div className='flex h-[250px] w-[141px] relative' style={{ backgroundColor: bgColor, borderRadius: '8px' }}>
       <div className='flex justify-center items-center absolute bg-white rounded-full h-10 w-10 mt-3 ml-3'>
         <Avatar
           variant='circular'
           size='sm'
           alt='avatar'
           className='h-8 w-8 justify-items-center'
-          src={userAccount.avatar?.url}
+          src={userAccount.avatar}
         />
       </div>
 

@@ -9,6 +9,8 @@ export type ChatRoomType = {
   status: string
   createdAt: Date
   receiver: UserInfor
+  lastMessageTime: Date
+  lastMessage: ChatMessageType
 }
 
 export type ChatRoomListType = {

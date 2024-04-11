@@ -23,7 +23,7 @@ const UserComment = forwardRef(({ comment, maxW }: Props, ref) => {
             size='sm'
             alt='avatar'
             className='h-8 w-8 border-solid border-gray-400 border cursor-pointer hover:brightness-90'
-            src={comment.userAccount.avatar.url}
+            src={comment.userAccount.avatar}
           />
 
           <div className={`bg-[#f0f2f5] rounded-2xl max-w-[${maxW}]`} style={{ maxWidth: maxW }}>

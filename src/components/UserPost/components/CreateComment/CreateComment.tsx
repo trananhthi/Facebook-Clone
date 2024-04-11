@@ -122,7 +122,7 @@ function CreateComment({ userAccount, post, textAreaRef, refetch, focus, content
           size='sm'
           alt='avatar'
           className='h-8 w-8 border-solid border-gray-400 border cursor-pointer '
-          src={userAccount.avatar?.url}
+          src={userAccount.avatar}
         />
         {/* </div> */}
         <div className='h-5 w-5 flex justify-center items-center rounded-full sticky mt-[18px] -ml-[22px]'>

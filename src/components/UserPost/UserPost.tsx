@@ -11,6 +11,7 @@ import { Top2LatestCommentsType } from 'src/types/comment.type'
 import UserComment from '../UserComment'
 import InformationOfPost from './components/InformationOfPost'
 import { Dialog } from '@material-tailwind/react'
+import { createPortal } from 'react-dom'
 
 interface Props {
   post: PostType
@@ -37,7 +38,23 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
   const reactionList = getReaction.data?.data as ReactionType[]
   const top2LatestComments = getTop2LatestComments.data?.data as Top2LatestCommentsType
 
-  const handleOpenDetailPost = () => setOpenDetailPost(!openDetailPost)
+  const handleOpenDetailPost = () => {
+    setOpenDetailPost(!openDetailPost)
+  }
+  // useEffect(() => {
+  //   if (openDetailPost) {
+  //     document.querySelector('body')?.style.setProperty('overflow-y', 'scroll')
+  //     // document.querySelector('html')?.style.setProperty('overflow-y', 'scroll')
+  //     // document.querySelector('html')?.style.setProperty('position', 'fixed')
+  //     a?.classList.add('fixed')
+  //     a?.classList.add('overflow-y-scroll')
+  //   } else {
+  //     // document.querySelector('body')?.style.setProperty('overflow-y', 'scroll')
+  //     // document.querySelector('html')?.style.setProperty('overflow-y', '')
+  //     document.querySelector('html')?.classList.remove('fixed')
+  //     document.querySelector('html')?.classList.remove('overflow-y-scroll')
+  //   }
+  // }, [openDetailPost])
   const handleClickCommentButton = () => {
     if (textAreaRef.current) {
       const textAreaElement = textAreaRef.current as HTMLElement
@@ -90,72 +107,76 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
   }
 
   const postBody = (
-    <div className='w-[590px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
-      {/* thông tin bài đăng */}
-      <InformationOfPost
-        post={post}
-        userAccount={userAccount}
-        reactionList={reactionList}
-        top2LatestComments={top2LatestComments}
-        refetchReaction={refetchReaction}
-        handleClickCommentButton={handleClickCommentButton}
-        isInDetailPost={false}
-      />
-      {/* xem thêm bình luận */}
-      <button
-        className={`px-4 mt-2 text-[15px] text-[#65676b] leading-5 font-semibold hover:underline hover:cursor-pointer ${
-          top2LatestComments.total > 2 ? '' : 'hidden'
-        }`}
-        onClick={handleOpenDetailPost}
-      >
-        Xem thêm bình luận
-      </button>
-      {/* top 2 comments gần nhất */}
-      <div className={`pl-4 pr-2 mt-2 ${top2LatestComments.total === 0 ? 'hidden' : ''}`}>
-        {top2LatestComments.commentList.map((comment) => (
-          <UserComment key={comment.id} comment={comment} maxW='490px' />
-        ))}
-      </div>
-
-      {/* Gửi bình luận */}
-      <div className='px-4 py-2'>
-        <CreateComment
-          maxW='512px'
-          focus={false}
-          userAccount={userAccount}
-          post={post}
-          textAreaRef={textAreaRef}
-          refetch={refetchComment}
-          content={content}
-          setContent={setContent}
-        />
-      </div>
-
-      {/* Thông tin chi tiết của bài đăng */}
-      <Dialog
-        dismiss={{ enabled: false }}
-        animate={{
-          mount: { scale: 1, y: 0 },
-          unmount: { scale: 0.9, y: -100 }
-        }}
-        open={openDetailPost}
-        handler={handleOpenDetailPost}
-        className={`w-[700px] h-[665px] bg-white`}
-        size='xs'
-      >
-        <DetailUserPost
-          openDetailPost={openDetailPost}
-          handleOpenDetailPost={handleOpenDetailPost}
+    <div>
+      <div className='w-[590px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
+        {/* thông tin bài đăng */}
+        <InformationOfPost
           post={post}
           userAccount={userAccount}
           reactionList={reactionList}
           top2LatestComments={top2LatestComments}
           refetchReaction={refetchReaction}
           handleClickCommentButton={handleClickCommentButton}
-          content={content}
-          setContent={setContent}
+          isInDetailPost={false}
         />
-      </Dialog>
+        {/* xem thêm bình luận */}
+        <button
+          className={`px-4 mt-2 text-[15px] text-[#65676b] leading-5 font-semibold hover:underline hover:cursor-pointer ${
+            top2LatestComments.total > 2 ? '' : 'hidden'
+          }`}
+          onClick={handleOpenDetailPost}
+        >
+          Xem thêm bình luận
+        </button>
+        {/* top 2 comments gần nhất */}
+        <div className={`pl-4 pr-2 mt-2 ${top2LatestComments.total === 0 ? 'hidden' : ''}`}>
+          {top2LatestComments.commentList.map((comment) => (
+            <UserComment key={comment.id} comment={comment} maxW='490px' />
+          ))}
+        </div>
+
+        {/* Gửi bình luận */}
+        <div className='px-4 py-2'>
+          <CreateComment
+            maxW='512px'
+            focus={false}
+            userAccount={userAccount}
+            post={post}
+            textAreaRef={textAreaRef}
+            refetch={refetchComment}
+            content={content}
+            setContent={setContent}
+          />
+        </div>
+      </div>
+      {/* Thông tin chi tiết của bài đăng */}
+      {createPortal(
+        <Dialog
+          dismiss={{ enabled: false }}
+          animate={{
+            mount: { scale: 1, y: 0 },
+            unmount: { scale: 0.9, y: -100 }
+          }}
+          open={openDetailPost}
+          handler={handleOpenDetailPost}
+          className={`w-[700px] h-[665px] bg-white`}
+          size='xs'
+        >
+          <DetailUserPost
+            openDetailPost={openDetailPost}
+            handleOpenDetailPost={handleOpenDetailPost}
+            post={post}
+            userAccount={userAccount}
+            reactionList={reactionList}
+            top2LatestComments={top2LatestComments}
+            refetchReaction={refetchReaction}
+            handleClickCommentButton={handleClickCommentButton}
+            content={content}
+            setContent={setContent}
+          />
+        </Dialog>,
+        document.body
+      )}
     </div>
   )
 

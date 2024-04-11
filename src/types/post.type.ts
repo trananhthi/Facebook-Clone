@@ -10,7 +10,6 @@ export type PostType = {
   updatedAt: Date
   typePost: string
   image: PostImageType[]
-  video: string
   parentPost: PostType
   view: number
   privacy: string

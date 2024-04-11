@@ -70,10 +70,10 @@ function HomeFeed() {
     <div className='px-8 flex flex-col items-center mt-4 gap-4 mb-6'>
       {/* Stories */}
       {/* Đăng story */}
-      <div className='flex gap-2 py-2 w-[590px] justify-start'>
+      <div className='flex gap-2 py-2 w-[590px] justify-start relative'>
         <div className=''>
           <div
-            style={{ backgroundImage: `url(${userAccount.avatar?.url})` }}
+            style={{ backgroundImage: `url(${userAccount.avatar})` }}
             className='h-[201px] w-[141px] bg-cover rounded-t-lg'
           ></div>
           <div className='h-[49px] rounded-b-lg bg-white flex justify-center items-end'>

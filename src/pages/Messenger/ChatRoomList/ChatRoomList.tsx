@@ -102,6 +102,10 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
     setSearchKeyword('')
   }, [isFocus])
 
+  useEffect(() => {
+    refetch()
+  }, [messageReceived])
+
   // useEffect(() => {
   //   if (messageReceived) {
   //     const newMessage = JSON.parse(messageReceived.body) as ChatMessageType
@@ -331,7 +335,7 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
                 onClick={() => handleSelectUser(user)}
                 className='h-[48px] flex items-center w-full rounded-md cursor-pointer px-2 gap-2 hover:bg-[#f2f2f2]'
               >
-                <img src={user.avatar.url} className='h-9 w-9 rounded-full'></img>
+                <img src={user.avatar} className='h-9 w-9 rounded-full'></img>
                 <span className='text-[15px] leading-5'>{user.firstName + ' ' + user.lastName}</span>
               </div>
             ))}
