@@ -30,7 +30,7 @@ export const ProfileHeader = () => {
       {/* BEGIN: avatar */}
       <div>
         <div className='w-[176px] h-[176px] rounded-full bg-white absolute -mt-[75px] ml-[240px] flexbox-center'>
-          <img src={userAccount.avatar?.url} className='w-[168px] h-[168px] rounded-full object-cover' />
+          <img src={userAccount.avatar} className='w-[168px] h-[168px] rounded-full object-cover' />
           <div className='w-9 h-9 rounded-full bg-primarygray absolute flexbox-center bottom-0 right-0 mb-3 mr-2 cursor-pointer hover:bg-[#d8dadf]'>
             <div
               style={{ backgroundImage: `url(${facebookIcon18})` }}
