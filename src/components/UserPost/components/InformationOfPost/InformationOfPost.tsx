@@ -310,7 +310,7 @@ function InformationOfPost({
         dismiss={{ enabled: false }}
         open={open}
         handler={handleOpenEditPostDialog}
-        className={`bg-white ${width} transition-[width] duration-100 ease-in-out`}
+        className={`bg-white ${width} transition-[width] duration-100 ease-in-out max-500:ml-0`}
         size='xs'
       >
         {openPrivacy ? dialogPrivacyContent : openEditImage ? dialogEditImage : dialogMainContent}

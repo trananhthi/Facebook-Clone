@@ -40,30 +40,35 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
   )
 
   //set chiều cao tối đa cho khung chat
+  //65 là chiều cao của khung chatbox có tên người nhận
+  //60 là chiều cao của khung nhập tin nhắn
   useEffect(() => {
     const messengerContainer = document.getElementById('messenger-client-container')
-    setMaxHeight((messengerContainer?.clientHeight as number) - 65 - 60)
+
+    // Định nghĩa hàm xử lý sự kiện resize
+    const handleResize = () => {
+      // Tính toán lại chiều cao và cập nhật state
+      setMaxHeight((messengerContainer?.clientHeight as number) - 65 - 60)
+    }
+
+    // Gán hàm xử lý sự kiện cho sự kiện resize của cửa sổ
+    window.addEventListener('resize', handleResize)
+
+    // Gọi hàm xử lý sự kiện lần đầu tiên
+    handleResize()
+
+    // Xóa hàm xử lý sự kiện khi component unmount
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
   }, [])
 
   //thêm tin nhắn mới vào cuộc trò chuyện
   useEffect(() => {
     if (messageReceived) {
       const newMessage = JSON.parse(messageReceived.body) as ChatMessageType
-      // const newMessageElement = <ChatMessage message={newMessage} userAccount={userAccount} chatRoom={chatRoom} />
       if (chatRoom.receiver.id === newMessage.senderId || newMessage.senderId === userAccount.id) {
-        // const chatMessageContainer = chatMessageContainerRef.current as HTMLElement
-        // const tempContainer = document.createElement('div')
-        // createRoot(tempContainer).render(newMessageElement)
-
-        // // Lấy phần tử đầu tiên trong danh sách các phần tử con của thẻ container
-        // const firstChild = chatMessageContainer?.firstChild
-        // // Thêm phần tử mới vào trước phần tử đầu tiên
-        // chatMessageContainer?.insertBefore(tempContainer as Node, firstChild as Node)
-        // setTimeout(() => {
-        //   tempContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
-        // }, 100)
         refetch()
-        // return () => tempContainer.remove()
       }
     }
   }, [messageReceived])

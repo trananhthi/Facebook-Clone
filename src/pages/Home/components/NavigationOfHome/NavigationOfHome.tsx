@@ -1,17 +1,28 @@
 import { Avatar, Typography } from '@material-tailwind/react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
 import facebookIcon6 from 'src/assets/images/icon-pack/facbook_icon_6.png'
 import facebookIcon7 from 'src/assets/images/icon-pack/facbook_icon_7.png'
 import facebookIcon8 from 'src/assets/images/icon-pack/facbook_icon_8.png'
 
+const NavigationOfHomeButton = ({ name, children }: { name: string; children: React.ReactNode }) => {
+  return (
+    <div className='flex items-center gap-3 cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      {children}
+      <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
+        {name}
+      </Typography>
+    </div>
+  )
+}
+
 function NavigationOfHome() {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const [isExtend, setIsExtend] = useState<boolean>(false)
   return (
-    <div className='w-[360px] fixed flex flex-col h-[670px] overflow-x-hidden overflow-y-auto custom-scrollbar'>
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 mt-4 p-2'>
+    <div className='3xl:w-[360px] 2xl:w-[340px] xl:w-[280px] semi-lg:w-[280px] fixed flex flex-col h-[670px] overflow-x-hidden overflow-y-auto custom-scrollbar'>
+      <div className='flex items-center gap-3 cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 mt-4 p-2'>
         <Avatar variant='circular' size='sm' alt='avatar' className='h-9 w-9' src={userAccount.avatar} />
         <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
           {userAccount.firstName + ' ' + userAccount.lastName}
@@ -19,134 +30,98 @@ function NavigationOfHome() {
       </div>
 
       {/* find friend */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Tìm bạn bè'>
         <div
           style={{ backgroundImage: `url(${facebookIcon6})` }}
           className={`bg-[length:38px_570px] bg-[0px_-304px] h-9 w-9`}
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Tìm bạn bè
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       {/* Wellcome */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Chào mừng'>
         <div
           className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/ye/r/vV4w4OL9xUs.png)] 
                             bg-[length:38px_38px] bg-[0px_0px] h-9 w-9'
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Chào mừng
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       {/* memories */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Kỷ niệm'>
         <div
           style={{ backgroundImage: `url(${facebookIcon6})` }}
           className={`bg-[length:38px_570px] bg-[0px_-456px] h-9 w-9`}
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Kỷ niệm
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       {/* saved */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Đã lưu'>
         <div
           style={{ backgroundImage: `url(${facebookIcon6})` }}
           className={`bg-[length:38px_570px] bg-[0px_-190px] h-9 w-9`}
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Đã lưu
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       {/* group */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Nhóm'>
         <div
           style={{ backgroundImage: `url(${facebookIcon6})` }}
           className={`bg-[length:38px_570px] bg-[0px_-38px] h-9 w-9`}
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Nhóm
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       {/* video */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Video'>
         <div
           style={{ backgroundImage: `url(${facebookIcon6})` }}
           className={`bg-[length:38px_570px] bg-[0px_-532px] h-9 w-9`}
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Video
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
       {/* market place */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Marketplace'>
         <div
           style={{ backgroundImage: `url(${facebookIcon6})` }}
           className={`bg-[length:38px_570px] bg-[0px_-418px] h-9 w-9`}
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Marketplace
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       {/* feed */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Bảng Feed'>
         <img src='https://static.xx.fbcdn.net/rsrc.php/v3/yT/r/3dN1QwOLden.png' className='h-9 w-9' alt='' />
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Bảng feed
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       {/* messenger */}
-      <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+      <NavigationOfHomeButton name='Messenger'>
         <div
           style={{ backgroundImage: `url(${facebookIcon7})` }}
           className='bg-[length:38px_464px] bg-[0px_0px] h-9 w-9'
         ></div>
-        <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-          Messenger
-        </Typography>
-      </div>
+      </NavigationOfHomeButton>
 
       <>
         {isExtend ? (
           <>
             {/* games */}
-            <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+            <NavigationOfHomeButton name='Chơi games'>
               <div
                 style={{ backgroundImage: `url(${facebookIcon6})` }}
                 className={`bg-[length:38px_570px] bg-[0px_-76px] h-9 w-9`}
               ></div>
-              <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-                Chơi game
-              </Typography>
-            </div>
+            </NavigationOfHomeButton>
 
             {/* page */}
-            <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+            <NavigationOfHomeButton name='Trang'>
               <div
                 style={{ backgroundImage: `url(${facebookIcon6})` }}
                 className={`bg-[length:38px_570px] bg-[0px_-114px] h-9 w-9`}
               ></div>
-              <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-                Messenger
-              </Typography>
-            </div>
+            </NavigationOfHomeButton>
             {/* event */}
-            <div className='flex items-center gap-3 w-[344px] cursor-pointer hover:bg-[#e4e6e9] rounded-lg ml-2 p-2'>
+            <NavigationOfHomeButton name='Sự kiện'>
               <div
                 style={{ backgroundImage: `url(${facebookIcon8})` }}
                 className='bg-[length:38px_76px] bg-[0px_-38px] h-9 w-9'
               ></div>
-              <Typography as='div' className='font-[600] text-[15px] text-[#050505]'>
-                Sự kiện
-              </Typography>
-            </div>
+            </NavigationOfHomeButton>
           </>
         ) : (
           ''

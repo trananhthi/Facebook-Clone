@@ -41,20 +41,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
   const handleOpenDetailPost = () => {
     setOpenDetailPost(!openDetailPost)
   }
-  // useEffect(() => {
-  //   if (openDetailPost) {
-  //     document.querySelector('body')?.style.setProperty('overflow-y', 'scroll')
-  //     // document.querySelector('html')?.style.setProperty('overflow-y', 'scroll')
-  //     // document.querySelector('html')?.style.setProperty('position', 'fixed')
-  //     a?.classList.add('fixed')
-  //     a?.classList.add('overflow-y-scroll')
-  //   } else {
-  //     // document.querySelector('body')?.style.setProperty('overflow-y', 'scroll')
-  //     // document.querySelector('html')?.style.setProperty('overflow-y', '')
-  //     document.querySelector('html')?.classList.remove('fixed')
-  //     document.querySelector('html')?.classList.remove('overflow-y-scroll')
-  //   }
-  // }, [openDetailPost])
+
   const handleClickCommentButton = () => {
     if (textAreaRef.current) {
       const textAreaElement = textAreaRef.current as HTMLElement
@@ -80,7 +67,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
 
   if (getReaction.isLoading || getTop2LatestComments.isLoading) {
     return (
-      <div className='w-[590px] shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg p-4'>
+      <div className='1200:w-[590px] w-[500px] shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg p-4'>
         <div className='animate-pulse'>
           <div className='flex gap-2 items-center'>
             <div className='rounded-full bg-[#f0f2f5] h-10 w-10'></div>
@@ -108,7 +95,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
 
   const postBody = (
     <div>
-      <div className='w-[590px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
+      <div className='1200:w-[590px] w-[500px] 700-1100:w-[590px] max-500:w-[475px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
         {/* thông tin bài đăng */}
         <InformationOfPost
           post={post}
@@ -159,7 +146,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
           }}
           open={openDetailPost}
           handler={handleOpenDetailPost}
-          className={`w-[700px] h-[665px] bg-white`}
+          className={`w-[700px] max-500:w-[500px] h-[665px] bg-white max-724:ml-0 `}
           size='xs'
         >
           <DetailUserPost

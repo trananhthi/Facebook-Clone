@@ -93,9 +93,26 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
     }
   }, [data]) // Ensure useEffect only runs when data or navigate changes
 
+  //set chiều cao tối đa cho danh sách chat room
   useEffect(() => {
     const messengerContainer = document.getElementById('messenger-client-container')
-    setMaxHeight((messengerContainer?.clientHeight as number) - 165)
+
+    // Định nghĩa hàm xử lý sự kiện resize
+    const handleResize = () => {
+      // Tính toán lại chiều cao và cập nhật state
+      setMaxHeight((messengerContainer?.clientHeight as number) - 165)
+    }
+
+    // Gán hàm xử lý sự kiện cho sự kiện resize của cửa sổ
+    window.addEventListener('resize', handleResize)
+
+    // Gọi hàm xử lý sự kiện lần đầu tiên
+    handleResize()
+
+    // Xóa hàm xử lý sự kiện khi component unmount
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
   }, [])
 
   useEffect(() => {
@@ -105,15 +122,6 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
   useEffect(() => {
     refetch()
   }, [messageReceived])
-
-  // useEffect(() => {
-  //   if (messageReceived) {
-  //     const newMessage = JSON.parse(messageReceived.body) as ChatMessageType
-  //     if (parseInt(roomId as string) !== newMessage.senderId) {
-  //       console.log('khác')
-  //     }
-  //   }
-  // }, [messageReceived])
 
   //Scroll loading infinite
   const intObserver = useRef<IntersectionObserver | null>(null)

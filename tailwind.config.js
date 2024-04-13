@@ -30,6 +30,25 @@ export default withMT({
       boxShadow: {
         'custom': "#ffffff 0px 0px 0px 2px,#0866ff 0px 0px 0px 4px"
       },
+      screens: {
+        'xs': '320px',
+        'sm': '640px',
+        'md': '768px',
+        'semi-md': '900px',
+        'lg': '1024px',
+        'semi-lg': '1100px',
+        'xl': '1280px',
+        '2xl': '1380px',
+        '3xl': '1500px',
+        '1200': '1200px',
+        '4xl': '1536px',
+        'max-500': { 'max': '500px' },
+        'max-724': { 'max': '724px' },
+        '700-1100': { 'min': '700px', 'max': '1100px' },
+        '900-1100': { 'min': '900px', 'max': '1100px' },
+        '950-1100': { 'min': '950px', 'max': '1100px' },
+        '900-950': { 'min': '900px', 'max': '950px' },
+      },
       animation: {
         'text-reveal': 'text-reveal 1.5s cubic-bezier(0.77, 0, 0.175, 1) 0.5s',
         'slide-in-left': 'slide-in-left 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',

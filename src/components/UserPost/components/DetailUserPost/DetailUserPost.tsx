@@ -135,7 +135,7 @@ function DetailUserPost({
               {'Bài viết của ' + post.author.lastName}
             </span>
           </div>
-          <div className='flex justify-end absolute w-[668px]'>
+          <div className='flex justify-end absolute w-[668px] max-500:w-[460px]'>
             <IconButton
               color='blue-gray'
               className='h-9 w-9 bg-[#e4e6eb] rounded-full hover:bg-[#d8dadf] px-4'

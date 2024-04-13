@@ -16,7 +16,7 @@ const Messenger = () => {
       <div className='sm:w-[360px]'>
         <ChatRoomList messageReceived={messageReceived} />
       </div>
-      <div className='flex-1'>
+      <div className='flex-1 max-h-[100px]'>
         <ChatWindow messageReceived={messageReceived} />
       </div>
     </div>

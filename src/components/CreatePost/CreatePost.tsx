@@ -101,7 +101,7 @@ function CreatePost({ refetch }: Props) {
   }, [openEditImage, previewImage, selectedImage])
 
   return (
-    <div className='w-[590px] h-auto min-h-[123px] max-h-[144px] bg-white rounded-lg shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)]'>
+    <div className='1200:w-[590px] w-[500px] 700-1100:w-[590px] max-500:w-[475px] h-auto min-h-[123px] max-h-[144px] bg-white rounded-lg shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)]'>
       <div className='flex gap-2 px-4 py-3'>
         <Avatar
           variant='circular'
@@ -127,9 +127,9 @@ function CreatePost({ refetch }: Props) {
       </div>
       <hr className='border-gray-300 mx-4'></hr>
       {/* type */}
-      <div className='flex mx-4 my-2'>
+      <div className='flex mx-4 my-2 justify-between items-center'>
         {/* livestream type */}
-        <button className='h-10 w-[186px] hover:bg-[#f2f2f2] rounded-lg flex items-center justify-center gap-2'>
+        <button className='h-10 w-[186px] hover:bg-[#f2f2f2] rounded-lg flex items-center justify-center gap-2 flex-1'>
           <img
             src='https://static.xx.fbcdn.net/rsrc.php/v3/yF/r/v1iF2605Cb5.png'
             alt='livestream-type'
@@ -138,7 +138,7 @@ function CreatePost({ refetch }: Props) {
           <span className='text-[15px] text-[#65676B] font-semibold'>Video trực tiếp</span>
         </button>
         {/* picture and video type */}
-        <button className='h-10 w-[186px] hover:bg-[#f2f2f2] rounded-lg flex items-center justify-center gap-2'>
+        <button className='h-10 w-[186px] hover:bg-[#f2f2f2] rounded-lg flex items-center justify-center gap-2 flex-1'>
           <img
             src='https://static.xx.fbcdn.net/rsrc.php/v3/yC/r/a6OjkIIE-R0.png'
             alt='normal-type'
@@ -147,7 +147,7 @@ function CreatePost({ refetch }: Props) {
           <span className='text-[15px] text-[#65676B] font-semibold'>Ảnh/video</span>
         </button>
         {/* emoji/activities */}
-        <button className='h-10 w-[186px] hover:bg-[#f2f2f2] rounded-lg flex items-center justify-center gap-2'>
+        <button className='h-10 w-[186px] hover:bg-[#f2f2f2] rounded-lg flex items-center justify-center gap-2 max-500:hidden flex-1'>
           <img
             src='https://static.xx.fbcdn.net/rsrc.php/v3/yk/r/yMDS19UDsWe.png'
             alt='emoji-type'
@@ -162,7 +162,7 @@ function CreatePost({ refetch }: Props) {
         dismiss={{ enabled: false }}
         open={open}
         handler={handleOpen}
-        className={`bg-white ${width} transition-[width] duration-100 ease-in-out`}
+        className={`bg-white ${width} transition-[width] duration-100 ease-in-out max-500:ml-0`}
         size='xs'
       >
         {openPrivacy ? dialogPrivacyContent : openEditImage ? dialogEditImage : dialogMainContent}

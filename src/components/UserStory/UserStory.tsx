@@ -34,8 +34,8 @@ function UserStory({ url }: Props) {
         style={{ backgroundImage: `url(${url})` }}
       ></div>
 
-      <div className='h-[250px] w-[141px] absolute flex items-end justify-start ml-4'>
-        <span className='font-semibold text-[13px] mb-2 text-white'>Tin của bạn</span>
+      <div className='h-[250px] w-[141px] absolute flex items-end justify-start'>
+        <span className='font-semibold text-[13px] mb-2 text-white ml-4'>Tin của bạn</span>
       </div>
     </div>
   )

@@ -54,12 +54,6 @@ function HomeFeed() {
     })
   })
 
-  // const getPostQuery = useQuery({
-  //   queryKey: ['get-all-post'],
-  //   queryFn: () => postApi.getPost(),
-  //   onError: (err) => console.log(err)
-  // })
-
   const handleRefetch = () => {
     refetch()
   }
@@ -67,10 +61,10 @@ function HomeFeed() {
   if (status === 'error') return <p className='center'>Error: {(error as any).message}</p>
 
   return (
-    <div className='px-8 flex flex-col items-center mt-4 gap-4 mb-6'>
+    <div className='flex flex-col items-center mt-4 gap-4 mb-6'>
       {/* Stories */}
       {/* Đăng story */}
-      <div className='flex gap-2 py-2 w-[590px] justify-start relative'>
+      <div className='flex gap-2 py-2 1200:w-[590px] w-[500px] 700-1100:w-[590px] max-500:w-[475px] justify-start relative overflow-hidden'>
         <div className=''>
           <div
             style={{ backgroundImage: `url(${userAccount.avatar})` }}
