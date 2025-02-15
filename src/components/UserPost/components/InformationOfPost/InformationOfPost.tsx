@@ -1,27 +1,27 @@
 import { Avatar, Dialog, Popover, PopoverHandler, Tooltip } from '@material-tailwind/react'
-import { emojiList } from 'src/constants/list'
+import { emojiList, privacyList } from 'src/constants/list'
 import EmojiButton from '../EmojiButton'
 import { formatDateTime, formatTimeAgo, getTop3Emoji, restoreNewlinesFromStorage } from 'src/utils/utils'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { PostType } from 'src/types/post.type'
-import { privacyList } from 'src/constants/list'
-import { EmojiType, PrivacyType } from 'src/types/utils.type'
+
+import { EmojiType, PreviewMediaContentType, PrivacyType } from 'src/types/utils.type'
 import { ReactionType } from 'src/types/reaction.type'
 import { Top2LatestCommentsType } from 'src/types/comment.type'
-import { UserInfor } from 'src/types/user.type'
+import { UserInfo } from 'src/types/user.type'
 import ShowImageInPost from 'src/components/ShowImageInPost'
 import EditPostPopover from 'src/components/EditPostPopover'
 
 /* import images */
 import facebookIcon9 from 'src/assets/images/icon-pack/facbook_icon_9.png'
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
-import DialogMainContent from 'src/components/CreatePost/components/DialogMainContent'
+import DialogCreatePost from 'src/components/CreatePost/components/DialogCreatePost'
 import DialogPrivacyContent from 'src/components/CreatePost/components/DialogPrivacyContent'
-import DialogEditImage from 'src/components/CreatePost/components/DialogEditImage'
+import MediaEditor from 'src/components/CreatePost/components/MediaEditor'
 
 interface Props {
   post: PostType
-  userAccount: Partial<UserInfor>
+  userAccount: Partial<UserInfo>
   reactionList: ReactionType[]
   top2LatestComments: Top2LatestCommentsType
   refetchReaction: () => void
@@ -54,7 +54,7 @@ function InformationOfPost({
     privacyList.find((p) => p.value === (curPost.privacy as string)) as PrivacyType
   )
   const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
-  const [previewImage, setPreviewImage] = useState<string[]>([])
+  const [previewMediaContent, setPreviewMediaContent] = useState<PreviewMediaContentType[]>([])
   const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
   const [openAddImage, setOpenAddImage] = useState<boolean>(false)
   const [openEditImage, setOpenEditImage] = useState<boolean>(false)
@@ -66,9 +66,14 @@ function InformationOfPost({
     setOpen(!open)
     setOpenPopover(false)
     setContent(curPost.content)
-    setPreviewImage(curPost.image.map((image: { url: string }) => image.url))
+    setPreviewMediaContent(
+      curPost.mediaList.map((media) => ({
+        url: media.url,
+        type: media.type
+      }))
+    )
     setPrivacyPost(privacyList.find((p) => p.value === (curPost.privacy as string)) as PrivacyType)
-    setOpenAddImage(curPost.image.length > 0 ? true : false)
+    setOpenAddImage(curPost.mediaList.length > 0)
   }
 
   const handleOpenPopover = () => {
@@ -76,7 +81,7 @@ function InformationOfPost({
   }
 
   const dialogMainContent: JSX.Element = (
-    <DialogMainContent
+    <DialogCreatePost
       type='edit'
       post={curPost}
       setCurPost={setCurPost}
@@ -88,13 +93,13 @@ function InformationOfPost({
       privacyPost={privacyPost}
       isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
-      selectedImage={selectedImage}
-      setSelectedImage={setSelectedImage}
-      previewImage={previewImage}
-      setPreviewImage={setPreviewImage}
-      openAddImage={openAddImage}
-      setOpenAddImage={setOpenAddImage}
-      setOpenEditImage={setOpenEditImage}
+      selectedMediaContent={selectedImage}
+      setSelectedMediaContent={setSelectedImage}
+      previewMediaContent={previewMediaContent}
+      setPreviewMediaContent={setPreviewMediaContent}
+      openAddMediaContent={openAddImage}
+      setOpenAddMediaContent={setOpenAddImage}
+      setOpenEditMediaContent={setOpenEditImage}
     />
   )
   const dialogPrivacyContent: JSX.Element = (
@@ -110,13 +115,14 @@ function InformationOfPost({
   )
 
   const dialogEditImage: JSX.Element = (
-    <DialogEditImage
+    <MediaEditor
       setOpenEditImage={setOpenEditImage}
       curDialogRef={curDialogRef}
-      selectedImage={selectedImage}
-      setSelectedImage={setSelectedImage}
-      previewImage={previewImage}
-      setPreviewImage={setPreviewImage}
+      selectedMediaContent={selectedImage}
+      setSelectedMediaContent={setSelectedImage}
+      previewMediaContent={previewMediaContent}
+      setPreviewMediaContent={setPreviewMediaContent}
+      setWidth={setWidth}
     />
   )
 
@@ -154,7 +160,7 @@ function InformationOfPost({
     } else {
       setWidth('w-[500px]')
     }
-  }, [openEditImage, previewImage, selectedImage])
+  }, [openEditImage, previewMediaContent, selectedImage])
 
   return (
     <>
@@ -226,7 +232,7 @@ function InformationOfPost({
         </Popover>
       </div>
       {/* content */}
-      <div className={`px-4 text-[#050505] ${curPost.image.length !== 0 ? 'text-[15px] leading-5' : 'text-2xl'}`}>
+      <div className={`px-4 text-[#050505] ${curPost.mediaList.length !== 0 ? 'text-[15px] leading-5' : 'text-2xl'}`}>
         {lines.map((line, index) => (
           <Fragment key={index}>
             {line}
@@ -236,7 +242,7 @@ function InformationOfPost({
       </div>
       {/* hình ảnh/ video */}
 
-      {curPost.image.length !== 0 ? <ShowImageInPost listImage={curPost.image} /> : ''}
+      {curPost.mediaList.length !== 0 ? <ShowImageInPost listImage={curPost.mediaList} /> : ''}
 
       {/* amount of emoji */}
       <div
@@ -282,7 +288,7 @@ function InformationOfPost({
           interactFieldRef={interactFieldRef}
           reactionList={reactionList}
           userAccount={userAccount}
-          postID={curPost.id}
+          postId={curPost.id}
           refetch={refetchReaction}
         />
         {/* comment button */}

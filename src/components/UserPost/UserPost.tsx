@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, forwardRef, LegacyRef } from 'react'
 import { PostType } from 'src/types/post.type'
-import { UserInfor } from 'src/types/user.type'
+import { UserInfo } from 'src/types/user.type'
 import reactionApi from 'src/apis/reaction.api'
 import { useQuery } from '@tanstack/react-query'
 import { ReactionType } from 'src/types/reaction.type'
@@ -15,7 +15,7 @@ import { createPortal } from 'react-dom'
 
 interface Props {
   post: PostType
-  userAccount: Partial<UserInfor>
+  userAccount: Partial<UserInfo>
 }
 
 const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {

@@ -12,7 +12,7 @@ module.exports = {
     'plugin:import/typescript',
     'plugin:jsx-a11y/recommended',
     'plugin:@typescript-eslint/recommended',
-    'eslint-disable-next-line @typescript-eslint/no-explicit-any',
+    // 'eslint-disable-next-line @typescript-eslint/no-explicit-any',
     // Disable các rule mà eslint xung đột với prettier.
     // Để cái này ở dưới để nó override các rule phía trên!.
     'eslint-config-prettier',
@@ -35,6 +35,12 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh', 'prettier'],
   rules: {
+    // Tắt rule yêu cầu phải dùng prop-types
+    '@typescript-eslint/no-explicit-any': 'off',
+    // Tắt rule yêu cầu
+    'import/no-unresolved': 'off',
+
+    'react-hooks/exhaustive-deps': 'off',
     // Tắt rule yêu cầu import React trong file jsx
     'react/react-in-jsx-scope': 'off',
     // Cảnh báo khi thẻ <a target='_blank'> mà không có rel="noreferrer"

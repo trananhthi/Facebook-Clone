@@ -1,3 +1,3 @@
-// import DialogCreatePost from './DialogCreatePost'
+import DialogCreatePost from './DialogCreatePost.tsx'
 
-// export default DialogCreatePost
+export default DialogCreatePost

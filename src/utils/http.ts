@@ -17,7 +17,9 @@ const createHttpInstance = () => {
     baseURL: API_URL,
     timeout: 10000,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept-Language': 'vi',
+      'X-Requested-With': 'XMLHttpRequest' // Hỗ trợ CORS
     }
   })
 
@@ -49,7 +51,7 @@ const createHttpInstance = () => {
 
       return response
     },
-    async function (error: AxiosError) {
+    async function (error: AxiosError<ErrorResponse>) {
       if (
         error.config?.url !== URL_SIGNIN &&
         error.config?.url !== URL_SIGNUP &&
@@ -61,6 +63,12 @@ const createHttpInstance = () => {
         // toast.error(errorMessage, {
         //   autoClose: 3000
         // })
+      }
+
+      // Xử lý lỗi 500 chung
+      if (error.response?.status === 500) {
+        toast.error(error.response.data.message)
+        return Promise.reject(error)
       }
 
       //Unauthorized error

@@ -1,10 +1,12 @@
 import { SuccessResponseData } from './utils.type'
+import { UserInfo } from './user.type'
 
 export type LoginResponse = {
-  accessToken: string
-  refreshToken: string
-  message?: string
-  key?: string
+  userInfo?: UserInfo
+  accessToken?: string
+  refreshToken?: string
+  message: string
+  key: string
 }
 
 export type Token = Pick<LoginResponse, 'accessToken' | 'refreshToken'>

@@ -1,6 +1,6 @@
 import { DialogBody, DialogFooter, DialogHeader, IconButton } from '@material-tailwind/react'
-import { useEffect, useRef, useState } from 'react'
-import { UserInfor } from 'src/types/user.type'
+import React, { useEffect, useRef, useState } from 'react'
+import { UserInfo } from 'src/types/user.type'
 import userAccountApi from 'src/apis/userAccount.api'
 import { useMutation } from '@tanstack/react-query'
 import { useDispatch } from 'react-redux'
@@ -17,7 +17,7 @@ interface Props {
   setOpenPrivacy: React.Dispatch<React.SetStateAction<boolean>>
   privacyPost: PrivacyType
   setPrivacyPost: React.Dispatch<React.SetStateAction<PrivacyType>>
-  userAccount: Partial<UserInfor>
+  userAccount: Partial<UserInfo>
   setIsStartAnimationClosePrivacyDialog: React.Dispatch<React.SetStateAction<boolean>>
 }
 

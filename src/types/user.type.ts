@@ -1,7 +1,7 @@
 import * as yup from 'yup'
 
 export const userSchema = yup.object({
-  id: yup.number(),
+  id: yup.string(),
   email: yup
     .string()
     .matches(/^[A-Za-z0-9]{1,30}@[a-z0-9]{2,10}(\.[a-z0-9]{2,10}){1,3}$/, 'Vui lòng nhập lại địa chỉ email hợp lệ.')
@@ -25,7 +25,7 @@ export const userSchema = yup.object({
 
 export type User = yup.InferType<typeof userSchema>
 
-export type UserInfor = Pick<
+export type UserInfo = Pick<
   User,
   | 'id'
   | 'email'

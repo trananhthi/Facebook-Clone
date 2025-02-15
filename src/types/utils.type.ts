@@ -1,6 +1,8 @@
+import { PrivacyEnum } from 'src/constants/enum.ts'
+
 export type ErrorResponse = {
-  statusCode: number
-  errorKey: string
+  statusCode?: number
+  key: string
   message: string
   date: string
 }
@@ -20,7 +22,7 @@ export type ToUndefined<T> = {
 
 export type PrivacyType = {
   icon: string
-  value: string
+  value: PrivacyEnum
   title?: string
   description?: string
 }
@@ -43,4 +45,10 @@ export type PageableType = {
   offset: number
   unpaged: boolean
   paged: boolean
+}
+
+export type PreviewMediaContentType = {
+  url: string
+  type: string
+  videoUrl?: string
 }

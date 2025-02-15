@@ -5,11 +5,11 @@ const URL_EXPRESS_REACTION = 'reaction/express'
 const URL_GET_REACTION = 'reaction/get'
 
 const reactionApi = {
-  expressReaction: (body: ExpressReactionType, postID: number) => {
-    return http.post<SuccessResponse>(`${URL_EXPRESS_REACTION}/${postID}`, body)
+  expressReaction: (body: ExpressReactionType, postId: string) => {
+    return http.post<SuccessResponse>(`${URL_EXPRESS_REACTION}/${postId}`, body)
   },
-  getAllReactionByPostID: (postID: number) => {
-    return http.get<ReactionType[]>(`${URL_GET_REACTION}/${postID}`)
+  getAllReactionByPostID: (postId: string) => {
+    return http.get<ReactionType[]>(`${URL_GET_REACTION}/${postId}`)
   }
 }
 

@@ -1,21 +1,22 @@
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { emojiList } from 'src/constants/list'
 import { Tooltip } from '@material-tailwind/react'
 import { EmojiType } from 'src/types/utils.type'
 import { ExpressReactionType, ReactionType } from 'src/types/reaction.type'
-import { UserInfor } from 'src/types/user.type'
+import { UserInfo } from 'src/types/user.type'
 import { isLikedPost } from 'src/utils/utils'
 import { useMutation } from '@tanstack/react-query'
 import reactionApi from 'src/apis/reaction.api'
 
 /* import images */
 import facebook_icon_9 from 'src/assets/images/icon-pack/facbook_icon_9.png'
+import { StatusEnum } from 'src/constants/enum.ts'
 
 interface Props {
   interactFieldRef: React.MutableRefObject<null>
   reactionList: ReactionType[]
-  userAccount: Partial<UserInfor>
-  postID: number
+  userAccount: Partial<UserInfo>
+  postId: string
   refetch: () => void
 }
 
@@ -62,6 +63,7 @@ function Emoji({
       offset={13}
       className='text-white text-[11px] bg-[rgba(0,0,0,0.8)] px-1 py-[2px] rounded-full font-semibold'
     >
+      {/* eslint-disable-next-line jsx-a11y/mouse-events-have-key-events */}
       <button
         onClick={hanldeClickChooseEmoji}
         onMouseOver={() => {
@@ -92,7 +94,7 @@ function Emoji({
   )
 }
 
-function EmojiButton({ interactFieldRef, reactionList, userAccount, postID, refetch }: Props) {
+function EmojiButton({ interactFieldRef, reactionList, userAccount, postId, refetch }: Props) {
   const popoverRef = useRef(null)
   const [emojiChoosen, setEmojiChoosen] = useState<EmojiType | null>(
     isLikedPost(reactionList, userAccount.email as string)
@@ -105,7 +107,7 @@ function EmojiButton({ interactFieldRef, reactionList, userAccount, postID, refe
   const [isAnimationPopoverEnd, setIsAnimationPopoverEnd] = useState(false)
 
   const expressReactionMutation = useMutation({
-    mutationFn: (body: ExpressReactionType) => reactionApi.expressReaction(body, postID),
+    mutationFn: (body: ExpressReactionType) => reactionApi.expressReaction(body, postId),
     onSuccess: () => {
       refetch()
     },
@@ -199,9 +201,18 @@ function EmojiButton({ interactFieldRef, reactionList, userAccount, postID, refe
   }, [reactionList])
 
   useEffect(() => {
-    if (emojiChoosen) expressReactionMutation.mutate({ typeReaction: emojiChoosen.value as string })
-    else expressReactionMutation.mutate({ typeReaction: 'like', status: 'deleted' })
-  }, [emojiChoosen])
+    if (!reactionList || userAccount.email === undefined) return
+
+    const isLiked = isLikedPost(reactionList, userAccount.email as string)
+
+    if (emojiChoosen && isLiked !== emojiChoosen) {
+      // Nếu người dùng chọn một emoji mới khác với cảm xúc trước đó
+      expressReactionMutation.mutate({ typeReaction: emojiChoosen.value as string })
+    } else if (!emojiChoosen && isLiked) {
+      // Nếu người dùng bỏ thích và trước đó đã có cảm xúc
+      expressReactionMutation.mutate({ typeReaction: 'like', status: StatusEnum.DEL })
+    }
+  }, [emojiChoosen, reactionList, userAccount.email])
 
   return (
     <div>

@@ -17,7 +17,7 @@ export function isAxiosUnauthorizedError<FormError>(error: unknown): error is Ax
 }
 
 export function isAxiosExpiredTokenError<FormError>(error: unknown): error is AxiosError<FormError> {
-  return isAxiosUnauthorizedError<ErrorResponse>(error) && error.response?.data.errorKey === 'TokenIsExpired'
+  return isAxiosUnauthorizedError<ErrorResponse>(error) && error.response?.data.key === 'TokenIsExpired'
 }
 
 export const formatDate = (date: string) => {
@@ -244,4 +244,21 @@ export function timeElapsedSince(date: Date) {
   } else {
     return `1 phút`
   }
+}
+
+// Hàm chụp ảnh thumbnail từ video
+export function snapImage(video: HTMLVideoElement, url: string) {
+  const canvas = document.createElement('canvas')
+  canvas.width = video.videoWidth
+  canvas.height = video.videoHeight
+  canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height)
+  const image = canvas.toDataURL()
+  const success = image.length > 100000
+
+  if (success) {
+    URL.revokeObjectURL(url)
+    return image
+  }
+
+  return null
 }

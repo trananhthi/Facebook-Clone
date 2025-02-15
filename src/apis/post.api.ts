@@ -14,8 +14,8 @@ const postApi = {
       }
     })
   },
-  updatePost: (body: FormData, postID: number) => {
-    return http.patch<PostType>(`${URL_UPDATE_POST}/${postID}`, body, {
+  updatePost: (body: FormData, postId: string) => {
+    return http.patch<PostType>(`${URL_UPDATE_POST}/${postId}`, body, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

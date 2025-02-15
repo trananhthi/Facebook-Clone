@@ -1,4 +1,4 @@
-import { PrivacyType, EmojiType } from 'src/types/utils.type'
+import { EmojiType, PrivacyType } from 'src/types/utils.type'
 
 /* import images */
 import friendIcon from 'src/assets/images/privacy-icon/friendIcon2.png'
@@ -14,6 +14,7 @@ import haha from 'src/assets/images/emoji_post/haha.png'
 import wow from 'src/assets/images/emoji_post/wow.png'
 import sad from 'src/assets/images/emoji_post/sad.png'
 import angry from 'src/assets/images/emoji_post/angry.png'
+import { PrivacyEnum } from 'src/constants/enum.ts'
 
 export const months = Array.from({ length: 12 }, (_, i) => `Tháng ${i + 1}`)
 
@@ -24,37 +25,37 @@ export const years = Array.from({ length: new Date().getFullYear() - 1980 + 1 },
 export const privacyList: PrivacyType[] = [
   {
     icon: publicIcon,
-    value: 'public',
+    value: PrivacyEnum.PUBLIC,
     title: 'Công khai',
     description: 'Bất kỳ ai ở trên hoặc ngoài Facebook'
   },
   {
     icon: friendIcon,
-    value: 'friend',
+    value: PrivacyEnum.FRIEND,
     title: 'Bạn bè',
     description: 'Bạn bè của bạn trên Facebook'
   },
   {
     icon: exceptFriendIcon,
-    value: 'except_friend',
+    value: PrivacyEnum.EXCEPT_FRIEND,
     title: 'Bạn bè ngoại trừ...',
     description: 'Không hiển thị với một số bạn bè'
   },
   {
     icon: specificFriendIcon,
-    value: 'specific_friend',
+    value: PrivacyEnum.SPECIFIC_FRIEND,
     title: 'Bạn bè cụ thể',
     description: 'Chỉ hiển thị với một số bạn bè'
   },
   {
     icon: onlymeIcon,
-    value: 'only_me',
+    value: PrivacyEnum.ONLY_ME,
     title: 'Chỉ mình tôi',
     description: ''
   },
   {
     icon: customIcon,
-    value: 'custom',
+    value: PrivacyEnum.CUSTOM,
     title: 'Tùy chỉnh',
     description: 'Bao gồm và loại trừ bạn bè, danh sách'
   }

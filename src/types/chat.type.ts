@@ -1,14 +1,14 @@
-import { UserInfor } from './user.type'
+import { UserInfo } from './user.type'
 import { PageableType } from './utils.type'
 
 export type ChatRoomType = {
-  id: number
-  userId1: number
-  userId2: number
+  id: string
+  userId1: string
+  userId2: string
   roomName: null | string
   status: string
   createdAt: Date
-  receiver: UserInfor
+  receiver: UserInfo
   lastMessageTime: Date
   lastMessage: ChatMessageType
 }

@@ -1,18 +1,19 @@
-import { PostImageType } from './image.type'
-import { UserInfor } from './user.type'
+import { PostMediaType } from './image.type'
+import { UserInfo } from './user.type'
 import { PageableType } from './utils.type'
+import { PrivacyEnum } from 'src/constants/enum.ts'
 
 export type PostType = {
-  id: number
-  author: UserInfor
+  id: string
+  author: UserInfo
   content: string
   createdAt: Date
   updatedAt: Date
   typePost: string
-  image: PostImageType[]
+  mediaList: PostMediaType[]
   parentPost: PostType
   view: number
-  privacy: string
+  privacy: PrivacyEnum
   tag: string
   hashtag: string
 }

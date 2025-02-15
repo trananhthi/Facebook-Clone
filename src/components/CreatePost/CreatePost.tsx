@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
 import { privacyList } from 'src/constants/list'
-import { PrivacyType } from 'src/types/utils.type'
+import { PreviewMediaContentType, PrivacyType } from 'src/types/utils.type'
 import DialogPrivacyContent from './components/DialogPrivacyContent'
-import DialogMainContent from './components/DialogMainContent'
-import DialogEditImage from './components/DialogEditImage'
+import DialogCreatePost from './components/DialogCreatePost'
+import MediaEditor from './components/MediaEditor'
 
 interface Props {
   refetch: () => void
@@ -20,34 +20,34 @@ function CreatePost({ refetch }: Props) {
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState<string>('')
   const [openPrivacy, setOpenPrivacy] = useState<boolean>(false)
-  const [openEditImage, setOpenEditImage] = useState<boolean>(false)
+  const [openEditMediaContent, setOpenEditMediaContent] = useState<boolean>(false)
   const [privacyPost, setPrivacyPost] = useState<PrivacyType>(
     privacyList.find((p) => p.value === (userAccount.privacyDefault as string)) as PrivacyType
   )
   const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
-  const [previewImage, setPreviewImage] = useState<string[]>([])
-  const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
-  const [openAddImage, setOpenAddImage] = useState<boolean>(false)
+  const [previewMediaContent, setPreviewMediaContent] = useState<PreviewMediaContentType[]>([])
+  const [selectedMediaContent, setSelectedMediaContent] = useState<FileList | null>(null)
+  const [openAddMediaContent, setOpenAddMediaContent] = useState<boolean>(false)
   const handleOpen = () => setOpen(!open)
 
   const dialogMainContent: JSX.Element = (
-    <DialogMainContent
+    <DialogCreatePost
       type='create'
       content={content}
       setContent={setContent}
       handleOpen={handleOpen}
       userAccount={userAccount}
       setOpenPrivacy={setOpenPrivacy}
-      setOpenEditImage={setOpenEditImage}
+      setOpenEditMediaContent={setOpenEditMediaContent}
       privacyPost={privacyPost}
       isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
-      selectedImage={selectedImage}
-      setSelectedImage={setSelectedImage}
-      previewImage={previewImage}
-      setPreviewImage={setPreviewImage}
-      openAddImage={openAddImage}
-      setOpenAddImage={setOpenAddImage}
+      selectedMediaContent={selectedMediaContent}
+      setSelectedMediaContent={setSelectedMediaContent}
+      previewMediaContent={previewMediaContent}
+      setPreviewMediaContent={setPreviewMediaContent}
+      openAddMediaContent={openAddMediaContent}
+      setOpenAddMediaContent={setOpenAddMediaContent}
       refetch={refetch}
     />
   )
@@ -64,14 +64,15 @@ function CreatePost({ refetch }: Props) {
     />
   )
 
-  const dialogEditImage: JSX.Element = (
-    <DialogEditImage
-      setOpenEditImage={setOpenEditImage}
+  const MediaEditorDialog: JSX.Element = (
+    <MediaEditor
+      setOpenEditImage={setOpenEditMediaContent}
       curDialogRef={curDialogRef}
-      selectedImage={selectedImage}
-      setSelectedImage={setSelectedImage}
-      previewImage={previewImage}
-      setPreviewImage={setPreviewImage}
+      selectedMediaContent={selectedMediaContent}
+      setSelectedMediaContent={setSelectedMediaContent}
+      previewMediaContent={previewMediaContent}
+      setPreviewMediaContent={setPreviewMediaContent}
+      setWidth={setWidth}
     />
   )
 
@@ -92,13 +93,17 @@ function CreatePost({ refetch }: Props) {
   }, [open, openPrivacy, privacyPost])
 
   useEffect(() => {
-    if (curDialogRef.current) {
-      const curDialogElement = curDialogRef.current as HTMLElement
-      setWidth(`w-[${curDialogElement.offsetWidth}px]`)
-    } else {
+    // if (curDialogRef.current) {
+    //   const curDialogElement = curDialogRef.current as HTMLElement
+    //   setWidth(`w-[${curDialogElement.offsetWidth}px]`)
+    // } else {
+    //   setWidth('w-[500px]')
+    // }
+
+    if (!openEditMediaContent) {
       setWidth('w-[500px]')
     }
-  }, [openEditImage, previewImage, selectedImage])
+  }, [openEditMediaContent])
 
   return (
     <div className='1200:w-[590px] w-[500px] 700-1100:w-[590px] max-500:w-[475px] h-auto min-h-[123px] max-h-[144px] bg-white rounded-lg shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)]'>
@@ -162,10 +167,10 @@ function CreatePost({ refetch }: Props) {
         dismiss={{ enabled: false }}
         open={open}
         handler={handleOpen}
-        className={`bg-white ${width} transition-[width] duration-100 ease-in-out max-500:ml-0`}
+        className={`bg-white ${width} transition-[width] min-h-[423px] duration-100 ease-in-out max-500:ml-0`}
         size='xs'
       >
-        {openPrivacy ? dialogPrivacyContent : openEditImage ? dialogEditImage : dialogMainContent}
+        {openPrivacy ? dialogPrivacyContent : openEditMediaContent ? MediaEditorDialog : dialogMainContent}
       </Dialog>
     </div>
   )

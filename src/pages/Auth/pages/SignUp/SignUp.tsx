@@ -93,10 +93,10 @@ function SignUp({ open, handleOpen }: Props) {
 
   return (
     <Dialog
-      size='sm'
+      size='xs'
       open={open}
       handler={handleOpen}
-      className='bg-transparent shadow-none'
+      className='bg-transparent shadow-none w-[432px]'
       dismiss={{ enabled: false }}
     >
       <DialogHeader className='justify-between bg-white rounded-t-md w-full'>

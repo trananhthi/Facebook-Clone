@@ -12,42 +12,43 @@ export default withMT({
       colors: {
         header: '#2A2A2A',
         primary: '#EE4D2D',
-        primary: "rgb(var(--color-primary) / <alpha-value>)",
-        primarylight: "rgb(var(--color-primary-light) / <alpha-value>)",
-        primarydark: "rgb(var(--color-primary-dark) / <alpha-value>)",
-        primarygray: "rgb(var(--color-primary-gray) / <alpha-value>)",
-        secondary: "rgb(var(--color-secondary) / <alpha-value>)",
-        success: "rgb(var(--color-success) / <alpha-value>)",
-        info: "rgb(var(--color-info) / <alpha-value>)",
-        warning: "rgb(var(--color-warning) / <alpha-value>)",
-        pending: "rgb(var(--color-pending) / <alpha-value>)",
-        danger: "rgb(var(--color-danger) / <alpha-value>)",
-        light: "rgb(var(--color-light) / <alpha-value>)",
-        dark: "rgb(var(--color-dark) / <alpha-value>)",
-        textprimary: "rgb(var(--color-text-primary) / <alpha-value>)",
-        textgray: "rgb(var(--color-text-gray) / <alpha-value>)",
+        // primary: 'rgb(var(--color-primary) / <alpha-value>)',
+        primarylight: 'rgb(var(--color-primary-light) / <alpha-value>)',
+        primarydark: 'rgb(var(--color-primary-dark) / <alpha-value>)',
+        primarygray: 'rgb(var(--color-primary-gray) / <alpha-value>)',
+        secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
+        success: 'rgb(var(--color-success) / <alpha-value>)',
+        info: 'rgb(var(--color-info) / <alpha-value>)',
+        warning: 'rgb(var(--color-warning) / <alpha-value>)',
+        pending: 'rgb(var(--color-pending) / <alpha-value>)',
+        danger: 'rgb(var(--color-danger) / <alpha-value>)',
+        light: 'rgb(var(--color-light) / <alpha-value>)',
+        dark: 'rgb(var(--color-dark) / <alpha-value>)',
+        textprimary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+        textgray: 'rgb(var(--color-text-gray) / <alpha-value>)'
       },
       boxShadow: {
-        'custom': "#ffffff 0px 0px 0px 2px,#0866ff 0px 0px 0px 4px"
+        custom: '#ffffff 0px 0px 0px 2px,#0866ff 0px 0px 0px 4px'
       },
       screens: {
-        'xs': '320px',
-        'sm': '640px',
-        'md': '768px',
+        xs: '320px',
+        sm: '640px',
+        md: '768px',
         'semi-md': '900px',
-        'lg': '1024px',
+        lg: '1024px',
         'semi-lg': '1100px',
-        'xl': '1280px',
+        xl: '1280px',
         '2xl': '1380px',
         '3xl': '1500px',
-        '1200': '1200px',
+        1200: '1200px',
         '4xl': '1536px',
-        'max-500': { 'max': '500px' },
-        'max-724': { 'max': '724px' },
-        '700-1100': { 'min': '700px', 'max': '1100px' },
-        '900-1100': { 'min': '900px', 'max': '1100px' },
-        '950-1100': { 'min': '950px', 'max': '1100px' },
-        '900-950': { 'min': '900px', 'max': '950px' },
+        'max-500': { max: '500px' },
+        'max-724': { max: '724px' },
+        'max-900': { max: '900px' },
+        '700-1100': { min: '700px', max: '1100px' },
+        '900-1100': { min: '900px', max: '1100px' },
+        '950-1100': { min: '950px', max: '1100px' },
+        '900-950': { min: '900px', max: '950px' }
       },
       animation: {
         'text-reveal': 'text-reveal 1.5s cubic-bezier(0.77, 0, 0.175, 1) 0.5s',
@@ -164,7 +165,7 @@ export default withMT({
           },
           '100%': {
             transform: 'translateY(0)',
-            opacity: '1',
+            opacity: '1'
           }
         },
         'scale-out-bl-box-emoji': {
@@ -291,7 +292,6 @@ export default withMT({
             opacity: '1'
           }
         }
-
       }
     },
     fontFamily: {
@@ -303,74 +303,74 @@ export default withMT({
     plugin(function ({ addBase, matchUtilities }) {
       addBase({
         // Default colors
-        ":root": {
-          "--color-primary": '',
-          "--color-primary-dark": "26 54 149",
-          "--color-primary-gray": "228 230 235",
-          "--color-primary-light": "53 83 183",
-          "--color-secondary": '',
-          "--color-success": '',
-          "--color-info": '240 20 20',
-          "--color-warning": '',
-          "--color-pending": '',
-          "--color-danger": '',
-          "--color-light": '',
-          "--color-dark": '',
-          "--color-text-primary": "5 5 5", //050505
-          "--color-text-gray": "101 103 107", //
+        ':root': {
+          '--color-primary': '',
+          '--color-primary-dark': '26 54 149',
+          '--color-primary-gray': '228 230 235',
+          '--color-primary-light': '53 83 183',
+          '--color-secondary': '',
+          '--color-success': '',
+          '--color-info': '240 20 20',
+          '--color-warning': '',
+          '--color-pending': '',
+          '--color-danger': '',
+          '--color-light': '',
+          '--color-dark': '',
+          '--color-text-primary': '5 5 5', //050505
+          '--color-text-gray': '101 103 107' //
         },
         // Default dark-mode colors
-        ".dark": {
-          "--color-primary": '',
-          "--color-primary-dark": "41 52 79",
-          "--color-primary-light": "37 49 76",
-          "--color-darkmode-50": "87 103 132",
-          "--color-darkmode-100": "74 90 121",
-          "--color-darkmode-200": "65 81 114",
-          "--color-darkmode-300": "53 69 103",
-          "--color-darkmode-400": "48 61 93",
-          "--color-darkmode-500": "41 53 82",
-          "--color-darkmode-600": "40 51 78",
-          "--color-darkmode-700": "35 45 69",
-          "--color-darkmode-800": "27 37 59",
-          "--color-darkmode-900": "15 23 42",
-        },
-      });
+        '.dark': {
+          '--color-primary': '',
+          '--color-primary-dark': '41 52 79',
+          '--color-primary-light': '37 49 76',
+          '--color-darkmode-50': '87 103 132',
+          '--color-darkmode-100': '74 90 121',
+          '--color-darkmode-200': '65 81 114',
+          '--color-darkmode-300': '53 69 103',
+          '--color-darkmode-400': '48 61 93',
+          '--color-darkmode-500': '41 53 82',
+          '--color-darkmode-600': '40 51 78',
+          '--color-darkmode-700': '35 45 69',
+          '--color-darkmode-800': '27 37 59',
+          '--color-darkmode-900': '15 23 42'
+        }
+      })
 
       // Animation delay utilities
       matchUtilities(
         {
-          "animate-delay": (value) => ({
-            "animation-delay": value,
-          }),
+          'animate-delay': (value) => ({
+            'animation-delay': value
+          })
         },
         {
           values: (() => {
-            const values = {};
+            const values = {}
             for (let i = 1; i <= 50; i++) {
-              values[i * 10] = `${i * 0.1}s`;
+              values[i * 10] = `${i * 0.1}s`
             }
-            return values;
-          })(),
+            return values
+          })()
         }
-      );
+      )
 
       // Animation fill mode utilities
       matchUtilities(
         {
-          "animate-fill-mode": (value) => ({
-            "animation-fill-mode": value,
-          }),
+          'animate-fill-mode': (value) => ({
+            'animation-fill-mode': value
+          })
         },
         {
           values: {
-            none: "none",
-            forwards: "forwards",
-            backwards: "backwards",
-            both: "both",
-          },
+            none: 'none',
+            forwards: 'forwards',
+            backwards: 'backwards',
+            both: 'both'
+          }
         }
-      );
+      )
     }),
     plugin(({ addComponents, theme }) => {
       addComponents({

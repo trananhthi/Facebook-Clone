@@ -1,10 +1,10 @@
-import { UserInfor } from './user.type'
+import { UserInfo } from './user.type'
 import { PageableType } from './utils.type'
 
 export type CommentType = {
-  id: number
-  postId: number
-  userAccount: UserInfor
+  id: string
+  postId: string
+  userAccount: UserInfo
   content: string
   createdAt: Date
   updatedAt: Date

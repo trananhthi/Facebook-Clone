@@ -6,6 +6,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   build: {
+    outDir: 'C:/Studio Code/ReactJS/Build Facebook',
     // chunkSizeWarningLimit: 1600,
     // rollupOptions: {
     //   output: {
