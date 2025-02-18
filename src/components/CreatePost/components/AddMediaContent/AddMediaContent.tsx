@@ -6,16 +6,16 @@ import facebookIcon10 from 'src/assets/images/icon-pack/facbook_icon_10.png'
 import facebookIcon11 from 'src/assets/images/icon-pack/facbook_icon_11.png'
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
 import GridGallery from 'src/components/GridGallery'
-import { mergeFileLists, snapImage } from 'src/utils/utils'
+import { snapImage } from 'src/utils/utils'
 import { PreviewMediaContentType } from 'src/types/utils.type.ts'
 import { MediaTypeEnum } from 'src/constants/enum.ts'
 
 interface Props {
   openAddMediaContent: boolean
-  selectedMediaContent: FileList | null
-  setSelectedMediaContent: React.Dispatch<React.SetStateAction<FileList | null>>
-  previewMediaContent: PreviewMediaContentType[]
-  setPreviewMediaContent: React.Dispatch<React.SetStateAction<PreviewMediaContentType[]>>
+  mediaContentMap: Map<File, { preview: PreviewMediaContentType; visualIndex: number }>
+  setMediaContentMap: React.Dispatch<
+    React.SetStateAction<Map<File, { preview: PreviewMediaContentType; visualIndex: number }>>
+  >
   fileInputRef: React.MutableRefObject<null>
   handleCloseSelectMediaContent: () => void
   setOpenEditMediaContent: React.Dispatch<React.SetStateAction<boolean>>
@@ -23,51 +23,45 @@ interface Props {
 
 function AddMediaContent({
   openAddMediaContent,
-  selectedMediaContent,
-  setSelectedMediaContent,
-  previewMediaContent,
-  setPreviewMediaContent,
+  mediaContentMap,
+  setMediaContentMap,
   fileInputRef,
   handleCloseSelectMediaContent,
   setOpenEditMediaContent
 }: Props) {
-  // const [temp, setTemp] = useState<any>(selectedImage)
-
   // Xử lý khi người dùng chọn ảnh/video
-  const handleAddImage = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAddMedia = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
-    const listImageUrl: PreviewMediaContentType[] = []
 
     if (files && files.length > 0) {
-      const mergeFileList = mergeFileLists(selectedMediaContent, files)
+      const newMediaMap = new Map(mediaContentMap)
+      const currentIndex = newMediaMap.size // Bắt đầu index từ vị trí hiện tại
 
-      const promises = Array.from(files).map((file) => {
+      const promises = Array.from(files).map((file, index) => {
         return new Promise<void>((resolve) => {
-          // Kiểm tra xem file có phải là hình ảnh không
+          const visualIndex = currentIndex + index // Gán index theo thứ tự chọn
+
           if (file.type.includes('image')) {
-            listImageUrl.push({
-              url: URL.createObjectURL(file),
-              type: MediaTypeEnum.IMAGE
+            newMediaMap.set(file, {
+              preview: { url: URL.createObjectURL(file), type: MediaTypeEnum.IMAGE },
+              visualIndex
             })
             resolve()
           } else {
             const url = URL.createObjectURL(file)
             const video = document.createElement('video')
 
-            // Sự kiện loadeddata để lấy thumbnail
             video.addEventListener('loadeddata', () => {
               const thumbNail = snapImage(video, url)
               if (thumbNail != null) {
-                listImageUrl.push({
-                  url: thumbNail,
-                  type: MediaTypeEnum.VIDEO
-                  // videoUrl: url
+                newMediaMap.set(file, {
+                  preview: { url: thumbNail, type: MediaTypeEnum.VIDEO },
+                  visualIndex
                 })
               }
               resolve()
             })
 
-            // Thiết lập thuộc tính cho video
             video.src = url
             video.muted = true
             video.playsInline = true
@@ -78,8 +72,8 @@ function AddMediaContent({
       })
 
       await Promise.all(promises)
-      setPreviewMediaContent(previewMediaContent.concat(listImageUrl))
-      setSelectedMediaContent(mergeFileList)
+      console.log('Updated mediaContentMap:', newMediaMap)
+      setMediaContentMap(newMediaMap)
     }
   }
 
@@ -101,15 +95,15 @@ function AddMediaContent({
       </div>
       {/*  */}
 
-      {previewMediaContent.length > 0 ? (
+      {mediaContentMap.size > 0 ? (
         <>
           <div className='relative z-10'>
             {/*BEGIN: edit button */}
             <button
               onClick={() => setOpenEditMediaContent(true)}
-              disabled={previewMediaContent.length === 1}
+              disabled={mediaContentMap.size === 1}
               className={`bg-white absolute rounded-md px-[10px] py-[6px] flex gap-1 items-center justify-center mt-2 ml-2 ${
-                previewMediaContent.length === 1 ? 'hidden' : ''
+                mediaContentMap.size === 1 ? 'hidden' : ''
               } hover:bg-gray-200`}
             >
               <div
@@ -125,7 +119,7 @@ function AddMediaContent({
             <div className='group'>
               <button
                 className={`bg-white absolute rounded-md px-[10px] py-[6px] flex gap-1 items-center justify-center mt-2 ${
-                  previewMediaContent.length === 1 ? 'ml-[10px]' : 'ml-[130px]'
+                  mediaContentMap.size === 1 ? 'ml-[10px]' : 'ml-[130px]'
                 } group-hover:bg-gray-200`}
               >
                 <div
@@ -139,9 +133,9 @@ function AddMediaContent({
                 type='file'
                 title=''
                 accept='image/*, video/*, .mkv'
-                onChange={handleAddImage}
+                onChange={handleAddMedia}
                 className={`w-[154px] h-[32px] opacity-0 absolute mt-2 ${
-                  previewMediaContent.length === 1 ? 'ml-[10px]' : 'ml-[130px]'
+                  mediaContentMap.size === 1 ? 'ml-[10px]' : 'ml-[130px]'
                 } cursor-pointer rounded-lg file:cursor-pointer`}
                 multiple
               />
@@ -152,7 +146,12 @@ function AddMediaContent({
 
           {/*BEGIN: show preview image */}
           <div className='z-0'>
-            <GridGallery previewMediaContent={previewMediaContent} />
+            <GridGallery
+              previewMediaContent={Array.from(mediaContentMap.entries()).map(([, { preview }]) => ({
+                url: preview.url, // Thêm url vào
+                type: preview.type // Thêm type vào
+              }))}
+            />
           </div>
           {/*END: show preview image */}
         </>
@@ -176,7 +175,7 @@ function AddMediaContent({
             type='file'
             title=''
             accept='image/*, video/*, .mkv'
-            onChange={handleAddImage}
+            onChange={handleAddMedia}
             className='w-[450px] h-[183px] opacity-0 cursor-pointer rounded-lg file:cursor-pointer'
             multiple
           />

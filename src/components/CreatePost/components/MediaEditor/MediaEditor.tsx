@@ -5,7 +5,7 @@ import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
 import addImageBlueIcon from 'src/assets/images/icon/Add-Image-Blue-Icon.png'
 import null_states_media_gray_wash from 'src/assets/images/icon/null_states_media_gray_wash.svg'
 import React, { ChangeEvent, useEffect } from 'react'
-import { mergeFileLists, snapImage } from 'src/utils/utils'
+import { snapImage } from 'src/utils/utils'
 import PreviewMediaContent from 'src/base-components/PreviewMediaContent'
 import { PreviewMediaContentType } from 'src/types/utils.type.ts'
 import { MediaTypeEnum } from 'src/constants/enum.ts'
@@ -13,22 +13,14 @@ import { MediaTypeEnum } from 'src/constants/enum.ts'
 interface Props {
   setOpenEditImage: React.Dispatch<React.SetStateAction<boolean>>
   curDialogRef: React.MutableRefObject<null>
-  selectedMediaContent: FileList | null
-  setSelectedMediaContent: React.Dispatch<React.SetStateAction<FileList | null>>
-  previewMediaContent: PreviewMediaContentType[]
-  setPreviewMediaContent: React.Dispatch<React.SetStateAction<PreviewMediaContentType[]>>
+  mediaContentMap: Map<File, { preview: PreviewMediaContentType; visualIndex: number }>
+  setMediaContentMap: React.Dispatch<
+    React.SetStateAction<Map<File, { preview: PreviewMediaContentType; visualIndex: number }>>
+  >
   setWidth: React.Dispatch<React.SetStateAction<string>>
 }
 
-const MediaEditor = ({
-  setOpenEditImage,
-  curDialogRef,
-  selectedMediaContent,
-  setSelectedMediaContent,
-  previewMediaContent,
-  setPreviewMediaContent,
-  setWidth
-}: Props) => {
+const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMediaContentMap, setWidth }: Props) => {
   const handleCancel = () => {
     //setStartAnimationClosePrivacyDialog(true)
     setOpenEditImage(false)
@@ -46,59 +38,39 @@ const MediaEditor = ({
     }
   }
 
-  // Xử lý khi người dùng thêm ảnh/video
-  // const handleAddImage = (event: ChangeEvent<HTMLInputElement>) => {
-  //   const files = event.target.files
-  //   const listImageUrl = []
-  //   if (files && files.length > 0) {
-  //     const mergeFileList = mergeFileLists(selectedMediaContent, files)
-  //     for (let i = 0; i < files.length; i++) {
-  //       const file = files[i]
-  //       listImageUrl.push({
-  //         url: URL.createObjectURL(file),
-  //         type: MediaTypeEnum.IMAGE
-  //       })
-  //     }
-  //     setPreviewMediaContent(previewMediaContent.concat(listImageUrl))
-  //     setSelectedMediaContent(mergeFileList)
-  //
-  //     setWidth(calculateWidth(previewMediaContent.concat(listImageUrl).length))
-  //   }
-  // }
-  const handleAddImage = async (event: ChangeEvent<HTMLInputElement>) => {
+  // Xử lý khi người dùng chọn ảnh/video
+  const handleAddMedia = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
-    const listImageUrl: PreviewMediaContentType[] = []
 
     if (files && files.length > 0) {
-      const mergeFileList = mergeFileLists(selectedMediaContent, files)
+      const newMediaMap = new Map(mediaContentMap)
+      const currentIndex = newMediaMap.size // Bắt đầu index từ vị trí hiện tại
 
-      const promises = Array.from(files).map((file) => {
+      const promises = Array.from(files).map((file, index) => {
         return new Promise<void>((resolve) => {
-          // Kiểm tra xem file có phải là hình ảnh không
+          const visualIndex = currentIndex + index // Gán index theo thứ tự chọn
+
           if (file.type.includes('image')) {
-            listImageUrl.push({
-              url: URL.createObjectURL(file),
-              type: MediaTypeEnum.IMAGE
+            newMediaMap.set(file, {
+              preview: { url: URL.createObjectURL(file), type: MediaTypeEnum.IMAGE },
+              visualIndex
             })
             resolve()
           } else {
             const url = URL.createObjectURL(file)
             const video = document.createElement('video')
 
-            // Sự kiện loadeddata để lấy thumbnail
             video.addEventListener('loadeddata', () => {
               const thumbNail = snapImage(video, url)
               if (thumbNail != null) {
-                listImageUrl.push({
-                  url: thumbNail,
-                  type: MediaTypeEnum.VIDEO
-                  // videoUrl: url
+                newMediaMap.set(file, {
+                  preview: { url: thumbNail, type: MediaTypeEnum.VIDEO },
+                  visualIndex
                 })
               }
               resolve()
             })
 
-            // Thiết lập thuộc tính cho video
             video.src = url
             video.muted = true
             video.playsInline = true
@@ -109,102 +81,117 @@ const MediaEditor = ({
       })
 
       await Promise.all(promises)
-      setPreviewMediaContent(previewMediaContent.concat(listImageUrl))
-      setSelectedMediaContent(mergeFileList)
+      setMediaContentMap(newMediaMap)
     }
   }
 
   // Xử lý khi người dùng xóa ảnh/video
-  const handleRemoveImage = (indexToRemove: number) => {
-    if (indexToRemove < 0 || indexToRemove >= previewMediaContent.length) {
+  const handleRemoveMedia = (indexToRemove: number) => {
+    if (indexToRemove < 0 || indexToRemove >= mediaContentMap.size) {
       console.error('Invalid index')
       return
     }
 
-    const removedItem = previewMediaContent[indexToRemove]
-    const newArr = previewMediaContent.filter((_, index) => index !== indexToRemove)
-    setPreviewMediaContent(newArr)
-    const filesArray = Array.from(selectedMediaContent as FileList)
+    // Chuyển Map thành array để thao tác dễ dàng
+    const mediaArray = Array.from(mediaContentMap.entries())
 
-    // Tạo DataTransfer để tạo lại FileList
+    // Lấy file cần xóa
+    const [removedFile, removedData] = mediaArray[indexToRemove]
+
+    // Xóa file khỏi Map
+    const newMediaMap = new Map(mediaContentMap)
+    newMediaMap.delete(removedFile)
+
+    // Tạo DataTransfer để cập nhật FileList
     const dataTransfer = new DataTransfer()
+    newMediaMap.forEach((_, file) => dataTransfer.items.add(file))
 
-    //Loại bỏ phần tử tại vị trí indexToRemove && Thêm các file từ mảng mới vào DataTransfer
-    filesArray
-      .filter((_, index) => index !== indexToRemove)
-      .forEach((file) => {
-        dataTransfer.items.add(file)
-      })
+    // Cập nhật visualIndex để giữ thứ tự
+    let updatedIndex = 0
+    const reorderedMediaMap = new Map<File, { preview: PreviewMediaContentType; visualIndex: number }>()
+    newMediaMap.forEach((data, file) => {
+      reorderedMediaMap.set(file, { ...data, visualIndex: updatedIndex++ })
+    })
 
-    // Lấy FileList từ DataTransfer
-    setSelectedMediaContent(dataTransfer.files)
-    if (removedItem?.url && removedItem.url.startsWith('blob:')) {
-      URL.revokeObjectURL(removedItem.url)
+    // Cập nhật state
+    setMediaContentMap(reorderedMediaMap)
+    // setSelectedMediaContent(dataTransfer.files)
+
+    // Giải phóng bộ nhớ nếu cần
+    if (removedData.preview.url.startsWith('blob:')) {
+      URL.revokeObjectURL(removedData.preview.url)
     }
   }
 
   useEffect(() => {
-    setWidth(calculateWidth(previewMediaContent.length))
-  }, [previewMediaContent.length])
+    setWidth(calculateWidth(mediaContentMap.size))
+  }, [mediaContentMap.size])
 
   const MainBody = () => {
-    if (previewMediaContent.length === 1)
+    if (mediaContentMap.size === 1) {
+      const [file, { preview }] = Array.from(mediaContentMap.entries())[0]
       return (
         <div className='w-full p-2 pr-0'>
           <PreviewMediaContent
-            previewMediaContent={previewMediaContent[0]}
+            previewMediaContent={preview}
+            mediaContent={file}
             width='660px'
             height='335px'
             index={0}
-            handleRemoveImage={handleRemoveImage}
+            handleRemoveMedia={handleRemoveMedia}
           />
         </div>
       )
+    }
 
-    if (previewMediaContent.length === 2)
+    if (mediaContentMap.size === 2) {
       return (
         <div className='w-full p-2 pr-0'>
-          {previewMediaContent.map((media, index) => (
+          {Array.from(mediaContentMap.entries()).map(([file, { preview }], index) => (
             <div key={index} className='last:mt-2'>
               <PreviewMediaContent
-                previewMediaContent={media}
+                previewMediaContent={preview}
+                mediaContent={file}
                 width='660px'
                 height='335px'
                 index={index}
-                handleRemoveImage={handleRemoveImage}
+                handleRemoveMedia={handleRemoveMedia}
               />
             </div>
           ))}
         </div>
       )
+    }
 
-    if (previewMediaContent.length < 5 && previewMediaContent.length > 2)
+    if (mediaContentMap.size < 5 && mediaContentMap.size > 2)
       return (
         <div className='w-full grid grid-cols-2 grid-rows-2 gap-2 p-2 pr-0'>
-          {previewMediaContent.map((media, index) => (
+          {Array.from(mediaContentMap.entries()).map(([file, { preview }], index) => (
             <PreviewMediaContent
               key={index}
-              previewMediaContent={media}
+              previewMediaContent={preview}
+              mediaContent={file}
               width='438px'
               height='335px'
               index={index}
-              handleRemoveImage={handleRemoveImage}
+              handleRemoveMedia={handleRemoveMedia}
             />
           ))}
         </div>
       )
 
-    if (previewMediaContent.length >= 5) {
+    if (mediaContentMap.size >= 5) {
       return (
         <div className='w-full grid grid-cols-3 gap-2 p-2 pr-0'>
-          {previewMediaContent.map((media, index) => (
+          {Array.from(mediaContentMap.entries()).map(([file, { preview }], index) => (
             <PreviewMediaContent
               key={index}
-              previewMediaContent={media}
+              previewMediaContent={preview}
+              mediaContent={file}
               width='397px'
               height='335px'
               index={index}
-              handleRemoveImage={handleRemoveImage}
+              handleRemoveMedia={handleRemoveMedia}
             />
           ))}
         </div>
@@ -235,7 +222,7 @@ const MediaEditor = ({
         </div>
       </DialogHeader>
       <DialogBody className='max-h-[525px] p-0 bg-[#e4e6eb] overflow-y-auto overflow-x-hidden custom-scrollbar-vip'>
-        {previewMediaContent.length === 0 ? (
+        {mediaContentMap.size === 0 ? (
           <div className='h-[192px] w-full flex flex-col justify-center items-center gap-4 bg-white'>
             <img height='112' src={null_states_media_gray_wash} width='112' alt=''></img>
             <span className='' dir='auto'>
@@ -258,8 +245,8 @@ const MediaEditor = ({
           <input
             type='file'
             title=''
-            accept='image/*, video/*'
-            onChange={handleAddImage}
+            accept='image/*, video/*, .mkv'
+            onChange={handleAddMedia}
             className={`w-[148px] h-[32px] opacity-0 absolute bottom-2 right-[140px] cursor-pointer rounded-lg file:cursor-pointer`}
             multiple
           />

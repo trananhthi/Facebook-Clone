@@ -25,8 +25,9 @@ function CreatePost({ refetch }: Props) {
     privacyList.find((p) => p.value === (userAccount.privacyDefault as string)) as PrivacyType
   )
   const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
-  const [previewMediaContent, setPreviewMediaContent] = useState<PreviewMediaContentType[]>([])
-  const [selectedMediaContent, setSelectedMediaContent] = useState<FileList | null>(null)
+  const [mediaContentMap, setMediaContentMap] = useState<
+    Map<File, { preview: PreviewMediaContentType; visualIndex: number }>
+  >(new Map())
   const [openAddMediaContent, setOpenAddMediaContent] = useState<boolean>(false)
   const handleOpen = () => setOpen(!open)
 
@@ -42,10 +43,8 @@ function CreatePost({ refetch }: Props) {
       privacyPost={privacyPost}
       isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
-      selectedMediaContent={selectedMediaContent}
-      setSelectedMediaContent={setSelectedMediaContent}
-      previewMediaContent={previewMediaContent}
-      setPreviewMediaContent={setPreviewMediaContent}
+      mediaContentMap={mediaContentMap}
+      setMediaContentMap={setMediaContentMap}
       openAddMediaContent={openAddMediaContent}
       setOpenAddMediaContent={setOpenAddMediaContent}
       refetch={refetch}
@@ -68,10 +67,8 @@ function CreatePost({ refetch }: Props) {
     <MediaEditor
       setOpenEditImage={setOpenEditMediaContent}
       curDialogRef={curDialogRef}
-      selectedMediaContent={selectedMediaContent}
-      setSelectedMediaContent={setSelectedMediaContent}
-      previewMediaContent={previewMediaContent}
-      setPreviewMediaContent={setPreviewMediaContent}
+      mediaContentMap={mediaContentMap}
+      setMediaContentMap={setMediaContentMap}
       setWidth={setWidth}
     />
   )

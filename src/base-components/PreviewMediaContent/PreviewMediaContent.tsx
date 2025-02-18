@@ -2,16 +2,53 @@ import { IconButton } from '@material-tailwind/react'
 
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
 import { PreviewMediaContentType } from 'src/types/utils.type.ts'
+import { MediaTypeEnum } from 'src/constants/enum.ts'
+import { useEffect, useState } from 'react'
 
 interface PreviewImageProps {
   previewMediaContent: PreviewMediaContentType
+  mediaContent: File | null
   width?: string
   height?: string
   index: number
-  handleRemoveImage: (indexToRemove: number) => void
+  handleRemoveMedia: (indexToRemove: number) => void
 }
 
-function PreviewMediaContent({ previewMediaContent, width, height, handleRemoveImage, index }: PreviewImageProps) {
+function PreviewMediaContent({
+  previewMediaContent,
+  mediaContent,
+  width,
+  height,
+  handleRemoveMedia,
+  index
+}: PreviewImageProps) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [videoBlobUrl, setVideoBlobUrl] = useState<string | null>(null)
+  const isVideo = previewMediaContent.type === MediaTypeEnum.VIDEO
+
+  const handleMouseEnter = () => {
+    if (mediaContent && isVideo) {
+      const blobUrl = URL.createObjectURL(mediaContent)
+      setVideoBlobUrl(blobUrl) // Lưu trữ URL blob
+    }
+    setIsHovered(true)
+  }
+
+  const handleMouseLeave = () => {
+    if (videoBlobUrl) {
+      URL.revokeObjectURL(videoBlobUrl) // Giải phóng URL blob
+    }
+    setIsHovered(false)
+  }
+
+  // Cleanup khi component unmount hoặc URL thay đổi
+  useEffect(() => {
+    return () => {
+      if (videoBlobUrl) {
+        URL.revokeObjectURL(videoBlobUrl)
+      }
+    }
+  }, [videoBlobUrl])
   return (
     <div
       style={{
@@ -22,6 +59,8 @@ function PreviewMediaContent({ previewMediaContent, width, height, handleRemoveI
         position: 'relative',
         overflow: 'hidden'
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className='w-full rounded-lg group'
     >
       <div
@@ -38,7 +77,7 @@ function PreviewMediaContent({ previewMediaContent, width, height, handleRemoveI
             color='blue-gray'
             className='h-[27px] w-[27px] bg-white rounded-full hover:bg-[#f2f2f2]'
             variant='text'
-            onClick={() => handleRemoveImage(index)}
+            onClick={() => handleRemoveMedia(index)}
           >
             <div
               style={{ backgroundImage: `url(${facebookIcon3})` }}
@@ -46,7 +85,30 @@ function PreviewMediaContent({ previewMediaContent, width, height, handleRemoveI
             ></div>
           </IconButton>
         </div>
-        <img src={previewMediaContent.url} className=' h-[205px] object-cover' alt=''></img>
+        {/*{previewMediaContent.type === MediaTypeEnum.VIDEO ? (*/}
+        {/*  <div></div>*/}
+        {/*) : (*/}
+        {/*  <img src={previewMediaContent.url} className=' h-[205px] object-cover' alt=''></img>*/}
+        {/*)}*/}
+        {isVideo ? (
+          <>
+            {!isHovered ? (
+              <img src={previewMediaContent.url} className='h-[205px] object-cover' alt='Thumbnail' />
+            ) : (
+              <video
+                className={`h-[205px] object-cover`}
+                src={videoBlobUrl as string} // Sử dụng Blob URL video
+                muted
+                playsInline
+                loop
+                autoPlay={isHovered}
+              />
+            )}
+          </>
+        ) : (
+          <img src={previewMediaContent.url} className='h-[205px] object-cover' alt='' />
+        )}
+
         <div className='h-[130px] w-full bg-white rounded-b-lg p-2'>
           {/*  */}
           <div className='relative p-[2px]'>
@@ -54,7 +116,7 @@ function PreviewMediaContent({ previewMediaContent, width, height, handleRemoveI
               name='test'
               id='test'
               type='input'
-              className='peer w-full h-[82px] border leading-5 border-[#9b9b9b] text-[17px] text-[#050505] 
+              className='peer w-full h-[82px] border leading-5 border-[#9b9b9b] text-[17px] text-[#050505]
         p-1 pl-4 bg-transparent transition-colors rounded-lg placeholder:text-transparent focus:pb-1
         focus:outline-none focus:shadow-custom'
               placeholder='Chú thích'

@@ -34,11 +34,11 @@ interface Props {
   privacyPost: PrivacyType
   isStartAnimationClosePrivacyDialog: boolean
   setIsStartAnimationClosePrivacyDialog: React.Dispatch<React.SetStateAction<boolean>>
-  //sau này sửa lại kiểu dữ liệu
-  selectedMediaContent: FileList | null
-  setSelectedMediaContent: React.Dispatch<React.SetStateAction<FileList | null>>
-  previewMediaContent: PreviewMediaContentType[]
-  setPreviewMediaContent: React.Dispatch<React.SetStateAction<PreviewMediaContentType[]>>
+  /////
+  mediaContentMap: Map<File, { preview: PreviewMediaContentType; visualIndex: number }>
+  setMediaContentMap: React.Dispatch<
+    React.SetStateAction<Map<File, { preview: PreviewMediaContentType; visualIndex: number }>>
+  >
   openAddMediaContent: boolean
   setOpenAddMediaContent: React.Dispatch<React.SetStateAction<boolean>>
   refetch?: () => void
@@ -57,10 +57,8 @@ function DialogCreatePost({
   privacyPost,
   isStartAnimationClosePrivacyDialog,
   setIsStartAnimationClosePrivacyDialog,
-  selectedMediaContent,
-  setSelectedMediaContent,
-  previewMediaContent,
-  setPreviewMediaContent,
+  mediaContentMap,
+  setMediaContentMap,
   openAddMediaContent,
   setOpenAddMediaContent,
   refetch
@@ -123,41 +121,69 @@ function DialogCreatePost({
   const hanldeClickPublishPost = () => {
     const formData = new FormData()
     formData.append('content', convertNewlinesForStorage(content))
-    if (selectedMediaContent) {
+
+    if (mediaContentMap.size > 0) {
       formData.append('typePost', 'image')
-      for (let i = 0; i < selectedMediaContent.length; i++) {
-        formData.append('files', selectedMediaContent[i])
-      }
+
+      // Duyệt qua Map và thêm các file vào FormData
+      mediaContentMap.forEach((_value, key) => {
+        formData.append('files', key) // Thêm file từ key (File)
+      })
     } else {
       formData.append('typePost', 'text')
     }
+
     formData.append('privacy', privacyPost.value)
+
+    // Gửi dữ liệu với createPostMutation
     createPostMutation.mutate(formData)
-    //Giải phóng URL để tránh lỗi memory leak
-    previewMediaContent.forEach((p) => URL.revokeObjectURL(p.url))
+
+    // Giải phóng URL để tránh memory leak
+    mediaContentMap.forEach((value) => {
+      if (value.preview.url.startsWith('blob:')) {
+        URL.revokeObjectURL(value.preview.url)
+      }
+    })
   }
 
   /* xử lý thay đổi bài viết */
   const handleEditPost = () => {
     const formData = new FormData()
     formData.append('content', convertNewlinesForStorage(content))
-    if (previewMediaContent.length > 0) {
+
+    // Kiểm tra nếu mediaContentMap có ảnh
+    if (mediaContentMap.size > 0) {
       formData.append('typePost', 'image')
     } else {
       formData.append('typePost', 'text')
     }
-    if (selectedMediaContent) {
-      for (let i = 0; i < selectedMediaContent.length; i++) {
-        formData.append('files', selectedMediaContent[i])
-      }
+
+    // Nếu có selectedMediaContent, thêm vào formData
+    if (mediaContentMap.size > 0) {
+      mediaContentMap.forEach((_value, key) => {
+        formData.append('files', key) // key là File
+      })
     }
+
     formData.append('privacy', privacyPost.value)
+
+    // So sánh mediaContentMap hiện tại với mediaList cũ trong post
     const oldPreviewImage = post?.mediaList.map((media) => ({
       url: media.url,
       type: media.type
     }))
-    const changedElementsInOldArray = _.difference(oldPreviewImage, previewMediaContent)
 
+    // Sử dụng _.difference để tìm sự thay đổi giữa ảnh cũ và ảnh mới
+    const changedElementsInOldArray = _.differenceWith(
+      oldPreviewImage,
+      Array.from(mediaContentMap.values()).map((value) => ({
+        url: value.preview.url,
+        type: value.preview.type
+      })),
+      _.isEqual
+    )
+
+    // Nếu có ảnh nào thay đổi, xóa ảnh đã thay đổi
     if (changedElementsInOldArray.length > 0) {
       const deleteImagePromises = changedElementsInOldArray.map((changedElement) => {
         const imageToDelete = post?.mediaList.find((img) => img.url === changedElement.url)
@@ -189,14 +215,17 @@ function DialogCreatePost({
 
   /* Xử lý tắt tùy chọn thêm hình ảnh */
   const handleCloseSelectMediaContent = () => {
-    previewMediaContent.forEach((item) => {
-      if (item.url.startsWith('blob:')) {
-        URL.revokeObjectURL(item.url)
+    // Duyệt qua các giá trị trong Map (mediaContentMap)
+    mediaContentMap.forEach((value) => {
+      if (value.preview.url.startsWith('blob:')) {
+        URL.revokeObjectURL(value.preview.url)
       }
     })
-    setSelectedMediaContent(null)
-    setPreviewMediaContent([])
+
+    setMediaContentMap(new Map()) // Reset lại Map
     setOpenAddMediaContent(false)
+
+    // Clear file input
     if (fileInputRef.current) {
       const fileInputElement = fileInputRef.current as HTMLInputElement
       fileInputElement.value = ''
@@ -228,29 +257,43 @@ function DialogCreatePost({
         addMoreElement.classList.add('px-4')
       }
     }
-  }, [content, openAddMediaContent, selectedMediaContent])
+  }, [content, openAddMediaContent, mediaContentMap.size])
 
   useEffect(() => {
     if (type === 'edit' && post) {
+      // Lấy danh sách previewImage từ post.mediaList
       const oldPreviewImage = post.mediaList.map((media) => ({
         url: media.url,
         type: media.type
       }))
+
+      // So sánh mediaContentMap với oldPreviewImage và các điều kiện khác
+      const currentPreviewImage = Array.from(mediaContentMap.values()).map((value) => ({
+        url: value.preview.url,
+        type: value.preview.type
+      }))
+
       if (
         (content !== post.content && content !== '') ||
-        !_.isEqual(previewMediaContent, oldPreviewImage) ||
+        !_.isEqual(currentPreviewImage, oldPreviewImage) ||
         privacyPost.value !== post.privacy
-      )
+      ) {
         setIsActivedButton(true)
-      else setIsActivedButton(false)
-      if (content === '' && previewMediaContent.length === 0) setIsActivedButton(false)
+      } else {
+        setIsActivedButton(false)
+      }
+
+      if (content === '' && mediaContentMap.size === 0) setIsActivedButton(false)
     } else {
-      if (content !== '' || previewMediaContent.length !== 0) setIsActivedButton(true)
-      else setIsActivedButton(false)
+      if (content !== '' || mediaContentMap.size !== 0) {
+        setIsActivedButton(true)
+      } else {
+        setIsActivedButton(false)
+      }
     }
 
-    if (previewMediaContent.length === 0) setOpenAddMediaContent(false)
-  }, [content, previewMediaContent])
+    if (mediaContentMap.size === 0) setOpenAddMediaContent(false)
+  }, [content, mediaContentMap.size]) // Thay previewMediaContent thành mediaContentMap
 
   return (
     <div
@@ -388,10 +431,8 @@ function DialogCreatePost({
             {openAddMediaContent ? (
               <AddMediaContent
                 openAddMediaContent={openAddMediaContent}
-                selectedMediaContent={selectedMediaContent}
-                setSelectedMediaContent={setSelectedMediaContent}
-                previewMediaContent={previewMediaContent}
-                setPreviewMediaContent={setPreviewMediaContent}
+                mediaContentMap={mediaContentMap}
+                setMediaContentMap={setMediaContentMap}
                 fileInputRef={fileInputRef}
                 handleCloseSelectMediaContent={handleCloseSelectMediaContent}
                 setOpenEditMediaContent={setOpenEditMediaContent}
