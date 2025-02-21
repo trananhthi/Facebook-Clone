@@ -40,6 +40,8 @@ module.exports = {
     // Tắt rule yêu cầu
     'import/no-unresolved': 'off',
 
+    "jsx-a11y/media-has-caption": "off",
+
     'react-hooks/exhaustive-deps': 'off',
     // Tắt rule yêu cầu import React trong file jsx
     'react/react-in-jsx-scope': 'off',

@@ -85,11 +85,7 @@ function PreviewMediaContent({
             ></div>
           </IconButton>
         </div>
-        {/*{previewMediaContent.type === MediaTypeEnum.VIDEO ? (*/}
-        {/*  <div></div>*/}
-        {/*) : (*/}
-        {/*  <img src={previewMediaContent.url} className=' h-[205px] object-cover' alt=''></img>*/}
-        {/*)}*/}
+
         {isVideo ? (
           <>
             {!isHovered ? (
@@ -98,7 +94,6 @@ function PreviewMediaContent({
               <video
                 className={`h-[205px] object-cover`}
                 src={videoBlobUrl as string} // Sử dụng Blob URL video
-                muted
                 playsInline
                 loop
                 autoPlay={isHovered}
