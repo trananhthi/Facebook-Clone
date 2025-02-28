@@ -1,4 +1,4 @@
-import { PostMediaType } from './image.type'
+import { PostMediaType } from './media.type.ts'
 import { UserInfo } from './user.type'
 import { PageableType } from './utils.type'
 import { PrivacyEnum } from 'src/constants/enum.ts'

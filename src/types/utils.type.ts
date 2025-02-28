@@ -47,8 +47,6 @@ export type PageableType = {
   paged: boolean
 }
 
-export type PreviewMediaContentType = {
-  url: string
-  type: string
-  videoUrl?: string
-}
+export type Point = { x: number; y: number }
+
+export type Cells = string[][]

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PostImageType } from 'src/types/image.type'
+import { PostImageType } from 'src/types/media.type.ts'
 
 interface Props {
   listImage: PostImageType[]

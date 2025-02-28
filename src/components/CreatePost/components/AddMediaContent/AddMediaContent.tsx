@@ -7,7 +7,7 @@ import facebookIcon11 from 'src/assets/images/icon-pack/facbook_icon_11.png'
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
 import GridGallery from 'src/components/GridGallery'
 import { snapImage } from 'src/utils/utils'
-import { PreviewMediaContentType } from 'src/types/utils.type.ts'
+import { PreviewMediaContentType } from 'src/types/media.type.ts'
 import { MediaTypeEnum } from 'src/constants/enum.ts'
 
 interface Props {
@@ -43,7 +43,7 @@ function AddMediaContent({
 
           if (file.type.includes('image')) {
             newMediaMap.set(file, {
-              preview: { url: URL.createObjectURL(file), type: MediaTypeEnum.IMAGE },
+              preview: { url: URL.createObjectURL(file), type: MediaTypeEnum.IMAGE, visualIndex: visualIndex },
               visualIndex
             })
             resolve()
@@ -55,7 +55,7 @@ function AddMediaContent({
               const thumbNail = snapImage(video, url)
               if (thumbNail != null) {
                 newMediaMap.set(file, {
-                  preview: { url: thumbNail, type: MediaTypeEnum.VIDEO },
+                  preview: { url: thumbNail, type: MediaTypeEnum.VIDEO, visualIndex: visualIndex },
                   visualIndex
                 })
               }
@@ -72,7 +72,6 @@ function AddMediaContent({
       })
 
       await Promise.all(promises)
-      console.log('Updated mediaContentMap:', newMediaMap)
       setMediaContentMap(newMediaMap)
     }
   }

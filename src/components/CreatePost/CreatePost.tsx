@@ -3,10 +3,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store'
 import { privacyList } from 'src/constants/list'
-import { PreviewMediaContentType, PrivacyType } from 'src/types/utils.type'
+import { PreviewMediaContentType } from 'src/types/media.type'
 import DialogPrivacyContent from './components/DialogPrivacyContent'
 import DialogCreatePost from './components/DialogCreatePost'
 import MediaEditor from './components/MediaEditor'
+import { PrivacyType } from 'src/types/utils.type.ts'
 
 interface Props {
   refetch: () => void
@@ -14,7 +15,7 @@ interface Props {
 
 function CreatePost({ refetch }: Props) {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
-  const curDialogRef = useRef(null)
+  const curDialogRef = useRef<HTMLDivElement | null>(null)
   const [width, setWidth] = useState('')
 
   const [open, setOpen] = useState(false)
@@ -164,7 +165,7 @@ function CreatePost({ refetch }: Props) {
         dismiss={{ enabled: false }}
         open={open}
         handler={handleOpen}
-        className={`bg-white ${width} transition-[width] min-h-[423px] duration-100 ease-in-out max-500:ml-0`}
+        className={`bg-white ${width} transition-[width] duration-100 ease-in-out max-500:ml-0`}
         size='xs'
       >
         {openPrivacy ? dialogPrivacyContent : openEditMediaContent ? MediaEditorDialog : dialogMainContent}

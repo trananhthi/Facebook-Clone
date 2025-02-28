@@ -42,6 +42,8 @@ module.exports = {
 
     "jsx-a11y/media-has-caption": "off",
 
+    "@typescript-eslint/no-unused-vars": "warn",
+
     'react-hooks/exhaustive-deps': 'off',
     // Tắt rule yêu cầu import React trong file jsx
     'react/react-in-jsx-scope': 'off',

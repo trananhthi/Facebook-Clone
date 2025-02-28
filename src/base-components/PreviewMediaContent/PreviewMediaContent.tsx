@@ -1,7 +1,7 @@
 import { IconButton } from '@material-tailwind/react'
 
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
-import { PreviewMediaContentType } from 'src/types/utils.type.ts'
+import { PreviewMediaContentType } from 'src/types/media.type.ts'
 import { MediaTypeEnum } from 'src/constants/enum.ts'
 import { useEffect, useState } from 'react'
 
@@ -61,7 +61,8 @@ function PreviewMediaContent({
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className='w-full rounded-lg group'
+      onDragStart={(e) => e.preventDefault()}
+      className='w-full rounded-lg group cursor-move'
     >
       <div
         style={{
