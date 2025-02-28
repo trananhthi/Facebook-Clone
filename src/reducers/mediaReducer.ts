@@ -112,20 +112,6 @@ export const mediaReducer = (state: MediaDragArea, action: Action) => {
         }
       }
     }
-    // case 'DRAG_ENDED': {
-    //   if (!state.dragging) return state
-    //
-    //   const { item, point } = action.payload
-    //
-    //   const updatedItems = state.items.map((nextItem) => {
-    //     if (nextItem.preview.url === item.preview.url) {
-    //       return { ...nextItem, x: point.x, y: point.y } // Cập nhật tọa độ mới cho item kéo
-    //     }
-    //     return nextItem
-    //   })
-    //
-    //   return { ...state, items: updatedItems, dragging: undefined }
-    // }
 
     case 'DRAG_ENDED': {
       if (!state.dragging) return state
