@@ -56,6 +56,28 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
   const [dragState, dispatch] = React.useReducer(mediaReducer, mediaDragInitial)
   const [isDragEnd, setIsDragEnd] = React.useState(false)
 
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    console.log(`Item captured pointer!`)
+    const element = e.currentTarget as HTMLElement
+    element.setPointerCapture(e.pointerId)
+
+    setTimeout(() => {
+      console.log('Check pointer capture after 100ms:', e.currentTarget.hasPointerCapture(e.pointerId))
+    }, 100)
+  }
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    console.log(`Item released pointer!`)
+    const element = e.currentTarget as HTMLElement
+    if (element.hasPointerCapture(e.pointerId)) {
+      element.releasePointerCapture(e.pointerId)
+    }
+  }
+
+  const handleLostPointerCapture = (e: any) => {
+    console.log(`Item lost pointer capture!`, e)
+  }
+
   const gap = 8
 
   const variants = {
@@ -249,21 +271,26 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
               <motion.div
                 key={item.preview.url}
                 drag
-                // layout={true}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onLostPointerCapture={handleLostPointerCapture}
                 layoutId={item.preview.url}
                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
                 // dragConstraints={bodyRef}
                 dragMomentum={false}
                 onDragStart={() => dispatch({ type: 'DRAG_STARTED', payload: { item } })}
-                // onDrag={(_, info) => {
-                //   const point = calculateGridPosition(info, bodyRef, curDialogRef, cellWidth, cellHeight, gridSize)
-                //   if (!point) return
-                //   dispatch({
-                //     type: 'HOVER_ITEM',
-                //     payload: { point }
-                //   })
-                // }}
-                onDragEnd={(_, info) => {
+                onDrag={(_, info) => {
+                  const point = calculateGridPosition(info, bodyRef, curDialogRef, cellWidth, cellHeight, gridSize)
+                  if (!point) return
+
+                  // Gửi thông tin về vị trí hiện tại trong quá trình kéo
+                  dispatch({
+                    type: 'HOVER_ITEM',
+                    payload: { point }
+                  })
+                }}
+                onDragEnd={(event, info) => {
+                  console.log('Drag ended!', { event, info })
                   const point = calculateGridPosition(info, bodyRef, curDialogRef, cellWidth, cellHeight, gridSize)
                   if (!point) return
 
@@ -291,6 +318,7 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
                   width: cellWidth,
                   height: cellHeight,
                   zIndex: isDragging ? 99 : 1,
+                  cursor: isDragging ? 'grabbing' : 'move',
                   willChange: 'transform'
                 }}
               >
@@ -310,7 +338,9 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
     )
   }, [handleRemoveMedia, dragState, isDragEnd])
 
-  // console.log(dragState.dragging?.nextPoint)
+  useEffect(() => {
+    console.log('Render:', dragState.items)
+  }, [dragState.items])
 
   return (
     <div className='animate-scale-in-hor-center' ref={curDialogRef}>

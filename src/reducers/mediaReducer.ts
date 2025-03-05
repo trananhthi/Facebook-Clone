@@ -116,39 +116,11 @@ export const mediaReducer = (state: MediaDragArea, action: Action) => {
     case 'DRAG_ENDED': {
       if (!state.dragging) return state
 
-      const { item, point, gridSize } = action.payload
-      const { x: startX, y: startY } = item
-      const { x: endX, y: endY } = point
-
-      // Nếu vị trí không thay đổi thì bỏ qua
-      if (startX === endX && startY === endY) {
-        return { ...state, dragging: undefined }
+      // Khi kết thúc drag, chỉ cần xóa trạng thái dragging
+      return {
+        ...state,
+        dragging: undefined
       }
-
-      const updatedItems = [...state.items]
-
-      // Xác định index của item đang kéo
-      const draggedIndex = updatedItems.findIndex((i) => i.preview.url === item.preview.url)
-
-      // Xác định index mới dựa trên (endX, endY)
-      const targetIndex = updatedItems.findIndex((i) => i.x === endX && i.y === endY)
-      // Xóa item kéo khỏi danh sách
-      const [draggedItem] = updatedItems.splice(draggedIndex, 1)
-
-      if (targetIndex !== -1) {
-        updatedItems.splice(targetIndex, 0, draggedItem)
-      } else {
-        updatedItems.push(draggedItem)
-      }
-
-      // 🔥 **Cập nhật lại toàn bộ danh sách để sắp xếp đúng grid**
-      const reorderedItems = updatedItems.map((i, idx) => ({
-        ...i,
-        x: idx % gridSize[0],
-        y: Math.floor(idx / gridSize[0])
-      }))
-
-      return { ...state, items: reorderedItems, dragging: undefined }
     }
 
     case 'HOVER_ITEM': {
@@ -156,13 +128,52 @@ export const mediaReducer = (state: MediaDragArea, action: Action) => {
 
       const { point } = action.payload
       const { initialPoint } = state.dragging
+      const draggingUrl = state.dragging.url
 
+      // Nếu vị trí không thay đổi, bỏ qua
       if (point.x === initialPoint.x && point.y === initialPoint.y) return state
+
+      // Nếu point giống với nextPoint hiện tại, bỏ qua
+      if (state.dragging.nextPoint && state.dragging.nextPoint.x === point.x && state.dragging.nextPoint.y === point.y)
+        return state
+
+      // Tìm item đang được kéo và item đích
+      const draggingItemIndex = state.items.findIndex((item) => item.preview.url === draggingUrl)
+      const targetItemIndex = state.items.findIndex((item) => item.x === point.x && item.y === point.y)
+
+      // Nếu không có thay đổi vị trí, bỏ qua
+      if (draggingItemIndex === targetItemIndex) return state
+
+      // Tối ưu: Chỉ hoán đổi hai vị trí thay vì tính toán lại toàn bộ
+      const updatedItems = [...state.items]
+      const direction = targetItemIndex > draggingItemIndex ? 1 : -1
+
+      // Di chuyển các phần tử ở giữa
+      if (direction === 1) {
+        // Dịch chuyển từ vị trí cũ đến vị trí mới
+        for (let i = draggingItemIndex; i < targetItemIndex; i++) {
+          updatedItems[i] = { ...updatedItems[i + 1], x: updatedItems[i].x, y: updatedItems[i].y }
+        }
+      } else if (direction === -1 && targetItemIndex !== -1) {
+        // Dịch chuyển từ vị trí mới đến vị trí cũ
+        for (let i = draggingItemIndex; i > targetItemIndex; i--) {
+          updatedItems[i] = { ...updatedItems[i - 1], x: updatedItems[i].x, y: updatedItems[i].y }
+        }
+      }
+
+      // Đặt item đang kéo vào vị trí mới
+      if (targetItemIndex !== -1) {
+        console.log('Chay cai nay')
+        updatedItems[targetItemIndex] = { ...state.items[draggingItemIndex], x: point.x, y: point.y }
+      }
 
       return {
         ...state,
-        ghostItem: point, // Đánh dấu vị trí trống
-        dragging: { ...state.dragging, nextPoint: point }
+        items: updatedItems,
+        dragging: {
+          ...state.dragging,
+          nextPoint: point
+        }
       }
     }
 
