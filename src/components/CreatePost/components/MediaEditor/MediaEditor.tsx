@@ -57,13 +57,7 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
   const [isDragEnd, setIsDragEnd] = React.useState(false)
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    console.log(`Item captured pointer!`)
-    const element = e.currentTarget as HTMLElement
-    element.setPointerCapture(e.pointerId)
-
-    setTimeout(() => {
-      console.log('Check pointer capture after 100ms:', e.currentTarget.hasPointerCapture(e.pointerId))
-    }, 100)
+    console.log(`Item captured pointer!` + e.currentTarget)
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -75,7 +69,18 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
   }
 
   const handleLostPointerCapture = (e: any) => {
-    console.log(`Item lost pointer capture!`, e)
+    console.log('Item lost pointer capture!', e)
+
+    // Ngăn chặn việc kết thúc kéo thả bất thường
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Khôi phục lại pointer capture nếu có thể
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch (err) {
+      console.log('Không thể khôi phục pointer capture')
+    }
   }
 
   const gap = 8
@@ -278,7 +283,9 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
                 // dragConstraints={bodyRef}
                 dragMomentum={false}
-                onDragStart={() => dispatch({ type: 'DRAG_STARTED', payload: { item } })}
+                onDragStart={() => {
+                  dispatch({ type: 'DRAG_STARTED', payload: { item } })
+                }}
                 onDrag={(_, info) => {
                   const point = calculateGridPosition(info, bodyRef, curDialogRef, cellWidth, cellHeight, gridSize)
                   if (!point) return
@@ -337,10 +344,6 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
       </div>
     )
   }, [handleRemoveMedia, dragState, isDragEnd])
-
-  useEffect(() => {
-    console.log('Render:', dragState.items)
-  }, [dragState.items])
 
   return (
     <div className='animate-scale-in-hor-center' ref={curDialogRef}>

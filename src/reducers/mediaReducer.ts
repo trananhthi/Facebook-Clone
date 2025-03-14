@@ -127,44 +127,78 @@ export const mediaReducer = (state: MediaDragArea, action: Action) => {
       if (!state.dragging) return state
 
       const { point } = action.payload
-      const { initialPoint } = state.dragging
       const draggingUrl = state.dragging.url
 
-      // Nếu vị trí không thay đổi, bỏ qua
-      if (point.x === initialPoint.x && point.y === initialPoint.y) return state
-
-      // Nếu point giống với nextPoint hiện tại, bỏ qua
+      // Skip if position hasn't changed
       if (state.dragging.nextPoint && state.dragging.nextPoint.x === point.x && state.dragging.nextPoint.y === point.y)
         return state
 
-      // Tìm item đang được kéo và item đích
+      // Find indices of dragging item and target item
       const draggingItemIndex = state.items.findIndex((item) => item.preview.url === draggingUrl)
       const targetItemIndex = state.items.findIndex((item) => item.x === point.x && item.y === point.y)
 
-      // Nếu không có thay đổi vị trí, bỏ qua
+      // Skip if nothing changed or items not found
       if (draggingItemIndex === targetItemIndex) return state
+      if (draggingItemIndex === -1) return state // Dragging item not found
+      if (targetItemIndex === -1) return state // No item at target position
 
-      // Tối ưu: Chỉ hoán đổi hai vị trí thay vì tính toán lại toàn bộ
       const updatedItems = [...state.items]
+
+      // Save old position of dragging item
+      const prevX = updatedItems[draggingItemIndex].x
+      const prevY = updatedItems[draggingItemIndex].y
+
+      const isHorizontal = prevY === point.y
+      const isVertical = prevX === point.x
       const direction = targetItemIndex > draggingItemIndex ? 1 : -1
 
-      // Di chuyển các phần tử ở giữa
-      if (direction === 1) {
-        // Dịch chuyển từ vị trí cũ đến vị trí mới
-        for (let i = draggingItemIndex; i < targetItemIndex; i++) {
-          updatedItems[i] = { ...updatedItems[i + 1], x: updatedItems[i].x, y: updatedItems[i].y }
+      if (isHorizontal && !isVertical) {
+        // Simple swap for horizontal movement
+        updatedItems[draggingItemIndex] = {
+          ...updatedItems[draggingItemIndex],
+          x: point.x,
+          y: point.y
         }
-      } else if (direction === -1 && targetItemIndex !== -1) {
-        // Dịch chuyển từ vị trí mới đến vị trí cũ
-        for (let i = draggingItemIndex; i > targetItemIndex; i--) {
-          updatedItems[i] = { ...updatedItems[i - 1], x: updatedItems[i].x, y: updatedItems[i].y }
-        }
-      }
 
-      // Đặt item đang kéo vào vị trí mới
-      if (targetItemIndex !== -1) {
-        console.log('Chay cai nay')
-        updatedItems[targetItemIndex] = { ...state.items[draggingItemIndex], x: point.x, y: point.y }
+        updatedItems[targetItemIndex] = {
+          ...updatedItems[targetItemIndex],
+          x: prevX,
+          y: prevY
+        }
+      } else if (direction === 1) {
+        // Moving from smaller index to larger index
+        // Shift elements between the old and new positions
+        for (let i = draggingItemIndex; i < targetItemIndex; i++) {
+          updatedItems[i] = {
+            ...updatedItems[i + 1],
+            x: updatedItems[i].x,
+            y: updatedItems[i].y
+          }
+        }
+
+        // Place dragging item at target position
+        updatedItems[targetItemIndex] = {
+          ...state.items[draggingItemIndex],
+          x: point.x,
+          y: point.y
+        }
+      } else if (direction === -1) {
+        // Moving from larger index to smaller index
+        // Shift elements between the new and old positions
+        for (let i = draggingItemIndex; i > targetItemIndex; i--) {
+          updatedItems[i] = {
+            ...updatedItems[i - 1],
+            x: updatedItems[i].x,
+            y: updatedItems[i].y
+          }
+        }
+
+        // Place dragging item at target position
+        updatedItems[targetItemIndex] = {
+          ...state.items[draggingItemIndex],
+          x: point.x,
+          y: point.y
+        }
       }
 
       return {
