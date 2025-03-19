@@ -1,7 +1,7 @@
 import { ActionType } from 'src/types/redux.type'
-import { UserInfor } from 'src/types/user.type'
+import { UserInfo } from 'src/types/user.type'
 
-export const setUserAccountAction = (data: UserInfor): ActionType => {
+export const setUserAccountAction = (data: UserInfo): ActionType => {
   return {
     type: 'userAccount/SET',
     payload: data

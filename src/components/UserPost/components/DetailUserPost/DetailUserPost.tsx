@@ -10,14 +10,14 @@ import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
 import { PostType } from 'src/types/post.type'
 import InformationOfPost from '../InformationOfPost'
 import { ReactionType } from 'src/types/reaction.type'
-import { UserInfor } from 'src/types/user.type'
-import { useCallback, useEffect, useRef } from 'react'
+import { UserInfo } from 'src/types/user.type'
+import React, { useCallback, useEffect, useRef } from 'react'
 
 interface Props {
   openDetailPost: boolean
   handleOpenDetailPost: () => void
   post: PostType
-  userAccount: Partial<UserInfor>
+  userAccount: Partial<UserInfo>
   reactionList: ReactionType[]
   top2LatestComments: Top2LatestCommentsType
   refetchReaction: () => void
@@ -59,15 +59,14 @@ function DetailUserPost({
     error,
     isLoading,
     refetch
-  } = useInfiniteQuery(
-    [`get-all-comment-${post.id}`],
-    ({ pageParam = 0 }) => commentApi.getCommentByPostID(post.id, pageParam, 7),
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.data.last ? undefined : allPages.length
-      }
-    }
-  )
+  } = useInfiniteQuery({
+    queryKey: [`get-all-comment-${post.id}`],
+    queryFn: ({ pageParam = 0 }) => commentApi.getCommentByPostId(post.id, pageParam, 7),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.data.last ? undefined : allPages.length
+    },
+    initialPageParam: 0
+  })
 
   const intObserver = useRef<IntersectionObserver | null>(null)
   const lastPostRef = useCallback(

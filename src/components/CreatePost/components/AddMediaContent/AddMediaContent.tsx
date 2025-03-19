@@ -29,6 +29,13 @@ function AddMediaContent({
   handleCloseSelectMediaContent,
   setOpenEditMediaContent
 }: Props) {
+  const sortedMediaArray = React.useMemo(
+    () =>
+      Array.from(mediaContentMap.entries()).sort(
+        (a, b) => (a[1].preview.visualIndex ?? Infinity) - (b[1].preview.visualIndex ?? Infinity)
+      ),
+    [mediaContentMap]
+  )
   // Xử lý khi người dùng chọn ảnh/video
   const handleAddMedia = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -146,9 +153,10 @@ function AddMediaContent({
           {/*BEGIN: show preview image */}
           <div className='z-0'>
             <GridGallery
-              previewMediaContent={Array.from(mediaContentMap.entries()).map(([, { preview }]) => ({
-                url: preview.url, // Thêm url vào
-                type: preview.type // Thêm type vào
+              previewMediaContent={sortedMediaArray.map(([, { preview }]) => ({
+                url: preview.url,
+                type: preview.type,
+                visualIndex: preview.visualIndex
               }))}
             />
           </div>

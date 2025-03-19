@@ -5,10 +5,11 @@ import { formatDateTime, formatTimeAgo, getTop3Emoji, restoreNewlinesFromStorage
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { PostType } from 'src/types/post.type'
 
-import { EmojiType, PreviewMediaContentType, PrivacyType } from 'src/types/utils.type'
+import { EmojiType, PrivacyType } from 'src/types/utils.type'
 import { ReactionType } from 'src/types/reaction.type'
 import { Top2LatestCommentsType } from 'src/types/comment.type'
 import { UserInfo } from 'src/types/user.type'
+import { PreviewMediaContentType } from 'src/types/media.type.ts'
 import ShowImageInPost from 'src/components/ShowImageInPost'
 import EditPostPopover from 'src/components/EditPostPopover'
 

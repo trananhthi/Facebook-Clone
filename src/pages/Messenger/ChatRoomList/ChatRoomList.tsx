@@ -12,16 +12,16 @@ import ChatRoom from 'src/base-components/ChatRoom'
 import CircleIconButton from 'src/base-components/CircleIconButton'
 import { RootState } from 'src/redux/store'
 import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
-import { UserInfor } from 'src/types/user.type'
+import { UserInfo } from 'src/types/user.type'
 
 const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null }) => {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const { roomId } = useParams()
   const [isFocus, setIsFocus] = useState(false)
-  const [isSCroll, setIsScroll] = useState(false)
+  const [isScroll, setIsScroll] = useState(false)
   const [maxHeight, setMaxHeight] = useState(0)
   const [searchKeyword, setSearchKeyword] = useState('')
-  const [selectedUser, setSelectedUser] = useState<UserInfor | null>(null)
+  const [selectedUser, setSelectedUser] = useState<UserInfo | null>(null)
   const navigate = useNavigate()
 
   const {
@@ -33,36 +33,40 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
     error,
     isLoading,
     refetch
-  } = useInfiniteQuery(
-    ['get-all-chatroom'],
-    ({ pageParam = 0 }) => chatApi.getListChatRoom(userAccount.id as number, pageParam, 15),
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.data.last ? undefined : allPages.length
-      }
-    }
-  )
+  } = useInfiniteQuery({
+    queryKey: ['get-all-chatroom'],
+    queryFn: ({ pageParam = 0 }) => chatApi.getListChatRoom(userAccount.id as string, pageParam, 15),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.data.last ? undefined : allPages.length
+    },
+    initialPageParam: 0
+  })
 
   const searchUsersByName = useQuery({
     queryKey: [searchKeyword],
     enabled: searchKeyword !== '' && isFocus,
-    queryFn: () => userAccountApi.searchUsersByName(searchKeyword),
-    onError: (err) => console.log(err)
+    queryFn: () => userAccountApi.searchUsersByName(searchKeyword)
   })
 
-  const listUser = searchUsersByName.data?.data as UserInfor[]
+  const listUser = searchUsersByName.data?.data as UserInfo[]
 
   const getChatRoom = useQuery({
     queryKey: [selectedUser],
     enabled: selectedUser !== null && isFocus,
-    queryFn: () => chatApi.getChatRoom(userAccount.id as number, selectedUser?.id as number),
-    onError: (err) => console.log(err),
-    onSuccess: (data) => {
-      navigate('/messenger/' + data.data.id, { replace: true })
+    queryFn: () => chatApi.getChatRoom(userAccount.id as string, selectedUser?.id as string)
+  })
+
+  useEffect(() => {
+    if (getChatRoom.isSuccess && getChatRoom.data) {
+      navigate(`/messenger/${getChatRoom.data.data.id}`, { replace: true })
       handleRefetch()
       setIsFocus(false)
     }
-  })
+
+    if (getChatRoom.isError) {
+      console.error('Lỗi lấy chat room:', error)
+    }
+  }, [getChatRoom])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -176,7 +180,7 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
     refetch()
   }
 
-  const handleSelectUser = (user: UserInfor) => {
+  const handleSelectUser = (user: UserInfo) => {
     setSelectedUser(user)
   }
 
@@ -293,7 +297,7 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
         </div>
       )}
       {/* END: Type of chat */}
-      <hr className={`${isSCroll ? '' : 'hidden'} border-gray-300`} />
+      <hr className={`${isScroll ? '' : 'hidden'} border-gray-300`} />
 
       {/* BEGIN: chat room list */}
       <div
@@ -343,7 +347,7 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
                 onClick={() => handleSelectUser(user)}
                 className='h-[48px] flex items-center w-full rounded-md cursor-pointer px-2 gap-2 hover:bg-[#f2f2f2]'
               >
-                <img src={user.avatar} className='h-9 w-9 rounded-full'></img>
+                <img src={user.avatar} className='h-9 w-9 rounded-full' alt=''></img>
                 <span className='text-[15px] leading-5'>{user.firstName + ' ' + user.lastName}</span>
               </div>
             ))}

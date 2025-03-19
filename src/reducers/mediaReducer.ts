@@ -12,7 +12,7 @@ export const mediaDragInitial: MediaDragArea = {
 export type Action =
   | { type: 'ADD_ITEM_INIT'; payload: { items: MediaDragItem[]; gridSize: [number, number] } }
   | { type: 'ADD_ITEM'; payload: { items: PreviewMediaContentType[]; gridSize: [number, number] } }
-  | { type: 'DELETE_ITEM'; payload: { indexToRemove: number; gridSize: [number, number] } }
+  | { type: 'DELETE_ITEM'; payload: { urlToRemove: string; gridSize: [number, number] } }
   | { type: 'DRAG_STARTED'; payload: { item: MediaDragItem } }
   | { type: 'DRAG_ENDED'; payload: { item: MediaDragItem; point: Point; gridSize: [number, number] } }
   | { type: 'HOVER_ITEM'; payload: { point: Point } }
@@ -84,10 +84,10 @@ export const mediaReducer = (state: MediaDragArea, action: Action) => {
     }
 
     case 'DELETE_ITEM': {
-      const { indexToRemove, gridSize } = action.payload
+      const { urlToRemove, gridSize } = action.payload
 
       // Xóa item theo index
-      const updatedItems = state.items.filter((_, index) => index !== indexToRemove)
+      const updatedItems = state.items.filter((item) => item.preview.url !== urlToRemove)
 
       const reorderedItems = updatedItems.map((item, index) => ({
         ...item,

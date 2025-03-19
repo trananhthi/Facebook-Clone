@@ -40,6 +40,22 @@ const calculateGridPosition = (
   }
 }
 
+const createUrlIndexMap = (items: MediaDragItem[]) => {
+  // Sắp xếp items theo vị trí x, y trong grid
+  const sortedItems = [...items].sort((a, b) => {
+    if (a.y === b.y) return a.x - b.x
+    return a.y - b.y
+  })
+
+  // Tạo map từ url và visualIndex (1, 2, 3...)
+  const urlIndexMap = new Map()
+  sortedItems.forEach((item, index) => {
+    urlIndexMap.set(item.preview.url, index)
+  })
+
+  return urlIndexMap
+}
+
 interface Props {
   setOpenEditImage: React.Dispatch<React.SetStateAction<boolean>>
   curDialogRef: React.MutableRefObject<HTMLDivElement | null>
@@ -51,38 +67,10 @@ interface Props {
 }
 
 const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMediaContentMap, setWidth }: Props) => {
-  const handleCancel = useCallback(() => setOpenEditImage(false), [setOpenEditImage])
   const bodyRef = useRef<HTMLDivElement | null>(null)
   const [dragState, dispatch] = React.useReducer(mediaReducer, mediaDragInitial)
   const [isDragEnd, setIsDragEnd] = React.useState(false)
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    console.log(`Item captured pointer!` + e.currentTarget)
-  }
-
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    console.log(`Item released pointer!`)
-    const element = e.currentTarget as HTMLElement
-    if (element.hasPointerCapture(e.pointerId)) {
-      element.releasePointerCapture(e.pointerId)
-    }
-  }
-
-  const handleLostPointerCapture = (e: any) => {
-    console.log('Item lost pointer capture!', e)
-
-    // Ngăn chặn việc kết thúc kéo thả bất thường
-    e.preventDefault()
-    e.stopPropagation()
-
-    // Khôi phục lại pointer capture nếu có thể
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch (err) {
-      console.log('Không thể khôi phục pointer capture')
-    }
-  }
-
+  const mediaArray = React.useMemo(() => Array.from(mediaContentMap.entries()), [mediaContentMap])
   const gap = 8
 
   const variants = {
@@ -94,6 +82,19 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
     normal: {}
   }
 
+  const handleCancel = useCallback(() => {
+    const UrlIndexMap = createUrlIndexMap(dragState.items)
+
+    const updatedMediaMap = new Map(
+      mediaArray.map(([file, { preview }]) => {
+        const index = UrlIndexMap.get(preview.url)
+        return [file, { preview: { ...preview, visualIndex: index !== undefined ? index : preview.visualIndex } }]
+      })
+    )
+    setMediaContentMap(updatedMediaMap as any)
+    setOpenEditImage(false)
+  }, [setOpenEditImage, dragState.items, mediaContentMap])
+
   React.useEffect(() => {
     const size = mediaContentMap.size
     const items: MediaDragItem[] = []
@@ -101,8 +102,11 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
     // Xác định kích thước lưới
     const gridSize: [number, number] = calculateGridSize(size)
 
+    // Sắp xếp mediaArray theo visualIndex
+    mediaArray.sort((a, b) => (a[1].preview.visualIndex ?? Infinity) - (b[1].preview.visualIndex ?? Infinity))
+
     // Duyệt qua danh sách mediaContentMap và đặt vị trí x, y phù hợp
-    Array.from(mediaContentMap.entries()).forEach(([, { preview }], index) => {
+    mediaArray.forEach(([, { preview }], index) => {
       const x = index % gridSize[0] // Xác định hàng
       const y = Math.floor(index / gridSize[0]) // Xác định cột
 
@@ -202,38 +206,39 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
   }
 
   const handleRemoveMedia = useCallback(
-    (indexToRemove: number) => {
-      if (indexToRemove < 0 || indexToRemove >= mediaContentMap.size) return
+    (urlToRemove: string) => {
+      if (!urlToRemove) return
 
-      const mediaArray = Array.from(mediaContentMap.entries())
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const indexToRemove = mediaArray.findIndex(([_, data]) => data.preview.url === urlToRemove)
+
+      if (indexToRemove === -1) return // Không tìm thấy media cần xóa
+
       const size = mediaContentMap.size - 1
       const [, removedData] = mediaArray[indexToRemove]
 
-      const reorderedMediaMap = new Map<File, { preview: PreviewMediaContentType; visualIndex: number }>()
+      // Tạo map mới và cập nhật visualIndex
+      const reorderedMediaMap = new Map(
+        mediaArray
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          .filter(([_, data]) => data.preview.url !== urlToRemove) // Lọc bỏ phần tử cần xóa
+          .map(([file, data], newIndex) => [file, { ...data, visualIndex: newIndex }]) // Cập nhật visualIndex mới
+      )
 
-      mediaArray.forEach(([file, data], index) => {
-        if (index < indexToRemove) {
-          // Giữ nguyên visualIndex cho các phần tử trước đó
-          reorderedMediaMap.set(file, { ...data })
-        } else if (index > indexToRemove) {
-          const updatedIndex = index - 1
-          data.visualIndex = updatedIndex
-          // Cập nhật visualIndex mới cho các phần tử sau phần tử bị xóa
-          reorderedMediaMap.set(file, { ...data, visualIndex: updatedIndex })
-        }
-      })
-
+      // Dispatch action xóa media và cập nhật gridSize
       dispatch({
         type: 'DELETE_ITEM',
-        payload: { indexToRemove, gridSize: calculateGridSize(size) }
+        payload: { urlToRemove, gridSize: calculateGridSize(size) }
       })
+
       setMediaContentMap(reorderedMediaMap)
 
+      // Giải phóng URL nếu là blob
       if (removedData.preview.url.startsWith('blob:')) {
         URL.revokeObjectURL(removedData.preview.url)
       }
     },
-    [mediaContentMap, setMediaContentMap]
+    [mediaContentMap, setMediaContentMap, dispatch]
   )
 
   useEffect(() => {
@@ -262,7 +267,7 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
           mediaSize={dragState.items.length}
           style={{ position: 'relative' }}
         >
-          {dragState.items.map((item, index) => {
+          {dragState.items.map((item) => {
             const isDragging = item.preview.url === dragState.dragging?.url
             const file = getFileByPreview(item.preview)
 
@@ -276,9 +281,6 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
               <motion.div
                 key={item.preview.url}
                 drag
-                onPointerDown={handlePointerDown}
-                onPointerUp={handlePointerUp}
-                onLostPointerCapture={handleLostPointerCapture}
                 layoutId={item.preview.url}
                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.2 }}
                 // dragConstraints={bodyRef}
@@ -296,8 +298,7 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
                     payload: { point }
                   })
                 }}
-                onDragEnd={(event, info) => {
-                  console.log('Drag ended!', { event, info })
+                onDragEnd={(_, info) => {
                   const point = calculateGridPosition(info, bodyRef, curDialogRef, cellWidth, cellHeight, gridSize)
                   if (!point) return
 
@@ -319,7 +320,8 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
                       : dragState.dragging?.nextPoint.x * (cellWidth + gap)
                 }}
                 style={{
-                  position: 'absolute',
+                  position: isDragging ? 'fixed' : 'absolute',
+                  opacity: isDragging ? 0.5 : 1,
                   top: item.y * (cellHeight + gap),
                   left: item.x * (cellWidth + gap),
                   width: cellWidth,
@@ -334,7 +336,6 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
                   mediaContent={file}
                   width={cellWidth + 'px'}
                   height='335px'
-                  index={index}
                   handleRemoveMedia={handleRemoveMedia}
                 />
               </motion.div>
@@ -375,35 +376,22 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
         } bg-[#e4e6eb] overflow-y-auto overflow-x-hidden custom-scrollbar-vip relative p-0`}
       >
         {MainBody}
-        {/*{dragState.dragging && draggingItem && (*/}
-        {/*  <>*/}
-        {/*    <motion.div*/}
-        {/*      style={{*/}
-        {/*        position: 'absolute',*/}
-        {/*        top: 0,*/}
-        {/*        left: 0,*/}
-        {/*        backgroundColor: 'rgba(217,22,22,0.8)',*/}
-        {/*        x: dragState.dragging.initialPoint.x * 44,*/}
-        {/*        y: dragState.dragging.initialPoint.y * 44,*/}
-        {/*        width: 397,*/}
-        {/*        height: 335*/}
-        {/*      }}*/}
-        {/*    />*/}
-        {/*    <motion.div*/}
-        {/*      style={{*/}
-        {/*        position: 'absolute',*/}
-        {/*        top: 0,*/}
-        {/*        left: 0,*/}
-        {/*        border: '1px solid #000',*/}
-        {/*        backgroundColor: dragState.dragging.valid ? 'rgb(152, 195, 121)' : 'rgb(224, 109, 118)',*/}
-        {/*        x: dragState.dragging.nextPoint.x,*/}
-        {/*        y: dragState.dragging.nextPoint.y,*/}
-        {/*        width: 397,*/}
-        {/*        height: 335*/}
-        {/*      }}*/}
-        {/*    />*/}
-        {/*  </>*/}
-        {/*)}*/}
+        {dragState.dragging && draggingItem && (
+          <>
+            <motion.div
+              className='absolute border-2 border-dashed border-bluePrimary m-2 mr-0'
+              style={{
+                top: dragState.dragging.nextPoint.y * (335 + gap),
+                left:
+                  dragState.dragging.nextPoint.x *
+                  (mediaContentMap.size <= 2 ? 660 : mediaContentMap.size < 5 ? 438 : 397 + gap),
+                width: mediaContentMap.size <= 2 ? 660 : mediaContentMap.size < 5 ? 438 : 397,
+                height: 335,
+                borderRadius: 0.5 + 'rem'
+              }}
+            />
+          </>
+        )}
       </DialogBody>
 
       <DialogFooter className='h-[60px] gap-2 border-t-2 border-gray-300'>

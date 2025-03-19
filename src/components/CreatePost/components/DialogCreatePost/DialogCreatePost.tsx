@@ -300,7 +300,7 @@ function DialogCreatePost({
     <div
       ref={dialogMainContentRef}
       className={`${
-        createPostMutation.isLoading || updatePostMutation.isLoading ? 'pointer-events-none' : ''
+        createPostMutation.isPending || updatePostMutation.isPending ? 'pointer-events-none' : ''
       } w-[500px]`}
     >
       <DialogHeader className='bg-white rounded-t-md h-[132px] p-0 block'>
@@ -489,10 +489,10 @@ function DialogCreatePost({
             <svg
               className={`animate-spin h-5 w-5 text-white ${
                 type === 'create'
-                  ? createPostMutation.isLoading
+                  ? createPostMutation.isPending
                     ? ''
                     : 'hidden'
-                  : updatePostMutation.isLoading || deleteImageMutation.isLoading
+                  : updatePostMutation.isPending || deleteImageMutation.isPending
                   ? ''
                   : 'hidden'
               }`}
@@ -511,10 +511,10 @@ function DialogCreatePost({
               className={`text-[15px] leading-5 font-semibold ${isActivedButton ? 'text-white' : 'text-[#bcc0c4]'}`}
             >
               {type === 'create'
-                ? createPostMutation.isLoading
+                ? createPostMutation.isPending
                   ? 'Đang đăng...'
                   : 'Đăng'
-                : updatePostMutation.isLoading || deleteImageMutation.isLoading
+                : updatePostMutation.isPending || deleteImageMutation.isPending
                 ? 'Đang lưu...'
                 : 'Lưu'}
             </span>

@@ -21,10 +21,13 @@ function HomeFeed() {
     error,
     isLoading,
     refetch
-  } = useInfiniteQuery(['get-all-post'], ({ pageParam = 0 }) => postApi.getPost(pageParam, 5), {
+  } = useInfiniteQuery({
+    queryKey: ['get-all-post'],
+    queryFn: ({ pageParam = 0 }) => postApi.getPost(pageParam, 5),
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.data.last ? undefined : allPages.length
-    }
+    },
+    initialPageParam: 0
   })
 
   const intObserver = useRef<IntersectionObserver | null>(null)

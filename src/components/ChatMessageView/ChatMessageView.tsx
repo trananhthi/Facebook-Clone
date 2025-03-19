@@ -29,15 +29,14 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
     error,
     isLoading,
     refetch
-  } = useInfiniteQuery(
-    ['get-chat-message', chatRoom.id],
-    ({ pageParam = 0 }) => chatApi.getChatMessage(chatRoom.id as number, pageParam, 35),
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.data.last ? undefined : allPages.length
-      }
-    }
-  )
+  } = useInfiniteQuery({
+    queryKey: ['get-chat-message', chatRoom.id],
+    queryFn: ({ pageParam = 0 }) => chatApi.getChatMessage(chatRoom.id, pageParam, 35),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.data.last ? undefined : allPages.length
+    },
+    initialPageParam: 0
+  })
 
   //set chiều cao tối đa cho khung chat
   //65 là chiều cao của khung chatbox có tên người nhận
@@ -86,7 +85,7 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
       const receiverBasicInforElement = (
         <div className='relative flex flex-col justify-center items-center gap-2 my-10'>
           <div className='flex w-[60px] h-[60px] rounded-full'>
-            <img src={chatRoom.receiver.avatar} className=' w-full h-full rounded-full' />
+            <img src={chatRoom.receiver.avatar} className=' w-full h-full rounded-full' alt='receiver_avt' />
             <div className='w-5 h-5 absolute ml-10 mt-10 bg-green-600 rounded-full border-2 border-white'></div>
           </div>
           <span className='text-[17px] leading-5 font-semibold'>
@@ -213,7 +212,7 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
         className='flex flex-col justify-center items-center gap-2'
       >
         <div className='flex w-[60px] h-[60px] rounded-full'>
-          <img src={chatRoom.receiver.avatar} className=' w-full h-full rounded-full' />
+          <img src={chatRoom.receiver.avatar} className=' w-full h-full rounded-full' alt='receiver_avt' />
           <div className='w-5 h-5 absolute ml-10 mt-10 bg-green-600 rounded-full border-2 border-white'></div>
         </div>
         <span className='text-[17px] leading-5 font-semibold'>

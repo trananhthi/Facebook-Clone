@@ -12,6 +12,7 @@ export default withMT({
       colors: {
         header: '#2A2A2A',
         primary: '#EE4D2D',
+        bluePrimary: '#0866FF',
         // primary: 'rgb(var(--color-primary) / <alpha-value>)',
         primarylight: 'rgb(var(--color-primary-light) / <alpha-value>)',
         primarydark: 'rgb(var(--color-primary-dark) / <alpha-value>)',

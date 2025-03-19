@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import GridMediaItem from 'src/base-components/GridMediaItem'
-import { PreviewMediaContentType } from 'src/types/utils.type.ts'
+import { PreviewMediaContentType } from 'src/types/media.type.ts'
 
 interface Props {
   previewMediaContent: PreviewMediaContentType[]

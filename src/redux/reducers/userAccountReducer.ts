@@ -1,8 +1,8 @@
 import { Reducer } from 'redux'
 import { ActionType } from 'src/types/redux.type'
-import { UserInfor } from 'src/types/user.type'
+import { UserInfo } from 'src/types/user.type'
 
-const initialState: Partial<UserInfor> = {
+const initialState: Partial<UserInfo> = {
   id: undefined,
   email: undefined,
   lastName: undefined,
@@ -15,7 +15,7 @@ const initialState: Partial<UserInfor> = {
   privacyDefault: undefined
 }
 
-const userAccountReducer: Reducer<Partial<UserInfor>> = (state = initialState, action: ActionType) => {
+const userAccountReducer: Reducer<Partial<UserInfo>> = (state = initialState, action: ActionType) => {
   switch (action.type) {
     case 'userAccount/SET':
       return {

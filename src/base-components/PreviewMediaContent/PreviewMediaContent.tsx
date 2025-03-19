@@ -10,8 +10,7 @@ interface PreviewImageProps {
   mediaContent: File | null
   width?: string
   height?: string
-  index: number
-  handleRemoveMedia: (indexToRemove: number) => void
+  handleRemoveMedia: (urlToRemove: string) => void
 }
 
 function PreviewMediaContent({
@@ -19,8 +18,7 @@ function PreviewMediaContent({
   mediaContent,
   width,
   height,
-  handleRemoveMedia,
-  index
+  handleRemoveMedia
 }: PreviewImageProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [videoBlobUrl, setVideoBlobUrl] = useState<string | null>(null)
@@ -78,7 +76,7 @@ function PreviewMediaContent({
             color='blue-gray'
             className='h-[27px] w-[27px] bg-white rounded-full hover:bg-[#f2f2f2]'
             variant='text'
-            onClick={() => handleRemoveMedia(index)}
+            onClick={() => handleRemoveMedia(previewMediaContent.url)}
           >
             <div
               style={{ backgroundImage: `url(${facebookIcon3})` }}

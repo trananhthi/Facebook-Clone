@@ -1,6 +1,6 @@
 import { PopoverContent, Spinner } from '@material-tailwind/react'
 import { PostType } from 'src/types/post.type'
-import { UserInfor } from 'src/types/user.type'
+import { UserInfo } from 'src/types/user.type'
 import { useEffect, useState } from 'react'
 
 /* import images */
@@ -14,7 +14,7 @@ interface Props {
   arrowBox: string
   handleOpenEditPostDialog: () => void
   post: PostType
-  userAccount: Partial<UserInfor>
+  userAccount: Partial<UserInfo>
 }
 
 function EditPostPopover({ arrowBox, handleOpenEditPostDialog, post, userAccount }: Props) {
@@ -95,6 +95,7 @@ function EditPostPopover({ arrowBox, handleOpenEditPostDialog, post, userAccount
             <img
               src={changePrivacyIcon}
               className='bg-[length:22px_776px] bg-[0px_-550px] h-5 w-5 opacity-[0.85]'
+              alt=''
             ></img>
             <span className='text-[15px] text-[#050505] font-semibold opacity-[0.85]'>Chỉnh sửa đối tượng</span>
           </button>

@@ -1,6 +1,6 @@
 import { Avatar } from '@material-tailwind/react'
-import { UserInfor } from 'src/types/user.type'
-import { useState } from 'react'
+import { UserInfo } from 'src/types/user.type'
+import React, { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import commentApi from 'src/apis/comment.api'
 import Picker from '@emoji-mart/react'
@@ -13,7 +13,7 @@ import emojiIconActive from 'src/assets/images/active-icon/emoji-icon-active.png
 import { PostType } from 'src/types/post.type'
 
 interface Props {
-  userAccount: Partial<UserInfor>
+  userAccount: Partial<UserInfo>
   post: PostType
   textAreaRef: any
   focus: boolean

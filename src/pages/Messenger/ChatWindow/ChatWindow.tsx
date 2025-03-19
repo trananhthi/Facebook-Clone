@@ -19,9 +19,8 @@ export const ChatWindow = ({ messageReceived }: ChatWindowProps) => {
 
   const getChatRoom = useQuery({
     queryKey: [roomId],
-    enabled: roomId ? true : false,
-    queryFn: () => chatApi.getChatRoomById(roomId as any, userAccount.id as number),
-    onError: (err) => console.log(err)
+    enabled: !!roomId,
+    queryFn: () => chatApi.getChatRoomById(roomId as any, userAccount.id as string)
   })
 
   const room = getChatRoom.data?.data as ChatRoomType
@@ -41,7 +40,7 @@ export const ChatWindow = ({ messageReceived }: ChatWindowProps) => {
               className={`h-[52px] px-2 w-fit rounded-md text-left hover:bg-[#f2f2f2] cursor-pointer flex items-center gap-2 `}
             >
               <div className='flex w-10 h-10 rounded-full'>
-                <img src={room.receiver.avatar} className=' w-full h-full rounded-full' />
+                <img src={room.receiver.avatar} className=' w-full h-full rounded-full' alt='' />
                 <div className='w-3 h-3 absolute ml-7 mt-7 bg-green-600 rounded-full border-2 border-white'></div>
               </div>
               <div className='flex flex-col'>

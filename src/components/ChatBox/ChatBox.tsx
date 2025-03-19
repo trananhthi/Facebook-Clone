@@ -86,8 +86,8 @@ export const ChatBox = ({ roomId }: { roomId: string }) => {
   const sendMessage = () => {
     if (message && stompClient) {
       const chatMessage: ChatMessageType = {
-        roomId: parseInt(roomId),
-        senderId: userAccount.id as number,
+        roomId: roomId,
+        senderId: userAccount.id as string,
         content: message,
         status: 'active',
         createdAt: new Date()

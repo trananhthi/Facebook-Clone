@@ -40,6 +40,10 @@ module.exports = {
     // Tắt rule yêu cầu
     'import/no-unresolved': 'off',
 
+    "jsx-a11y/no-static-element-interactions": "off",
+
+    "jsx-a11y/click-events-have-key-events": "off",
+
     "jsx-a11y/media-has-caption": "off",
 
     "@typescript-eslint/no-unused-vars": "warn",

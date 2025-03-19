@@ -25,14 +25,12 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
 
   const getReaction = useQuery({
     queryKey: [`get-reaction-${post.id}`],
-    queryFn: () => reactionApi.getAllReactionByPostID(post.id),
-    onError: (err) => console.log(err)
+    queryFn: () => reactionApi.getAllReactionByPostID(post.id)
   })
 
   const getTop2LatestComments = useQuery({
     queryKey: [`get-top2-lastest-comments-${post.id}`],
-    queryFn: () => commentApi.getTop2LatestComments(post.id),
-    onError: (err) => console.log(err)
+    queryFn: () => commentApi.getTop2LatestComments(post.id)
   })
 
   const reactionList = getReaction.data?.data as ReactionType[]
@@ -169,5 +167,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
 
   return ref ? <div ref={ref as LegacyRef<HTMLDivElement>}>{postBody}</div> : postBody
 })
+
+UserPost.displayName = 'UserPost'
 
 export default UserPost

@@ -7,12 +7,13 @@ import logo from 'src/assets/images/logo.png'
 import routes from 'src/constants/routes'
 import { clearTempAccountAction } from 'src/redux/actions/tempAccountAction'
 import { RootState } from 'src/redux/store'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { AppContext } from 'src/contexts/app.context'
 import { useNavigate } from 'react-router-dom'
 import { isAxiosBadRequestError } from 'src/utils/utils'
 import { ErrorResponse } from 'src/types/utils.type'
 import { setUserAccountAction } from 'src/redux/actions/userAccountAction'
+import { MessageCodes } from 'src/constants/messageCode.ts'
 
 function Wellcome() {
   const text = 'Wellcome to facebook'
@@ -26,21 +27,21 @@ function Wellcome() {
     mutationFn: (body: { email: string; password: string }) => authApi.signIn(body)
   })
 
-  useQuery({
+  const profileQuery = useQuery({
     queryKey: ['profile'],
     queryFn: () => userAccountApi.getUserInfor(),
-    enabled: signInAccountMutation.isSuccess,
-    onSuccess: (data) => {
+    enabled: signInAccountMutation.isSuccess
+  })
+
+  useEffect(() => {
+    if (profileQuery.isSuccess) {
       dispatch(clearTempAccountAction())
-      const profile = data.data
+      const profile = profileQuery.data.data
       dispatch(setUserAccountAction(profile))
       setIsAuthenticated(true)
       navigate(routes.home)
-    },
-    onError: (error) => {
-      console.log(error)
     }
-  })
+  }, [profileQuery])
 
   const handleCont = () => {
     signInAccountMutation.mutate(
@@ -57,7 +58,7 @@ function Wellcome() {
           if (isAxiosBadRequestError<ErrorResponse>(error)) {
             // Kiểm tra lỗi có phải từ API trả về không
             const formError = error.response?.data
-            if (formError && formError.errorKey === 'EmailOrPasswordInValid') {
+            if (formError && formError.key === MessageCodes.EMAIL_OR_PASSWORD_INCORRECT) {
               console.log(error)
             }
           }
