@@ -1,6 +1,6 @@
 import UserStory from 'src/components/UserStory'
 import UserPost from 'src/components/UserPost'
-import CreatePost from 'src/components/CreatePost'
+import PostEditor from 'src/components/PostEditor'
 
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { PostType } from 'src/types/post.type'
@@ -22,7 +22,7 @@ function HomeFeed() {
     isLoading,
     refetch
   } = useInfiniteQuery({
-    queryKey: ['get-all-post'],
+    queryKey: ['home-feed', 'get-all-post'],
     queryFn: ({ pageParam = 0 }) => postApi.getPost(pageParam, 5),
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.data.last ? undefined : allPages.length
@@ -93,13 +93,13 @@ function HomeFeed() {
           </div>
         </div>
         {/* stories bạn bè */}
-        <UserStory url='https://s3-hcm-r1.longvan.net/2502-facebook/1696172660306-zelda_totk.png' />
-        <UserStory url='https://s3-hcm-r1.longvan.net/2502-facebook/1696173262970-electric_trap.png' />
-        <UserStory url='https://s3-hcm-r1.longvan.net/2502-facebook/1696214980072-wp8629994.png' />
+        <UserStory url='https://s3-hcm-r1.longvan.net/2502-facebook/zelda_totk.png' />
+        <UserStory url='https://s3-hcm-r1.longvan.net/2502-facebook/electric_trap.png' />
+        <UserStory url='https://s3-hcm-r1.longvan.net/2502-facebook/wp8629994.png' />
       </div>
 
       {/* Đăng bài */}
-      <CreatePost refetch={handleRefetch} />
+      <PostEditor refetch={handleRefetch} />
       {/* Danh sách bài viết */}
       {postData}
       {(isFetchingNextPage || isLoading) &&

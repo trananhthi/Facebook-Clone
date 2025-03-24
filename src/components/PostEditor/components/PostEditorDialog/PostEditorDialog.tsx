@@ -21,6 +21,8 @@ import locationIcon from 'src/assets/images/icon/locationIcon.png'
 import gifIcon from 'src/assets/images/icon/gifIcon.png'
 import AddMediaContent from '../AddMediaContent'
 import imageApi from 'src/apis/image.api'
+import { TypePostEnum } from 'src/constants/enum.ts'
+import LoadingSpinner from 'src/base-components/LoadingSpinner'
 
 interface Props {
   type: string
@@ -45,7 +47,7 @@ interface Props {
   refetch?: () => void
 }
 
-function DialogCreatePost({
+function PostEditorDialog({
   type,
   post,
   setCurPost,
@@ -119,24 +121,56 @@ function DialogCreatePost({
   const handleOpenWarning = () => setOpenWarning(!openWarning)
 
   /* xử lý đăng bài viết */
-  const hanldeClickPublishPost = () => {
+  const handleClickPublishPost = () => {
     const formData = new FormData()
-    formData.append('content', convertNewlinesForStorage(content))
+
+    let typePost = TypePostEnum.TEXT
+    let hasImage = false
+    let hasVideo = false
+
+    const imageFiles: any[] = []
+    const videoFiles: any[] = []
 
     if (mediaContentMap.size > 0) {
-      formData.append('typePost', 'image')
-
-      // Duyệt qua Map và thêm các file vào FormData
-      mediaContentMap.forEach((_value, key) => {
-        formData.append('files', key) // Thêm file từ key (File)
+      mediaContentMap.forEach((value, key) => {
+        const fileData = { file: key, visualIndex: value.visualIndex }
+        if (key.type.startsWith('image')) {
+          hasImage = true
+          imageFiles.push(fileData)
+        } else if (key.type.startsWith('video')) {
+          hasVideo = true
+          videoFiles.push(fileData)
+        }
       })
-    } else {
-      formData.append('typePost', 'text')
+
+      // Xác định loại post
+      if (hasImage && hasVideo) {
+        typePost = TypePostEnum.HYBRID
+      } else if (hasImage) {
+        typePost = TypePostEnum.IMAGE
+      } else if (hasVideo) {
+        typePost = TypePostEnum.VIDEO
+      }
+
+      // Thêm file vào formData đúng tham số
+      imageFiles.forEach((item) => {
+        formData.append('imageFiles', item.file)
+        formData.append('imageIndexes', item.visualIndex)
+      })
+
+      videoFiles.forEach((item) => {
+        formData.append('videoFiles', item.file)
+        formData.append('videoIndexes', item.visualIndex)
+      })
     }
 
-    formData.append('privacy', privacyPost.value)
+    const dataJson = JSON.stringify({
+      content: convertNewlinesForStorage(content),
+      typePost: typePost,
+      privacy: privacyPost.value
+    })
+    formData.append('data', dataJson)
 
-    // Gửi dữ liệu với createPostMutation
     createPostMutation.mutate(formData)
 
     // Giải phóng URL để tránh memory leak
@@ -376,7 +410,7 @@ function DialogCreatePost({
                 <textarea
                   ref={textareaRef}
                   className={`w-full h-min-[32px] overflow-x-clip text-[15px] leading-5 text-[#050505] resize-none active:outline-0
-                   focus:outline-0 placeholder:text-[15px] placeholder:opacity-80 placeholder:text-[#65676b]`}
+                   focus:outline-0 placeholder:text-[15px] placeholder:opacity-80 placeholder:text-[#65676b] placeholder:font-funky`}
                   placeholder={userAccount.lastName + ` ơi, bạn đang nghĩ gì thế?`}
                   value={content}
                   onChange={(e) => {
@@ -482,11 +516,11 @@ function DialogCreatePost({
             </div>
           </div>
           <button
-            onClick={type === 'edit' ? handleEditPost : hanldeClickPublishPost}
+            onClick={type === 'edit' ? handleEditPost : handleClickPublishPost}
             disabled={!isActivedButton}
             className='flex gap-2 justify-center items-center py-2 rounded-md bg-[#0866ff] w-full disabled:bg-[#e4e6eb] disabled:cursor-not-allowed'
           >
-            <svg
+            <LoadingSpinner
               className={`animate-spin h-5 w-5 text-white ${
                 type === 'create'
                   ? createPostMutation.isPending
@@ -496,17 +530,7 @@ function DialogCreatePost({
                   ? ''
                   : 'hidden'
               }`}
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-            >
-              <circle className='opacity-50' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
-              <path
-                className='opacity-100'
-                fill='currentColor'
-                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-              ></path>
-            </svg>
+            />
             <span
               className={`text-[15px] leading-5 font-semibold ${isActivedButton ? 'text-white' : 'text-[#bcc0c4]'}`}
             >
@@ -587,4 +611,4 @@ function DialogCreatePost({
   )
 }
 
-export default DialogCreatePost
+export default PostEditorDialog

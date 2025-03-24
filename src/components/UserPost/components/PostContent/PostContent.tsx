@@ -10,15 +10,15 @@ import { ReactionType } from 'src/types/reaction.type'
 import { Top2LatestCommentsType } from 'src/types/comment.type'
 import { UserInfo } from 'src/types/user.type'
 import { PreviewMediaContentType } from 'src/types/media.type.ts'
-import ShowImageInPost from 'src/components/ShowImageInPost'
 import EditPostPopover from 'src/components/EditPostPopover'
 
 /* import images */
 import facebookIcon9 from 'src/assets/images/icon-pack/facbook_icon_9.png'
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
-import DialogCreatePost from 'src/components/CreatePost/components/DialogCreatePost'
-import DialogPrivacyContent from 'src/components/CreatePost/components/DialogPrivacyContent'
-import MediaEditor from 'src/components/CreatePost/components/MediaEditor'
+import PostEditorDialog from 'src/components/PostEditor/components/PostEditorDialog'
+import DialogPrivacyContent from 'src/components/PostEditor/components/DialogPrivacyContent'
+import MediaEditor from 'src/components/PostEditor/components/MediaEditor'
+import GridMediaGallery from 'src/components/GridMediaGallery'
 
 interface Props {
   post: PostType
@@ -30,7 +30,7 @@ interface Props {
   isInDetailPost: boolean
 }
 
-function InformationOfPost({
+function PostContent({
   post,
   userAccount,
   reactionList,
@@ -56,7 +56,9 @@ function InformationOfPost({
   )
   const [isStartAnimationClosePrivacyDialog, setIsStartAnimationClosePrivacyDialog] = useState(false)
   const [previewMediaContent, setPreviewMediaContent] = useState<PreviewMediaContentType[]>([])
-  const [selectedImage, setSelectedImage] = useState<FileList | null>(null)
+  const [mediaContentMap, setMediaContentMap] = useState<
+    Map<File, { preview: PreviewMediaContentType; visualIndex: number }>
+  >(new Map())
   const [openAddImage, setOpenAddImage] = useState<boolean>(false)
   const [openEditImage, setOpenEditImage] = useState<boolean>(false)
   const [width, setWidth] = useState('')
@@ -70,7 +72,8 @@ function InformationOfPost({
     setPreviewMediaContent(
       curPost.mediaList.map((media) => ({
         url: media.url,
-        type: media.type
+        type: media.type,
+        visualIndex: media.visualIndex
       }))
     )
     setPrivacyPost(privacyList.find((p) => p.value === (curPost.privacy as string)) as PrivacyType)
@@ -81,8 +84,8 @@ function InformationOfPost({
     setOpenPopover(!openPopover)
   }
 
-  const dialogMainContent: JSX.Element = (
-    <DialogCreatePost
+  const postEditorDialog = (
+    <PostEditorDialog
       type='edit'
       post={curPost}
       setCurPost={setCurPost}
@@ -94,16 +97,14 @@ function InformationOfPost({
       privacyPost={privacyPost}
       isStartAnimationClosePrivacyDialog={isStartAnimationClosePrivacyDialog}
       setIsStartAnimationClosePrivacyDialog={setIsStartAnimationClosePrivacyDialog}
-      selectedMediaContent={selectedImage}
-      setSelectedMediaContent={setSelectedImage}
-      previewMediaContent={previewMediaContent}
-      setPreviewMediaContent={setPreviewMediaContent}
+      mediaContentMap={mediaContentMap}
+      setMediaContentMap={setMediaContentMap}
       openAddMediaContent={openAddImage}
       setOpenAddMediaContent={setOpenAddImage}
       setOpenEditMediaContent={setOpenEditImage}
     />
   )
-  const dialogPrivacyContent: JSX.Element = (
+  const dialogPrivacyContent = (
     <DialogPrivacyContent
       type='edit'
       openPrivacy={openPrivacy}
@@ -115,14 +116,12 @@ function InformationOfPost({
     />
   )
 
-  const dialogEditImage: JSX.Element = (
+  const dialogEditImage = (
     <MediaEditor
       setOpenEditImage={setOpenEditImage}
       curDialogRef={curDialogRef}
-      selectedMediaContent={selectedImage}
-      setSelectedMediaContent={setSelectedImage}
-      previewMediaContent={previewMediaContent}
-      setPreviewMediaContent={setPreviewMediaContent}
+      mediaContentMap={mediaContentMap}
+      setMediaContentMap={setMediaContentMap}
       setWidth={setWidth}
     />
   )
@@ -161,7 +160,7 @@ function InformationOfPost({
     } else {
       setWidth('w-[500px]')
     }
-  }, [openEditImage, previewMediaContent, selectedImage])
+  }, [openEditImage, previewMediaContent, mediaContentMap])
 
   return (
     <>
@@ -233,7 +232,9 @@ function InformationOfPost({
         </Popover>
       </div>
       {/* content */}
-      <div className={`px-4 text-[#050505] ${curPost.mediaList.length !== 0 ? 'text-[15px] leading-5' : 'text-2xl'}`}>
+      <div
+        className={`px-4 mb-3 text-[#050505] ${curPost.mediaList.length !== 0 ? 'text-[15px] leading-5' : 'text-2xl'}`}
+      >
         {lines.map((line, index) => (
           <Fragment key={index}>
             {line}
@@ -243,7 +244,7 @@ function InformationOfPost({
       </div>
       {/* hình ảnh/ video */}
 
-      {curPost.mediaList.length !== 0 ? <ShowImageInPost listImage={curPost.mediaList} /> : ''}
+      {curPost.mediaList.length !== 0 ? <GridMediaGallery listMedia={curPost.mediaList} type='view' /> : ''}
 
       {/* amount of emoji */}
       <div
@@ -320,10 +321,10 @@ function InformationOfPost({
         className={`bg-white ${width} transition-[width] duration-100 ease-in-out max-500:ml-0`}
         size='xs'
       >
-        {openPrivacy ? dialogPrivacyContent : openEditImage ? dialogEditImage : dialogMainContent}
+        {openPrivacy ? dialogPrivacyContent : openEditImage ? dialogEditImage : postEditorDialog}
       </Dialog>
     </>
   )
 }
 
-export default InformationOfPost
+export default PostContent

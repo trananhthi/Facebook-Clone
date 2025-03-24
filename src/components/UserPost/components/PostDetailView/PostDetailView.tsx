@@ -3,12 +3,12 @@ import UserComment from 'src/components/UserComment'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import commentApi from 'src/apis/comment.api'
 import { CommentType, Top2LatestCommentsType } from 'src/types/comment.type'
-import CreateComment from '../CreateComment'
+import CommentInput from '../CommentInput'
 
 /* import images */
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
 import { PostType } from 'src/types/post.type'
-import InformationOfPost from '../InformationOfPost'
+import InformationOfPost from '../PostContent'
 import { ReactionType } from 'src/types/reaction.type'
 import { UserInfo } from 'src/types/user.type'
 import React, { useCallback, useEffect, useRef } from 'react'
@@ -26,7 +26,7 @@ interface Props {
   setContent: React.Dispatch<React.SetStateAction<string>>
 }
 
-function DetailUserPost({
+function PostDetailView({
   openDetailPost,
   handleOpenDetailPost,
   post,
@@ -191,7 +191,7 @@ function DetailUserPost({
         ref={footerRef}
         className='min-h-[114px] block p-0 px-4 py-2 mt-2 border-t-2 pb-1 max-h-[370px] overflow-auto custom-scrollbar-vip'
       >
-        <CreateComment
+        <CommentInput
           maxW='622px'
           focus={true}
           userAccount={userAccount}
@@ -206,4 +206,4 @@ function DetailUserPost({
   )
 }
 
-export default DetailUserPost
+export default PostDetailView

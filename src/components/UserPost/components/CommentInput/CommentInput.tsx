@@ -23,7 +23,7 @@ interface Props {
   maxW: string
 }
 
-function CreateComment({ userAccount, post, textAreaRef, refetch, focus, content, setContent, maxW }: Props) {
+function CommentInput({ userAccount, post, textAreaRef, refetch, focus, content, setContent, maxW }: Props) {
   const [isFocusInputField, setIsFocusInputField] = useState<boolean>(focus)
   //const [content, setContent] = useState<string>('')
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
@@ -198,4 +198,4 @@ function CreateComment({ userAccount, post, textAreaRef, refetch, focus, content
   )
 }
 
-export default CreateComment
+export default CommentInput

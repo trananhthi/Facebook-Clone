@@ -246,19 +246,29 @@ export function timeElapsedSince(date: Date) {
   }
 }
 
-// Hàm chụp ảnh thumbnail từ video
-export function snapImage(video: HTMLVideoElement, url: string) {
-  const canvas = document.createElement('canvas')
-  canvas.width = video.videoWidth
-  canvas.height = video.videoHeight
-  canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height)
-  const image = canvas.toDataURL()
-  const success = image.length > 100000
+export function snapImage(video: HTMLVideoElement, url: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
 
-  if (success) {
-    URL.revokeObjectURL(url)
-    return image
-  }
+    const ctx = canvas.getContext('2d')
+    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height)
 
-  return null
+    // Chuyển canvas thành blob (nhanh, gọn, nhẹ hơn base64)
+    canvas.toBlob(
+      (blob) => {
+        if (blob && blob.size > 10 * 1024) {
+          URL.revokeObjectURL(url)
+
+          // Trả về blob URL (dạng ngắn hơn base64)
+          resolve(URL.createObjectURL(blob))
+        } else {
+          resolve(null)
+        }
+      },
+      'image/jpeg',
+      1 // Giảm chất lượng xuống 70% để nhẹ hơn
+    )
+  })
 }

@@ -5,7 +5,7 @@ import React, { ChangeEvent } from 'react'
 import facebookIcon10 from 'src/assets/images/icon-pack/facbook_icon_10.png'
 import facebookIcon11 from 'src/assets/images/icon-pack/facbook_icon_11.png'
 import facebookIcon3 from 'src/assets/images/icon-pack/facbook_icon_3.png'
-import GridGallery from 'src/components/GridGallery'
+import GridGallery from 'src/components/GridMediaGallery'
 import { snapImage } from 'src/utils/utils'
 import { PreviewMediaContentType } from 'src/types/media.type.ts'
 import { MediaTypeEnum } from 'src/constants/enum.ts'
@@ -59,14 +59,15 @@ function AddMediaContent({
             const video = document.createElement('video')
 
             video.addEventListener('loadeddata', () => {
-              const thumbNail = snapImage(video, url)
-              if (thumbNail != null) {
-                newMediaMap.set(file, {
-                  preview: { url: thumbNail, type: MediaTypeEnum.VIDEO, visualIndex: visualIndex },
-                  visualIndex
-                })
-              }
-              resolve()
+              snapImage(video, url).then((thumbNail) => {
+                if (thumbNail != null) {
+                  newMediaMap.set(file, {
+                    preview: { url: thumbNail, type: MediaTypeEnum.VIDEO, visualIndex: visualIndex },
+                    visualIndex
+                  })
+                }
+                resolve()
+              })
             })
 
             video.src = url
@@ -82,7 +83,7 @@ function AddMediaContent({
       setMediaContentMap(newMediaMap)
     }
   }
-
+  console.log(mediaContentMap)
   return (
     <div className={`border border-gray-300 p-2 rounded-lg mt-6 ${openAddMediaContent ? '' : 'hidden'}`}>
       {/* nút tắt */}
@@ -153,11 +154,15 @@ function AddMediaContent({
           {/*BEGIN: show preview image */}
           <div className='z-0'>
             <GridGallery
-              previewMediaContent={sortedMediaArray.map(([, { preview }]) => ({
+              listMedia={sortedMediaArray.map(([, { preview }]) => ({
+                id: 'new',
+                postId: 'new',
+                size: 0,
                 url: preview.url,
                 type: preview.type,
                 visualIndex: preview.visualIndex
               }))}
+              type='edit'
             />
           </div>
           {/*END: show preview image */}

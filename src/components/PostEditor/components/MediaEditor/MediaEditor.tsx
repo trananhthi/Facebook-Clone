@@ -169,21 +169,22 @@ const MediaEditor = ({ setOpenEditImage, curDialogRef, mediaContentMap, setMedia
 
           await new Promise((resolve) => {
             video.addEventListener('loadeddata', () => {
-              const thumbNail = snapImage(video, url)
-              if (thumbNail) {
-                const newPreview = {
-                  url: URL.createObjectURL(file),
-                  type: MediaTypeEnum.VIDEO,
-                  visualIndex: visualIndex
-                }
-                newMediaMap.set(file, {
-                  preview: newPreview,
-                  visualIndex
-                })
+              snapImage(video, url).then((thumbNail) => {
+                if (thumbNail) {
+                  const newPreview = {
+                    url: URL.createObjectURL(file),
+                    type: MediaTypeEnum.VIDEO,
+                    visualIndex: visualIndex
+                  }
+                  newMediaMap.set(file, {
+                    preview: newPreview,
+                    visualIndex
+                  })
 
-                items.push(newPreview)
-              }
-              resolve(null)
+                  items.push(newPreview)
+                }
+                resolve(null)
+              })
             })
             video.src = url
             video.muted = true

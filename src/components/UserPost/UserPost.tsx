@@ -4,12 +4,12 @@ import { UserInfo } from 'src/types/user.type'
 import reactionApi from 'src/apis/reaction.api'
 import { useQuery } from '@tanstack/react-query'
 import { ReactionType } from 'src/types/reaction.type'
-import CreateComment from './components/CreateComment'
-import DetailUserPost from './components/DetailUserPost'
+import CommentInput from './components/CommentInput'
+import PostDetailView from './components/PostDetailView'
 import commentApi from 'src/apis/comment.api'
 import { Top2LatestCommentsType } from 'src/types/comment.type'
 import UserComment from '../UserComment'
-import InformationOfPost from './components/InformationOfPost'
+import PostContent from './components/PostContent'
 import { Dialog } from '@material-tailwind/react'
 import { createPortal } from 'react-dom'
 
@@ -95,7 +95,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
     <div>
       <div className='1200:w-[590px] w-[500px] 700-1100:w-[590px] max-500:w-[475px] h-full shadow-[0_0px_1px_1px_rgba(0,0,0,0.06)] bg-white rounded-lg'>
         {/* thông tin bài đăng */}
-        <InformationOfPost
+        <PostContent
           post={post}
           userAccount={userAccount}
           reactionList={reactionList}
@@ -122,7 +122,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
 
         {/* Gửi bình luận */}
         <div className='px-4 py-2'>
-          <CreateComment
+          <CommentInput
             maxW='512px'
             focus={false}
             userAccount={userAccount}
@@ -147,7 +147,7 @@ const UserPost = forwardRef(({ post, userAccount }: Props, ref) => {
           className={`w-[700px] max-500:w-[500px] h-[665px] bg-white max-724:ml-0 `}
           size='xs'
         >
-          <DetailUserPost
+          <PostDetailView
             openDetailPost={openDetailPost}
             handleOpenDetailPost={handleOpenDetailPost}
             post={post}

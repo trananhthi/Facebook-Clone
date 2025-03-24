@@ -296,6 +296,7 @@ export default withMT({
       }
     },
     fontFamily: {
+      ios: ['-apple-system', 'Apple Color Emoji'],
       sans: ['SFProDisplay-Regular', 'Helvetica', 'Arial', 'sans-serif']
     }
   },

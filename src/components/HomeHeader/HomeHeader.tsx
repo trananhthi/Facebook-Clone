@@ -24,6 +24,7 @@ import NotifyOfHeader from './components/NotifyOfHeader'
 import CircleIconButton from 'src/base-components/CircleIconButton'
 import HeaderNavigationButtonProps from 'src/base-components/HeaderNavigationButton'
 import DrawerWithNavigation from '../DrawerWithNavigation'
+import { useQueryClient } from '@tanstack/react-query'
 
 function HomeHeader() {
   const location = useLocation()
@@ -33,11 +34,20 @@ function HomeHeader() {
   const [isOpenDrawer, setIsOpenDrawer] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const hanldeLogout = () => {
     setIsMenuOpen(false)
     dispatch(clearTempAccountAction())
     navigate(routes.home)
+  }
+
+  const handleRefreshHome = () => {
+    if (location.pathname === routes.home) {
+      queryClient.invalidateQueries({ queryKey: ['home-feed'] })
+    } else {
+      navigate(routes.home)
+    }
   }
 
   useEffect(() => {
@@ -79,7 +89,7 @@ function HomeHeader() {
             </CardBody>
           </Card>
           <div className='flex gap-2'>
-            <Link to={routes.home}>
+            <Link to={routes.home} onClick={() => handleRefreshHome()}>
               <img
                 src={logo}
                 alt='icon'

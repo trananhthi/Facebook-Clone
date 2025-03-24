@@ -21,7 +21,7 @@ export const enum TypePostEnum {
   /* video */
   VIDEO = 'VIDEO',
   /* all */
-  ALL = 'ALL'
+  HYBRID = 'HYBRID'
 }
 
 export const enum MediaTypeEnum {

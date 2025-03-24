@@ -5,7 +5,7 @@ import { RootState } from 'src/redux/store'
 import { privacyList } from 'src/constants/list'
 import { PreviewMediaContentType } from 'src/types/media.type'
 import DialogPrivacyContent from './components/DialogPrivacyContent'
-import DialogCreatePost from './components/DialogCreatePost'
+import PostEditorDialog from './components/PostEditorDialog'
 import MediaEditor from './components/MediaEditor'
 import { PrivacyType } from 'src/types/utils.type.ts'
 
@@ -13,7 +13,7 @@ interface Props {
   refetch: () => void
 }
 
-function CreatePost({ refetch }: Props) {
+function PostEditor({ refetch }: Props) {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const curDialogRef = useRef<HTMLDivElement | null>(null)
   const [width, setWidth] = useState('')
@@ -33,7 +33,7 @@ function CreatePost({ refetch }: Props) {
   const handleOpen = () => setOpen(!open)
 
   const dialogMainContent: JSX.Element = (
-    <DialogCreatePost
+    <PostEditorDialog
       type='create'
       content={content}
       setContent={setContent}
@@ -174,4 +174,4 @@ function CreatePost({ refetch }: Props) {
   )
 }
 
-export default CreatePost
+export default PostEditor

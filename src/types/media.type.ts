@@ -1,17 +1,20 @@
 import { Point } from 'src/types/utils.type.ts'
+import { MediaTypeEnum } from 'src/constants/enum.ts'
 
 export type PostMediaType = {
   id: string
   postId: string
   url: string
-  type: string
+  type: MediaTypeEnum
   size: number
   visualIndex: number
+  height: number
+  width: number
 }
 
 export type PreviewMediaContentType = {
   url: string
-  type: string
+  type: MediaTypeEnum
   visualIndex: number
 }
 
