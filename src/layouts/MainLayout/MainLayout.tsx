@@ -1,13 +1,12 @@
-import { memo, useCallback } from 'react'
-import { Outlet, useMatches } from 'react-router-dom'
+import React, { memo, useCallback } from 'react'
+import { Outlet, useMatches, ScrollRestoration } from 'react-router-dom'
 
 import HomeHeader from '../../components/HomeHeader'
 import { Helmet } from 'react-helmet-async'
-import { ScrollRestoration } from 'react-router-dom'
 
-function MainLayout() {
+function MainLayout({ children }: { children: React.ReactNode }) {
   const getKey = useCallback((location: Location | any, matches: ReturnType<typeof useMatches>) => {
-    let match = matches.find((m) => (m.handle as any)?.scrollMode)
+    const match = matches.find((m) => (m.handle as any)?.scrollMode)
     if ((match?.handle as any)?.scrollMode === 'pathname') {
       return location.pathname
     }
@@ -22,9 +21,7 @@ function MainLayout() {
           <meta name='description' content='Facebook' />
         </Helmet>
         <HomeHeader />
-        <div className='mt-[56px] h-full'>
-          <Outlet />
-        </div>
+        <div className='mt-[56px] h-full'>{children ? children : <Outlet />}</div>
       </div>
       <ScrollRestoration getKey={getKey as any} />
     </>

@@ -32,7 +32,7 @@ function PostEditor({ refetch }: Props) {
   const [openAddMediaContent, setOpenAddMediaContent] = useState<boolean>(false)
   const handleOpen = () => setOpen(!open)
 
-  const dialogMainContent: JSX.Element = (
+  const dialogMainContent = (
     <PostEditorDialog
       type='create'
       content={content}
@@ -52,7 +52,7 @@ function PostEditor({ refetch }: Props) {
     />
   )
 
-  const dialogPrivacyContent: JSX.Element = (
+  const dialogPrivacyContent = (
     <DialogPrivacyContent
       type='create'
       openPrivacy={openPrivacy}
@@ -64,7 +64,7 @@ function PostEditor({ refetch }: Props) {
     />
   )
 
-  const MediaEditorDialog: JSX.Element = (
+  const MediaEditorDialog = (
     <MediaEditor
       setOpenEditImage={setOpenEditMediaContent}
       curDialogRef={curDialogRef}
