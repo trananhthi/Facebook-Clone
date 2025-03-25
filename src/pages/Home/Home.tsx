@@ -1,4 +1,4 @@
-import NavigationOfHome from './components/NavigationOfHome'
+import HomeNavigation from './components/HomeNavigation'
 import HomeFeed from './components/HomeFeed'
 import ContactOfHome from './components/ContactOfHome'
 
@@ -6,7 +6,7 @@ function Home() {
   return (
     <div className='flex bg-[#f2f4f7] justify-center 900-1100:justify-start 950-1100:px-20 900-950:px-12'>
       <div className='3xl:w-[360px] 2xl:w-[340px] xl:w-[280px] semi-lg:w-[280px]  semi-lg:block hidden absolute left-0'>
-        <NavigationOfHome />
+        <HomeNavigation />
       </div>
       <div className='950-1100:mr-10'>
         <HomeFeed />

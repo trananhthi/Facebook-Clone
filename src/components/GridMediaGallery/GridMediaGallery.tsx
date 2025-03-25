@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import GridMediaItem from 'src/base-components/GridMediaItem'
 import { PostMediaType } from 'src/types/media.type.ts'
-import { average } from 'color.js'
 import { MediaTypeEnum } from 'src/constants/enum.ts'
 import VideoPlayer from 'src/components/VideoPlayer'
-import { snapImage } from 'src/utils/utils.ts'
+import { getAverageColor, snapImage } from 'src/utils/utils.ts'
 import LoadingSpinner from 'src/base-components/LoadingSpinner'
 
 interface Props {
@@ -21,19 +20,25 @@ function GridMediaGallery({ listMedia, type }: Props) {
   React.useEffect(() => {
     if (type == 'edit') {
       setBgColor('')
-    } else if (listMedia[0].type == MediaTypeEnum.IMAGE) {
-      average(listMedia[0].url, { format: 'hex' }).then((color) => setBgColor(color.toString()))
+    } else if (listMedia[0].type == MediaTypeEnum.IMAGE && listMedia[0].url) {
+      getAverageColor(listMedia[0].url)
+        .then(setBgColor)
+        .catch((error) => {
+          console.error('Error extracting color:', error)
+          // Fallback color nếu không thể trích xuất
+          setBgColor('rgb(200,200,200)')
+        })
     }
   }, [listMedia])
 
-  // async function loadImageAsync(src: string): Promise<HTMLImageElement> {
-  //   return new Promise((resolve, reject) => {
-  //     const PreviewImage = new Image()
-  //     PreviewImage.onload = () => resolve(PreviewImage)
-  //     PreviewImage.onerror = reject
-  //     PreviewImage.src = src
-  //   })
-  // }
+  async function loadImageAsync(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const PreviewImage = new Image()
+      PreviewImage.onload = () => resolve(PreviewImage)
+      PreviewImage.onerror = reject
+      PreviewImage.src = src
+    })
+  }
 
   async function processImages(listUrl: { url: string; type: MediaTypeEnum }[]) {
     const listAspectRatiosTemp: number[] = []
@@ -41,8 +46,12 @@ function GridMediaGallery({ listMedia, type }: Props) {
     setLoading(loadingStatus)
     for (let i = 0; i < listUrl.length && i < 5; i++) {
       try {
-        // const PreviewImage = await loadImageAsync(listUrl[i].url)
-        listAspectRatiosTemp.push(listMedia[i].height / listMedia[i].width)
+        if (type == 'edit') {
+          const PreviewImage = await loadImageAsync(listUrl[i].url)
+          listAspectRatiosTemp.push(PreviewImage.height / PreviewImage.width)
+        } else {
+          listAspectRatiosTemp.push(listMedia[i].height / listMedia[i].width)
+        }
         loadingStatus[i] = false
         setLoading([...loadingStatus])
       } catch (error) {

@@ -160,7 +160,9 @@ function AddMediaContent({
                 size: 0,
                 url: preview.url,
                 type: preview.type,
-                visualIndex: preview.visualIndex
+                visualIndex: preview.visualIndex,
+                height: 0,
+                width: 0
               }))}
               type='edit'
             />

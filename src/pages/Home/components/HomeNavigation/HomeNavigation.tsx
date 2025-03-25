@@ -17,7 +17,7 @@ const NavigationOfHomeButton = ({ name, children }: { name: string; children: Re
   )
 }
 
-function NavigationOfHome() {
+function HomeNavigation() {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const [isExtend, setIsExtend] = useState<boolean>(false)
   return (
@@ -156,4 +156,4 @@ function NavigationOfHome() {
   )
 }
 
-export default NavigationOfHome
+export default HomeNavigation

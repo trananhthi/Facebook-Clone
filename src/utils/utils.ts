@@ -272,3 +272,115 @@ export function snapImage(video: HTMLVideoElement, url: string): Promise<string 
     )
   })
 }
+
+export const getAverageColor = (imgSrc: string): Promise<string> => {
+  return new Promise<string>((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'Anonymous'
+    img.src = imgSrc
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+
+      if (!ctx) {
+        reject(new Error('Cannot get canvas context'))
+        return
+      }
+
+      // Giảm kích thước canvas để tối ưu hiệu năng
+      const scaleFactor = 0.1 // Thu nhỏ ảnh xuống 10%
+      canvas.width = img.width * scaleFactor
+      canvas.height = img.height * scaleFactor
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+
+      let r = 0,
+        g = 0,
+        b = 0
+      const pixelCount = data.length / 4
+
+      for (let i = 0; i < data.length; i += 4) {
+        // Bỏ qua các pixel quá sáng hoặc quá tối
+        if (data[i] > 250 && data[i + 1] > 250 && data[i + 2] > 250) continue
+        if (data[i] < 5 && data[i + 1] < 5 && data[i + 2] < 5) continue
+
+        r += data[i]
+        g += data[i + 1]
+        b += data[i + 2]
+      }
+
+      r = Math.floor(r / pixelCount)
+      g = Math.floor(g / pixelCount)
+      b = Math.floor(b / pixelCount)
+
+      // Chuyển đổi sang HSL để điều chỉnh độ sáng
+      const rgbToHsl = (r: number, g: number, b: number) => {
+        ;(r /= 255), (g /= 255), (b /= 255)
+        const max = Math.max(r, g, b),
+          min = Math.min(r, g, b)
+        let h = 0,
+          s = 0,
+          l = (max + min) / 2
+
+        if (max === min) {
+          h = s = 0
+        } else {
+          const d = max - min
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+          switch (max) {
+            case r:
+              h = (g - b) / d + (g < b ? 6 : 0)
+              break
+            case g:
+              h = (b - r) / d + 2
+              break
+            case b:
+              h = (r - g) / d + 4
+              break
+          }
+          h /= 6
+        }
+
+        return [h, s, l]
+      }
+
+      const [h, s, l] = rgbToHsl(r, g, b)
+
+      // Điều chỉnh độ sáng để màu luôn dễ nhìn
+      const adjustedL = Math.min(Math.max(l, 0.3), 0.7)
+
+      const hslToRgb = (h: number, s: number, l: number) => {
+        let r, g, b
+        if (s === 0) {
+          r = g = b = l
+        } else {
+          const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+          const p = 2 * l - q
+          r = hueToRgb(p, q, h + 1 / 3)
+          g = hueToRgb(p, q, h)
+          b = hueToRgb(p, q, h - 1 / 3)
+        }
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
+      }
+
+      const hueToRgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1
+        if (t > 1) t -= 1
+        if (t < 1 / 6) return p + (q - p) * 6 * t
+        if (t < 1 / 2) return q
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+        return p
+      }
+
+      const [adjustedR, adjustedG, adjustedB] = hslToRgb(h, s, adjustedL)
+
+      resolve(`rgb(${adjustedR},${adjustedG},${adjustedB})`)
+    }
+
+    img.onerror = () => {
+      reject(new Error('Failed to load image'))
+    }
+  })
+}
