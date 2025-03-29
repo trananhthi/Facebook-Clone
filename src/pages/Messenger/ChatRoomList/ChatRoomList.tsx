@@ -1,7 +1,6 @@
 import { faArrowLeft, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconButton, Input } from '@material-tailwind/react'
-import { IMessage } from '@stomp/stompjs'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -14,7 +13,7 @@ import { RootState } from 'src/redux/store'
 import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
 import { UserInfo } from 'src/types/user.type'
 
-const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null }) => {
+const ChatRoomList = ({ newMessage }: { newMessage: ChatMessageType | null }) => {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const { roomId } = useParams()
   const [isFocus, setIsFocus] = useState(false)
@@ -35,7 +34,7 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
     refetch
   } = useInfiniteQuery({
     queryKey: ['get-all-chatroom'],
-    queryFn: ({ pageParam = 0 }) => chatApi.getListChatRoom(userAccount.id as string, pageParam, 15),
+    queryFn: ({ pageParam = 0 }) => chatApi.getListChatRoom(pageParam, 15),
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.data.last ? undefined : allPages.length
     },
@@ -125,7 +124,7 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
 
   useEffect(() => {
     refetch()
-  }, [messageReceived])
+  }, [newMessage])
 
   //Scroll loading infinite
   const intObserver = useRef<IntersectionObserver | null>(null)
@@ -146,35 +145,16 @@ const ChatRoomList = ({ messageReceived }: { messageReceived: IMessage | null })
     [isFetchingNextPage, fetchNextPage, hasNextPage]
   )
 
-  const chatRoomData = data?.pages.map((pg) => {
-    return pg.data.content.map((chatRoom: ChatRoomType, i) => {
-      if (messageReceived) {
-        const newMessage = JSON.parse((messageReceived as IMessage).body) as ChatMessageType
-
-        const isTrue =
-          roomId !== newMessage.roomId.toString() &&
-          newMessage.senderId.toString() === (chatRoom.receiver.id?.toString() as string)
-        // console.log(newMessage.roomId.toString())
-        // console.log(isTrue, '  ', chatRoom)
-        if (pg.data.content.length === i + 1) {
-          return (
-            <ChatRoom
-              ref={lastChatRoomRef}
-              key={chatRoom.id}
-              chatRoom={chatRoom}
-              messageReceived={isTrue ? newMessage : undefined}
-            />
-          )
-        }
-        return <ChatRoom key={chatRoom.id} chatRoom={chatRoom} messageReceived={isTrue ? newMessage : undefined} />
-      } else {
-        if (pg.data.content.length === i + 1) {
-          return <ChatRoom ref={lastChatRoomRef} key={chatRoom.id} chatRoom={chatRoom} />
-        }
-        return <ChatRoom key={chatRoom.id} chatRoom={chatRoom} />
-      }
-    })
-  })
+  const chatRoomData = data?.pages.flatMap((pg) =>
+    pg.data.content.map((chatRoom: ChatRoomType, i) => (
+      <ChatRoom
+        key={chatRoom.id}
+        ref={i === pg.data.content.length - 1 ? lastChatRoomRef : undefined}
+        chatRoom={chatRoom}
+        newMessage={newMessage}
+      />
+    ))
+  )
 
   const handleRefetch = () => {
     refetch()

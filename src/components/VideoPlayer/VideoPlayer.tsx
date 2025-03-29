@@ -229,7 +229,7 @@ const VideoPlayer = ({ src, autoPlay = false, initialVolume = 0.5, className }: 
   return (
     <div
       ref={playerRef}
-      className={`relative w-full max-w-4xl mx-auto overflow-hidden shadow-lg ${className}`}
+      className={`relative w-full max-w-4xl mx-auto overflow-hidden ${className}`}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >

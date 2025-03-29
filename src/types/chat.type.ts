@@ -10,7 +10,7 @@ export type ChatRoomType = {
   createdAt: Date
   receiver: UserInfo
   lastMessageTime: Date
-  lastMessage: ChatMessageType
+  lastMessage: LastMessageType
 }
 
 export type ChatRoomListType = {
@@ -35,6 +35,15 @@ export type ChatMessageType = {
   id?: string
   roomId: string
   senderId: string
+  content: string
+  status?: string
+  createdAt?: Date
+}
+
+export type LastMessageType = {
+  id: string
+  roomId: string
+  sender: UserInfo
   content: string
   status: string
   createdAt: Date

@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react'
+import React, { createContext, useState } from 'react'
 import { getAccessTokenFromLS } from '../utils/auth'
 import { Client, IMessage } from '@stomp/stompjs'
 
@@ -18,7 +18,17 @@ const inititalAppContext: AppContextType = {
   setIsAuthenticated: () => null,
   reset: () => null,
   stompClient: new Client({
-    brokerURL: WS_URL
+    brokerURL: `${WS_URL}?token=Bearer ${getAccessTokenFromLS()}`,
+    connectHeaders: {
+      Authorization: `Bearer ${getAccessTokenFromLS()}`,
+      'Accept-Language': 'vi-VN'
+    },
+    onWebSocketError: (event) => {
+      console.error('Lỗi WebSocket:', event)
+    },
+    onWebSocketClose: (event) => {
+      console.log('Đã đóng kết nối:', event)
+    }
   }),
   messageReceived: null,
   setMessageReceived: () => null

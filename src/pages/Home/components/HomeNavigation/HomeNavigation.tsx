@@ -37,14 +37,6 @@ function HomeNavigation() {
         ></div>
       </NavigationOfHomeButton>
 
-      {/* Wellcome */}
-      <NavigationOfHomeButton name='Chào mừng'>
-        <div
-          className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/ye/r/vV4w4OL9xUs.png)] 
-                            bg-[length:38px_38px] bg-[0px_0px] h-9 w-9'
-        ></div>
-      </NavigationOfHomeButton>
-
       {/* memories */}
       <NavigationOfHomeButton name='Kỷ niệm'>
         <div
@@ -97,6 +89,13 @@ function HomeNavigation() {
         ></div>
       </NavigationOfHomeButton>
 
+      {/* page */}
+      <NavigationOfHomeButton name='Trang'>
+        <div
+          style={{ backgroundImage: `url(${facebookIcon6})` }}
+          className={`bg-[length:38px_570px] bg-[0px_-114px] h-9 w-9`}
+        ></div>
+      </NavigationOfHomeButton>
       <>
         {isExtend ? (
           <>
@@ -108,13 +107,6 @@ function HomeNavigation() {
               ></div>
             </NavigationOfHomeButton>
 
-            {/* page */}
-            <NavigationOfHomeButton name='Trang'>
-              <div
-                style={{ backgroundImage: `url(${facebookIcon6})` }}
-                className={`bg-[length:38px_570px] bg-[0px_-114px] h-9 w-9`}
-              ></div>
-            </NavigationOfHomeButton>
             {/* event */}
             <NavigationOfHomeButton name='Sự kiện'>
               <div

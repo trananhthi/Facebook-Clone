@@ -1,5 +1,4 @@
-import { IMessage } from '@stomp/stompjs'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { useSelector } from 'react-redux'
@@ -7,18 +6,19 @@ import chatApi from 'src/apis/chat.api'
 import ChatMessage from 'src/base-components/ChatMessage'
 import { RootState } from 'src/redux/store'
 import { ChatRoomType, ChatMessageType } from 'src/types/chat.type'
+import LoadingSpinner from 'src/base-components/LoadingSpinner'
 
 interface ChatMessageViewProps {
   chatRoom: ChatRoomType
-  messageReceived: IMessage | null
+  newMessage: ChatMessageType | null
 }
 
-export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewProps) => {
+export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) => {
   const [maxHeight, setMaxHeight] = useState(0)
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
-  const [isLoadingFake, setIsLoadingFake] = useState(false) //loading giả , sau này xóa
+  const [listMsg, setListMsg] = useState<ChatMessageType[]>([])
   const chatMessageContainerRef = useRef(null)
-
+  const queryClient = useQueryClient()
   //lấy tin nhắn trong cuộc trò chuyện
   const {
     fetchNextPage, //function
@@ -61,16 +61,48 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
       window.removeEventListener('resize', handleResize)
     }
   }, [])
+  // Cập nhật listMsg khi `data` thay đổi (Lần đầu load & fetchNextPage)
+  useEffect(() => {
+    if (data?.pages) {
+      setListMsg((prevMessages) => {
+        const newMessages = data.pages.flatMap((page) => page.data.content)
+
+        if (prevMessages.length === 0) {
+          return newMessages // Lần đầu load
+        }
+
+        if (newMessages.length > prevMessages.length) {
+          return [...prevMessages, ...newMessages.slice(prevMessages.length)] // Chỉ thêm phần mới
+        }
+
+        return prevMessages
+      })
+    }
+  }, [data?.pages?.length])
 
   //thêm tin nhắn mới vào cuộc trò chuyện
+  // Khi có tin nhắn mới từ WebSocket, thêm vào đầu danh sách
   useEffect(() => {
-    if (messageReceived) {
-      const newMessage = JSON.parse(messageReceived.body) as ChatMessageType
-      if (chatRoom.receiver.id === newMessage.senderId || newMessage.senderId === userAccount.id) {
-        refetch()
-      }
+    if (newMessage) {
+      setListMsg((prevMessages) => {
+        // Nếu tin nhắn đã tồn tại, không thêm lại
+        if (!prevMessages.some((msg) => msg.id === newMessage.id)) {
+          return [newMessage, ...prevMessages] // Thêm vào đầu danh sách
+        }
+        return prevMessages
+      })
     }
-  }, [messageReceived])
+  }, [newMessage])
+
+  useEffect(() => {
+    const cachedData: any = queryClient.getQueryData(['get-chat-message', chatRoom.id])
+
+    if (cachedData) {
+      setListMsg(cachedData.pages.flatMap((pg: any) => pg.data.content))
+    }
+    // Luôn refetch để đảm bảo có dữ liệu mới nhất
+    refetch()
+  }, [chatRoom.id])
 
   //thêm thông tin người nhận vào đầu cuộc trò chuyện
   useEffect(() => {
@@ -114,10 +146,8 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
       intObserver.current = new IntersectionObserver(
         (chatMessages) => {
           if (chatMessages[0].isIntersecting && hasNextPage) {
-            setIsLoadingFake(true) //loading giả , sau này xóa
             setTimeout(() => {
               fetchNextPage()
-              setIsLoadingFake(false) //loading giả , sau này xóa
             }, 300)
           }
         },
@@ -131,49 +161,52 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
 
   //hiển thị tin nhắn
   //next và pre bị đảo ngược vì tin nhắn được lấy theo thời gian gần nhất
-  const chatMessageData = data?.pages.map((pg) => {
-    return pg.data.content.map((chatMessage: ChatMessageType, i) => {
-      if (pg.data.content.length === i + 1) {
-        return (
-          <ChatMessage
-            key={chatMessage.id}
-            ref={lastChatMessageRef}
-            message={chatMessage}
-            previousMessage={undefined}
-            nextMessage={pg.data.content[i - 1]}
-            userAccount={userAccount}
-            chatRoom={chatRoom}
-          />
-        )
-      }
-      return (
-        <ChatMessage
-          key={chatMessage.id}
-          message={chatMessage}
-          userAccount={userAccount}
-          chatRoom={chatRoom}
-          nextMessage={pg.data.content[i - 1]}
-          previousMessage={pg.data.content[i + 1]}
-        />
-      )
-    })
+  // const chatMessageData = data?.pages.map((pg) => {
+  //   return pg.data.content.map((chatMessage: ChatMessageType, i) => {
+  //     if (pg.data.content.length === i + 1) {
+  //       return (
+  //         <ChatMessage
+  //           key={chatMessage.id}
+  //           ref={lastChatMessageRef}
+  //           message={chatMessage}
+  //           previousMessage={undefined}
+  //           nextMessage={pg.data.content[i - 1]}
+  //           userAccount={userAccount}
+  //           chatRoom={chatRoom}
+  //         />
+  //       )
+  //     }
+  //     return (
+  //       <ChatMessage
+  //         key={chatMessage.id}
+  //         message={chatMessage}
+  //         userAccount={userAccount}
+  //         chatRoom={chatRoom}
+  //         nextMessage={pg.data.content[i - 1]}
+  //         previousMessage={pg.data.content[i + 1]}
+  //       />
+  //     )
+  //   })
+  // })
+
+  const chatMessageData = listMsg.map((chatMessage, i) => {
+    return (
+      <ChatMessage
+        key={chatMessage.id}
+        ref={i === listMsg.length - 1 ? lastChatMessageRef : undefined} // Gán ref cho tin nhắn cuối cùng
+        message={chatMessage}
+        userAccount={userAccount}
+        chatRoom={chatRoom}
+        nextMessage={i > 0 ? listMsg[i - 1] : undefined} // Nếu có tin nhắn phía trên, gán vào
+        previousMessage={i < listMsg.length - 1 ? listMsg[i + 1] : undefined} // Nếu có tin nhắn phía dưới, gán vào
+      />
+    )
   })
 
   if (status === 'error') return <p className='center'>Error: {(error as any).message}</p>
 
   if (isLoading)
-    return (
-      <div
-        style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px` }}
-        className='flex justify-center items-center w-full'
-      >
-        <div className='spinner-loader-circle w-[70px]'>
-          <svg className='spinner-circular' viewBox='25 25 50 50'>
-            <circle className='spinner-path' cx='50' cy='50' r='20' fill='none' strokeWidth='5' strokeMiterlimit='10' />
-          </svg>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner type='window' className={`h-[calc(100vh-7.8rem)] max-h-[${maxHeight}px] w-full`} />
 
   return (
     <div
@@ -182,24 +215,12 @@ export const ChatMessageView = ({ chatRoom, messageReceived }: ChatMessageViewPr
       style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px`, overflowAnchor: 'none' }}
     >
       {chatMessageData}
-      {(isFetchingNextPage || isLoadingFake) && (
+      {isFetchingNextPage && (
         <div
           style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px` }}
           className='flex justify-center items-center w-full'
         >
-          <div className='spinner-loader-circle w-[30px]'>
-            <svg className='spinner-circular' viewBox='25 25 50 50'>
-              <circle
-                className='spinner-path'
-                cx='50'
-                cy='50'
-                r='20'
-                fill='none'
-                strokeWidth='5'
-                strokeMiterlimit='10'
-              />
-            </svg>
-          </div>
+          <LoadingSpinner type='window' className={`h-6 w-6`} border='2px' />
         </div>
       )}
 

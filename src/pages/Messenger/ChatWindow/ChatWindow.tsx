@@ -1,26 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
-import { useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
 import chatApi from 'src/apis/chat.api'
-import { RootState } from 'src/redux/store'
-import { ChatRoomType } from 'src/types/chat.type'
+import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
 import no_message_icon from 'src/assets/images/icon-pack/no_message_icon.png'
 import ChatMessageView from 'src/components/ChatMessageView'
 import ChatBox from 'src/components/ChatBox'
-import { IMessage } from '@stomp/stompjs'
+import React from 'react'
 
 interface ChatWindowProps {
-  messageReceived: IMessage | null
+  newMessage: ChatMessageType | null
+  setNewMessage: React.Dispatch<React.SetStateAction<ChatMessageType | null>>
 }
 
-export const ChatWindow = ({ messageReceived }: ChatWindowProps) => {
+export const ChatWindow = ({ newMessage, setNewMessage }: ChatWindowProps) => {
   const { roomId } = useParams()
-  const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
 
   const getChatRoom = useQuery({
     queryKey: [roomId],
     enabled: !!roomId,
-    queryFn: () => chatApi.getChatRoomById(roomId as any, userAccount.id as string)
+    queryFn: () => chatApi.getChatRoomById(roomId as any)
   })
 
   const room = getChatRoom.data?.data as ChatRoomType
@@ -107,14 +105,14 @@ export const ChatWindow = ({ messageReceived }: ChatWindowProps) => {
           </div>
           {/* END: receiver information */}
           {/* BEGIN: Chat message center */}
-          <ChatMessageView chatRoom={room} messageReceived={messageReceived} />
+          <ChatMessageView chatRoom={room} newMessage={newMessage} />
           {/* <div className='min-h-[160px] max-h-[300px] overflow-auto'> */}
-          <ChatBox roomId={roomId} />
+          <ChatBox roomId={roomId} setNewMessage={setNewMessage} />
           {/* </div> */}
           {/* END: Chat message center */}
         </div>
       ) : (
-        <div className='flex justify-center items-center flex-col h-full gap-4'>
+        <div className='flex justify-center items-center flex-col h-screen gap-4'>
           <div className=''>
             <i
               className=''

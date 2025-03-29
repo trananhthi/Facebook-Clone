@@ -18,6 +18,8 @@ import facebookIcon17 from 'src/assets/images/icon-pack/facbook_icon_17.png'
 import { Link } from 'react-router-dom'
 import routes from 'src/constants/routes'
 import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircleQuestion, faMessage } from '@fortawesome/free-solid-svg-icons'
 
 function AccountOfHeader() {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
@@ -92,10 +94,7 @@ function AccountOfHeader() {
             {/* help */}
             <button className='w-full flex gap-4 items-center h-[52px] hover:bg-[#f2f2f2] rounded-lg px-2'>
               <div className='bg-[#d8dadf] h-9 w-9 rounded-full flex justify-center items-center'>
-                <div
-                  className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/yi/r/RJ2gJMyPGF8.png)] 
-                            bg-[length:26px_330px] bg-[-0px_-202px] h-5 w-5'
-                ></div>
+                <FontAwesomeIcon icon={faCircleQuestion} className='w-[22px] h-[22px] text-black' />
               </div>
               <Typography as='span' variant='small' className='font-semibold' color='black'>
                 Trợ giúp & hỗ trợ
@@ -117,10 +116,7 @@ function AccountOfHeader() {
             {/* opinion */}
             <button className='w-full flex gap-4 items-center h-[52px] hover:bg-[#f2f2f2] rounded-lg px-2'>
               <div className='bg-[#d8dadf] h-9 w-9 rounded-full flex justify-center items-center'>
-                <div
-                  className='bg-[url(https://static.xx.fbcdn.net/rsrc.php/v3/yi/r/RJ2gJMyPGF8.png)] 
-                            bg-[length:26px_330px] bg-[0px_-70px] h-5 w-5'
-                ></div>
+                <FontAwesomeIcon icon={faMessage} className='w-5 h-5 text-black' />
               </div>
               <Typography as='span' variant='small' className='font-semibold' color='black'>
                 Đóng góp ý kiến

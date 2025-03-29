@@ -33,7 +33,6 @@ function App() {
     }
     if (!isAuthenticated && stompClient.connected) {
       stompClient.deactivate().then(() => console.log('disconnected'))
-      // console.log('disconnected')
       return
     }
   }, [isAuthenticated])

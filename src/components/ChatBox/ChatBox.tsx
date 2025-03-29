@@ -1,11 +1,11 @@
-import { KeyboardEvent, useContext, useEffect, useRef, useState } from 'react'
-// import { useMutation } from '@tanstack/react-query'
+import React, { ChangeEvent, KeyboardEvent, useContext, useEffect, useRef, useState } from 'react'
 import Picker from '@emoji-mart/react'
-// import { convertNewlinesForStorage } from 'src/utils/utils'
 import { AppContext } from 'src/contexts/app.context'
 import { RootState } from 'src/redux/store'
 import { useSelector } from 'react-redux'
-import { ChatMessageType } from 'src/types/chat.type'
+import { toast } from 'react-toastify'
+import { ChatMessageType } from 'src/types/chat.type.ts'
+import { StatusEnum } from 'src/constants/enum.ts'
 /* import images */
 
 const animateZoomOut = (element: string, animationConfig: string) =>
@@ -46,11 +46,15 @@ const animateZoomIn = (element: string, animationConfig: string) =>
     node?.addEventListener('animationend', handleAnimationEnd, { once: false })
   })
 
-export const ChatBox = ({ roomId }: { roomId: string }) => {
+interface Props {
+  roomId: string
+  setNewMessage: React.Dispatch<React.SetStateAction<ChatMessageType | null>>
+}
+
+export const ChatBox = ({ roomId, setNewMessage }: Props) => {
   const colorButton = '#0084ff'
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const { stompClient } = useContext(AppContext)
-
   const [message, setMessage] = useState('')
   // const [isFocusInputField, setIsFocusInputField] = useState<boolean>(false)
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
@@ -83,17 +87,36 @@ export const ChatBox = ({ roomId }: { roomId: string }) => {
     sendMessage()
   }
 
+  const handleTyping = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    if (!isTyping) {
+      setIsTyping(true)
+      // socket.emit('typing', { user: 'Người A' })
+    }
+    setMessage(e.target.value)
+    // Đặt lại trạng thái sau 2s nếu không gõ tiếp
+    setTimeout(() => setIsTyping(false), 2000)
+  }
+
   const sendMessage = () => {
     if (message && stompClient) {
-      const chatMessage: ChatMessageType = {
+      const chatMessage = {
         roomId: roomId,
         senderId: userAccount.id as string,
-        content: message,
-        status: 'active',
-        createdAt: new Date()
+        content: message
       }
 
-      stompClient.publish({ destination: '/app/chat', body: JSON.stringify(chatMessage) })
+      try {
+        stompClient.publish({ destination: '/app/v1/chat-message', body: JSON.stringify(chatMessage) })
+        setNewMessage({
+          roomId: roomId,
+          senderId: userAccount.id as string,
+          content: message,
+          status: StatusEnum.ACT,
+          createdAt: new Date()
+        })
+      } catch (e) {
+        toast.error('Không thể gửi tin nhắn')
+      }
       setMessage('')
       // const newMessageElement = <ChatMessage message={chatMessage} userAccount={userAccount} />
       // const chatMessageContainer = chatMessageContainerRef.current as HTMLElement
@@ -121,18 +144,16 @@ export const ChatBox = ({ roomId }: { roomId: string }) => {
   useEffect(() => {
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement
 
-    if (message.length !== 0 && !isTyping && message.trim() !== '') {
+    if (message.length !== 0 && message.trim() !== '' && isTyping) {
       animateZoomOut('#media-gif', 'animate-[scale-out-center_0.1s_ease-in-out_both_0ms]')
       animateZoomOut('#media-sticker', 'animate-[scale-out-center_0.1s_ease-in-out_both_50ms]')
       animateZoomOut('#media-image', 'animate-[scale-out-center_0.1s_ease-in-out_both_100ms]')
-      setIsTyping(true)
       messageTextAreaElement.style.width = '1073px'
     }
     if (message.length === 0 && isTyping) {
       animateZoomIn('#media-image', 'animate-[scale-in-center_0.1s_ease-in-out_both_0ms]')
       animateZoomIn('#media-sticker', 'animate-[scale-in-center_0.1s_ease-in-out_both_50ms]')
       animateZoomIn('#media-gif', 'animate-[scale-in-center_0.1s_ease-in-out_both_100ms]')
-      setIsTyping(false)
       messageTextAreaElement.style.width = '973px'
     }
   }, [message])
@@ -273,7 +294,7 @@ export const ChatBox = ({ roomId }: { roomId: string }) => {
               onKeyDown={(e) => handleEnterPress(e)}
               value={message}
               onChange={(e) => {
-                setMessage(e.target.value)
+                handleTyping(e)
               }}
               className={`w-full h-9 pt-[6.5px] px-3 overflow-clip text-[#050505] text-[15px] resize-none bg-[#f0f2f5] placeholder:text-[#050505] placeholder:opacity-60 active:outline-0 focus:outline-0 rounded-full`}
               placeholder='Aa'

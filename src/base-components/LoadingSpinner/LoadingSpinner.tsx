@@ -2,9 +2,10 @@ interface Props {
   type?: string
   className?: string
   color?: string
+  border?: string
 }
 
-const LoadingSpinner = ({ type, className, color }: Props) => {
+const LoadingSpinner = ({ type, className, color, border }: Props) => {
   if (type == 'window') {
     return (
       <div className={`flex items-center justify-center ${className}`}>
@@ -13,7 +14,7 @@ const LoadingSpinner = ({ type, className, color }: Props) => {
             width: 50px;
             aspect-ratio: 1;
             border-radius: 50%;
-            border: 4px solid ${color ? color : '#0866FF'} ;
+            border: ${border ? border : '4px'} solid ${color ? color : '#0866FF'} ;
             animation:
               l20-1 1.4s infinite linear alternate,
               l20-2 2.8s infinite linear;

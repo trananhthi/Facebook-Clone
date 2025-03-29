@@ -10,7 +10,8 @@ import AppProvider from './contexts/app.context'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { store, persistor } from './redux/store'
-
+import { themeConfig } from 'src/constants/themeConfig.ts'
+const showDevtools = import.meta.env.VITE_REACT_QUERY_DEVTOOLS === 'true'
 // Tắt tự động fetch api khi focus vào window
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,86 +22,6 @@ const queryClient = new QueryClient({
   }
 })
 
-const theme = {
-  dialog: {
-    styles: {
-      base: {
-        backdrop: {
-          backgroundColor: 'bg-[#f3f3f4]',
-          backgroundOpacity: 'bg-opacity-80',
-          backdropFilter: ''
-        },
-        container: {
-          fontFamily: 'ui-sans-serif'
-        }
-      },
-      sizes: {
-        xs: {
-          width: '',
-          minWidth: '',
-          maxWidth: ''
-        },
-        sm: {
-          width: 'w-full md:w-2/3 lg:w-2/4 2xl:w-1/3',
-          minWidth: 'min-w-[80%] md:min-w-[66.666667%] lg:min-w-[10%] 2xl:min-w-[10%]',
-          maxWidth: 'max-w-[80%] md:max-w-[66.666667%] lg:max-w-[33.3%] 2xl:max-w-[28%]'
-        }
-      }
-    }
-  },
-  dialogFooter: {
-    defaultProps: {
-      className: ''
-    },
-    styles: {
-      base: {
-        fontSmoothing: 'antialiased',
-        fontFamily: 'font-sans',
-        fontSize: 'text-base',
-        fontWeight: 'font-light',
-        lineHeight: 'leading-relaxed',
-        flexShrink: 'shrink'
-      }
-    }
-  },
-  input: {
-    styles: {
-      base: {
-        container: {
-          position: 'relative',
-          width: 'w-full',
-          minWidth: 'min-w-[100px]'
-        }
-      }
-    }
-  },
-  cardBody: {
-    styles: {
-      base: {
-        p: 'p-4'
-      }
-    }
-  },
-  menu: {
-    styles: {
-      base: {
-        menu: {
-          minWidth: 'min-w-[50px]'
-        }
-      }
-    }
-  },
-  select: {
-    styles: {
-      base: {
-        container: {
-          minWidth: 'min-w-[50px]'
-        }
-      }
-    }
-  }
-}
-
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     {/* <RouterProvider router={routeElements} /> */}
@@ -109,12 +30,12 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <PersistGate persistor={persistor}>
           <AppProvider>
             <HelmetProvider>
-              <ThemeProvider value={theme}>
+              <ThemeProvider value={themeConfig}>
                 <App />
               </ThemeProvider>
             </HelmetProvider>
           </AppProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {showDevtools && <ReactQueryDevtools initialIsOpen={false} />}
         </PersistGate>
       </Provider>
     </QueryClientProvider>

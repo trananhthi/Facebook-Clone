@@ -122,7 +122,7 @@ const ChatMessage = forwardRef(
             }
           }}
           placement='left'
-          content={formatDateTime(message.createdAt)}
+          content={formatDateTime(message.createdAt as Date)}
           className='text-white text-[13px] bg-[rgba(0,0,0,0.8)]'
         >
           <div className={`${isSender ? 'bg-[#0084ff] text-white' : 'bg-[#f0f0f0]'} w-fit ${styleOfMessage} px-3 py-1`}>
