@@ -136,9 +136,9 @@ export const ChatBox = ({ roomId, setNewEvent }: Props) => {
             createdAt: new Date()
           }
         })
+        setIsTyping(false)
         // Gửi thông báo "đang gõ" với giá trị false
         if (typingTimeout.current) clearTimeout(typingTimeout.current)
-        setIsTyping(false)
         stompClient.publish({
           destination: '/app/v1/chat-message/typing',
           body: JSON.stringify({
@@ -166,20 +166,21 @@ export const ChatBox = ({ roomId, setNewEvent }: Props) => {
   useEffect(() => {
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement
 
-    if (message.length !== 0 && message.trim() !== '' && isTyping) {
+    if (message.length !== 0 && message.trim() !== '') {
       animateZoomOut('#media-gif', 'animate-[scale-out-center_0.1s_ease-in-out_both_0ms]')
       animateZoomOut('#media-sticker', 'animate-[scale-out-center_0.1s_ease-in-out_both_50ms]')
       animateZoomOut('#media-image', 'animate-[scale-out-center_0.1s_ease-in-out_both_100ms]')
       messageTextAreaElement.style.width = '1073px'
     }
-    if (message.length === 0 && isTyping) {
+    if (message.length === 0) {
       animateZoomIn('#media-image', 'animate-[scale-in-center_0.1s_ease-in-out_both_0ms]')
       animateZoomIn('#media-sticker', 'animate-[scale-in-center_0.1s_ease-in-out_both_50ms]')
       animateZoomIn('#media-gif', 'animate-[scale-in-center_0.1s_ease-in-out_both_100ms]')
       messageTextAreaElement.style.width = '973px'
     }
   }, [message, isTyping])
-
+  console.log(message)
+  console.log(isTyping)
   useEffect(() => {
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement
 
