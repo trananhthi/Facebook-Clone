@@ -103,7 +103,7 @@ export const ChatMessageView = ({ chatRoom, newEvent }: ChatMessageViewProps) =>
         setIsReceiverTyping(typingStatus.isTyping)
       }
     }
-  }, [newEvent])
+  }, [newEvent, chatRoom])
 
   useEffect(() => {
     const cachedData: any = queryClient.getQueryData(['get-chat-message', chatRoom.id])
