@@ -7,18 +7,22 @@ import ChatMessage from 'src/base-components/ChatMessage'
 import { RootState } from 'src/redux/store'
 import { ChatRoomType, ChatMessageType } from 'src/types/chat.type'
 import LoadingSpinner from 'src/base-components/LoadingSpinner'
+import { WSEventPayload } from 'src/types/utils.type.ts'
+import { WSEventEnum } from 'src/constants/enum.ts'
+import LoadingThreeDotsJumping from 'src/base-components/LoadingThreeDotsJumping/LoadingThreeDotsJumping.tsx'
 
 interface ChatMessageViewProps {
   chatRoom: ChatRoomType
-  newMessage: ChatMessageType | null
+  newEvent: WSEventPayload<any> | null
 }
 
-export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) => {
+export const ChatMessageView = ({ chatRoom, newEvent }: ChatMessageViewProps) => {
   const [maxHeight, setMaxHeight] = useState(0)
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const [listMsg, setListMsg] = useState<ChatMessageType[]>([])
   const chatMessageContainerRef = useRef(null)
   const queryClient = useQueryClient()
+  const [isReceiverTyping, setIsReceiverTyping] = useState(false)
   //lấy tin nhắn trong cuộc trò chuyện
   const {
     fetchNextPage, //function
@@ -83,7 +87,8 @@ export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) 
   //thêm tin nhắn mới vào cuộc trò chuyện
   // Khi có tin nhắn mới từ WebSocket, thêm vào đầu danh sách
   useEffect(() => {
-    if (newMessage) {
+    if (newEvent && newEvent.event === WSEventEnum.SEND_MESSAGE) {
+      const newMessage = newEvent.data as ChatMessageType
       setListMsg((prevMessages) => {
         // Nếu tin nhắn đã tồn tại, không thêm lại
         if (!prevMessages.some((msg) => msg.id === newMessage.id)) {
@@ -92,7 +97,13 @@ export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) 
         return prevMessages
       })
     }
-  }, [newMessage])
+    if (newEvent && newEvent.event === WSEventEnum.TYPING) {
+      const typingStatus = newEvent.data
+      if (chatRoom.id === typingStatus.chatRoomId) {
+        setIsReceiverTyping(typingStatus.isTyping)
+      }
+    }
+  }, [newEvent])
 
   useEffect(() => {
     const cachedData: any = queryClient.getQueryData(['get-chat-message', chatRoom.id])
@@ -161,34 +172,6 @@ export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) 
 
   //hiển thị tin nhắn
   //next và pre bị đảo ngược vì tin nhắn được lấy theo thời gian gần nhất
-  // const chatMessageData = data?.pages.map((pg) => {
-  //   return pg.data.content.map((chatMessage: ChatMessageType, i) => {
-  //     if (pg.data.content.length === i + 1) {
-  //       return (
-  //         <ChatMessage
-  //           key={chatMessage.id}
-  //           ref={lastChatMessageRef}
-  //           message={chatMessage}
-  //           previousMessage={undefined}
-  //           nextMessage={pg.data.content[i - 1]}
-  //           userAccount={userAccount}
-  //           chatRoom={chatRoom}
-  //         />
-  //       )
-  //     }
-  //     return (
-  //       <ChatMessage
-  //         key={chatMessage.id}
-  //         message={chatMessage}
-  //         userAccount={userAccount}
-  //         chatRoom={chatRoom}
-  //         nextMessage={pg.data.content[i - 1]}
-  //         previousMessage={pg.data.content[i + 1]}
-  //       />
-  //     )
-  //   })
-  // })
-
   const chatMessageData = listMsg.map((chatMessage, i) => {
     return (
       <ChatMessage
@@ -203,6 +186,17 @@ export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) 
     )
   })
 
+  const typingIndicator = (
+    <div className={`flex items-center justify-start px-4 mb-[2px] gap-2 group`}>
+      <img src={chatRoom?.receiver.avatar} className=' w-7 h-7 rounded-full' alt='avt' />
+      <div className={`bg-[#f0f0f0] w-fit rounded-full px-1 py-1 h-6 flex items-center gap-1`}>
+        <span className='leading-5 text-[15px]'>
+          <LoadingThreeDotsJumping width='6px' height='6px' color='gray' />
+        </span>
+      </div>
+    </div>
+  )
+
   if (status === 'error') return <p className='center'>Error: {(error as any).message}</p>
 
   if (isLoading)
@@ -214,6 +208,7 @@ export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) 
       className='flex flex-col-reverse overflow-y-scroll'
       style={{ height: `${maxHeight}px`, maxHeight: `${maxHeight}px`, overflowAnchor: 'none' }}
     >
+      {isReceiverTyping && typingIndicator}
       {chatMessageData}
       {isFetchingNextPage && (
         <div
@@ -228,7 +223,7 @@ export const ChatMessageView = ({ chatRoom, newMessage }: ChatMessageViewProps) 
         style={{
           height: `${maxHeight}px`,
           maxHeight: `${maxHeight}px`,
-          display: (data?.pages[0].data.content.length as number) > 0 ? 'none' : 'flex'
+          display: (listMsg.length as number) > 0 ? 'none' : 'flex'
         }}
         className='flex flex-col justify-center items-center gap-2'
       >

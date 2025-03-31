@@ -10,10 +10,11 @@ import userAccountApi from 'src/apis/userAccount.api'
 import ChatRoom from 'src/base-components/ChatRoom'
 import CircleIconButton from 'src/base-components/CircleIconButton'
 import { RootState } from 'src/redux/store'
-import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
+import { ChatRoomType } from 'src/types/chat.type'
 import { UserInfo } from 'src/types/user.type'
+import { WSEventPayload } from 'src/types/utils.type.ts'
 
-const ChatRoomList = ({ newMessage }: { newMessage: ChatMessageType | null }) => {
+const ChatRoomList = ({ newEvent }: { newEvent: WSEventPayload<any> | null }) => {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const { roomId } = useParams()
   const [isFocus, setIsFocus] = useState(false)
@@ -122,10 +123,6 @@ const ChatRoomList = ({ newMessage }: { newMessage: ChatMessageType | null }) =>
     setSearchKeyword('')
   }, [isFocus])
 
-  useEffect(() => {
-    refetch()
-  }, [newMessage])
-
   //Scroll loading infinite
   const intObserver = useRef<IntersectionObserver | null>(null)
   const lastChatRoomRef = useCallback(
@@ -151,7 +148,7 @@ const ChatRoomList = ({ newMessage }: { newMessage: ChatMessageType | null }) =>
         key={chatRoom.id}
         ref={i === pg.data.content.length - 1 ? lastChatRoomRef : undefined}
         chatRoom={chatRoom}
-        newMessage={newMessage}
+        newEvent={newEvent}
       />
     ))
   )

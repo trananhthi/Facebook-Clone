@@ -1,4 +1,4 @@
-import { PrivacyEnum } from 'src/constants/enum.ts'
+import { PrivacyEnum, WSEventEnum } from 'src/constants/enum.ts'
 
 export type ErrorResponse = {
   statusCode?: number
@@ -50,3 +50,8 @@ export type PageableType = {
 export type Point = { x: number; y: number }
 
 export type Cells = string[][]
+
+export type WSEventPayload<T> = {
+  event: WSEventEnum
+  data: T
+}

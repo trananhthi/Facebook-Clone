@@ -66,3 +66,9 @@ export type MessageListType = {
   first: boolean
   empty: boolean
 }
+
+export type TypingStatusType = {
+  chatRoomId: string
+  userId: string
+  isTyping: boolean
+}

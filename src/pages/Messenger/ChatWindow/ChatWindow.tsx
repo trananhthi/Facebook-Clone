@@ -1,18 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import chatApi from 'src/apis/chat.api'
-import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
+import { ChatRoomType } from 'src/types/chat.type'
 import no_message_icon from 'src/assets/images/icon-pack/no_message_icon.png'
 import ChatMessageView from 'src/components/ChatMessageView'
 import ChatBox from 'src/components/ChatBox'
 import React from 'react'
+import { WSEventPayload } from 'src/types/utils.type.ts'
 
 interface ChatWindowProps {
-  newMessage: ChatMessageType | null
-  setNewMessage: React.Dispatch<React.SetStateAction<ChatMessageType | null>>
+  newEvent: WSEventPayload<any> | null
+  setNewEvent: React.Dispatch<React.SetStateAction<WSEventPayload<any> | null>>
 }
 
-export const ChatWindow = ({ newMessage, setNewMessage }: ChatWindowProps) => {
+export const ChatWindow = ({ newEvent, setNewEvent }: ChatWindowProps) => {
   const { roomId } = useParams()
 
   const getChatRoom = useQuery({
@@ -105,9 +106,9 @@ export const ChatWindow = ({ newMessage, setNewMessage }: ChatWindowProps) => {
           </div>
           {/* END: receiver information */}
           {/* BEGIN: Chat message center */}
-          <ChatMessageView chatRoom={room} newMessage={newMessage} />
+          <ChatMessageView chatRoom={room} newEvent={newEvent} />
           {/* <div className='min-h-[160px] max-h-[300px] overflow-auto'> */}
-          <ChatBox roomId={roomId} setNewMessage={setNewMessage} />
+          <ChatBox roomId={roomId} setNewEvent={setNewEvent} />
           {/* </div> */}
           {/* END: Chat message center */}
         </div>

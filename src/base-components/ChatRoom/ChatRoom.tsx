@@ -1,28 +1,49 @@
-import { LegacyRef, forwardRef } from 'react'
-import { ChatMessageType, ChatRoomType } from 'src/types/chat.type'
+import { LegacyRef, forwardRef, useEffect, useState } from 'react'
+import { ChatMessageType, ChatRoomType, TypingStatusType } from 'src/types/chat.type'
 import { Link, useParams } from 'react-router-dom'
 import { timeElapsedSince } from 'src/utils/utils'
 import { useSelector } from 'react-redux'
 import { RootState } from 'src/redux/store.ts'
+import { WSEventPayload } from 'src/types/utils.type.ts'
+import { WSEventEnum } from 'src/constants/enum.ts'
 
 interface ChatRoomProps {
   chatRoom: ChatRoomType
-  newMessage: ChatMessageType | null
+  newEvent: WSEventPayload<any> | null
 }
 
-export const ChatRoom = forwardRef(({ chatRoom, newMessage }: ChatRoomProps, ref) => {
+export const ChatRoom = forwardRef(({ chatRoom, newEvent }: ChatRoomProps, ref) => {
   const { roomId } = useParams()
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
-  const lastMessage =
+  // Lưu trữ tin nhắn cuối cùng
+  const getLastMessage = () =>
     chatRoom.lastMessage.sender.id !== userAccount.id
       ? chatRoom.lastMessage.content
       : 'Bạn: ' + chatRoom.lastMessage.content
 
-  const messageContent = newMessage
-    ? roomId !== newMessage.roomId.toString() && newMessage.senderId === (chatRoom.receiver.id?.toString() as string)
-      ? newMessage.content
-      : null
-    : null
+  const [lastMsg, setLastMsg] = useState<string>(getLastMessage())
+
+  useEffect(() => {
+    if (newEvent) {
+      if (newEvent.event === WSEventEnum.SEND_MESSAGE) {
+        const newMessage = newEvent.data as ChatMessageType
+        if (roomId !== newMessage.roomId && newMessage.senderId === chatRoom.receiver.id) {
+          setLastMsg(newMessage.content)
+        }
+      }
+
+      if (newEvent.event === WSEventEnum.TYPING) {
+        const typingStatus = newEvent.data as TypingStatusType
+        if (chatRoom.id === typingStatus.chatRoomId && typingStatus.userId === chatRoom.receiver.id) {
+          if (typingStatus.isTyping) {
+            setLastMsg('Đang nhập...')
+          } else {
+            setLastMsg(getLastMessage()) // Khi ngừng nhập, quay lại tin nhắn cũ
+          }
+        }
+      }
+    }
+  }, [newEvent])
 
   const body = (
     <Link
@@ -37,7 +58,7 @@ export const ChatRoom = forwardRef(({ chatRoom, newMessage }: ChatRoomProps, ref
           {chatRoom.receiver.firstName + ' ' + chatRoom.receiver.lastName}
         </span>
         <span className='text-[13px] leading-4 text-textgray flex'>
-          <span className='line-clamp-1 max-w-[160px]'>{messageContent ? messageContent : lastMessage}</span>
+          <span className='line-clamp-1 max-w-[160px]'>{lastMsg}</span>
           <span>· {timeElapsedSince(chatRoom.lastMessage.createdAt as Date)}</span>
         </span>
       </div>

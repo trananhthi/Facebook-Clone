@@ -14,7 +14,7 @@ function App() {
   const router = useRouteElements()
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
 
-  const { reset, stompClient, isAuthenticated, setMessageReceived } = useContext(AppContext)
+  const { reset, stompClient, isAuthenticated, setEventReceived } = useContext(AppContext)
 
   useEffect(() => {
     LocalStorageEventTarget.addEventListener('clearLS', reset)
@@ -24,21 +24,27 @@ function App() {
   }, [reset])
 
   useEffect(() => {
-    if (isAuthenticated && !stompClient.connected) {
-      stompClient.activate()
-      stompClient.onConnect = () => {
-        stompClient.subscribe(`/user/${userAccount.id}/queue/messages`, onMessageReceived)
+    if (!stompClient) return
+
+    if (isAuthenticated) {
+      if (!stompClient.active) {
+        stompClient.activate()
       }
-      return
+
+      stompClient.onConnect = () => {
+        console.log('WebSocket connected!')
+        stompClient.subscribe(`/user/${userAccount.id}/queue/messages`, onMessageReceived)
+        stompClient.subscribe(`/user/${userAccount.id}/queue/typing`, onMessageReceived)
+      }
+    } else {
+      if (stompClient.active) {
+        stompClient.deactivate().then(() => console.log('WebSocket disconnected!'))
+      }
     }
-    if (!isAuthenticated && stompClient.connected) {
-      stompClient.deactivate().then(() => console.log('disconnected'))
-      return
-    }
-  }, [isAuthenticated])
+  }, [isAuthenticated, stompClient])
 
   function onMessageReceived(message: IMessage): void {
-    setMessageReceived(message)
+    setEventReceived(message)
   }
 
   return (

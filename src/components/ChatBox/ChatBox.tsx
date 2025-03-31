@@ -4,8 +4,8 @@ import { AppContext } from 'src/contexts/app.context'
 import { RootState } from 'src/redux/store'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
-import { ChatMessageType } from 'src/types/chat.type.ts'
-import { StatusEnum } from 'src/constants/enum.ts'
+import { StatusEnum, WSEventEnum } from 'src/constants/enum.ts'
+import { WSEventPayload } from 'src/types/utils.type.ts'
 /* import images */
 
 const animateZoomOut = (element: string, animationConfig: string) =>
@@ -48,20 +48,19 @@ const animateZoomIn = (element: string, animationConfig: string) =>
 
 interface Props {
   roomId: string
-  setNewMessage: React.Dispatch<React.SetStateAction<ChatMessageType | null>>
+  setNewEvent: React.Dispatch<React.SetStateAction<WSEventPayload<any> | null>>
 }
 
-export const ChatBox = ({ roomId, setNewMessage }: Props) => {
+export const ChatBox = ({ roomId, setNewEvent }: Props) => {
   const colorButton = '#0084ff'
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
   const { stompClient } = useContext(AppContext)
   const [message, setMessage] = useState('')
-  // const [isFocusInputField, setIsFocusInputField] = useState<boolean>(false)
   const [openEmoji, setOpenEmoji] = useState<boolean>(false)
   const [isClicked, setIsClicked] = useState<boolean>(false)
   const textAreaRef = useRef(null)
-  // const [messageTextAreaWidth, setMessageTextAreaWidth] = useState<number>(0)
   const [isTyping, setIsTyping] = useState<boolean>(false)
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null)
 
   //xử lý ấn ra ngoài emoji picker
   const handleClickOutsideEmojiPicker = () => {
@@ -88,13 +87,32 @@ export const ChatBox = ({ roomId, setNewMessage }: Props) => {
   }
 
   const handleTyping = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    if (!stompClient) return
     if (!isTyping) {
       setIsTyping(true)
-      // socket.emit('typing', { user: 'Người A' })
+      stompClient.publish({
+        destination: '/app/v1/chat-message/typing',
+        body: JSON.stringify({
+          chatRoomId: roomId,
+          userId: userAccount.id as string,
+          isTyping: true
+        })
+      })
     }
+    if (typingTimeout.current) clearTimeout(typingTimeout.current)
     setMessage(e.target.value)
-    // Đặt lại trạng thái sau 2s nếu không gõ tiếp
-    setTimeout(() => setIsTyping(false), 2000)
+    // Đặt lại trạng thái sau 3s nếu không gõ tiếp
+    typingTimeout.current = setTimeout(() => {
+      setIsTyping(false)
+      stompClient.publish({
+        destination: '/app/v1/chat-message/typing',
+        body: JSON.stringify({
+          chatRoomId: roomId,
+          userId: userAccount.id as string,
+          isTyping: false
+        })
+      })
+    }, 3000)
   }
 
   const sendMessage = () => {
@@ -107,28 +125,32 @@ export const ChatBox = ({ roomId, setNewMessage }: Props) => {
 
       try {
         stompClient.publish({ destination: '/app/v1/chat-message', body: JSON.stringify(chatMessage) })
-        setNewMessage({
-          roomId: roomId,
-          senderId: userAccount.id as string,
-          content: message,
-          status: StatusEnum.ACT,
-          createdAt: new Date()
+        setNewEvent({
+          event: WSEventEnum.SEND_MESSAGE,
+          data: {
+            id: crypto.randomUUID(),
+            roomId: roomId,
+            senderId: userAccount.id as string,
+            content: message,
+            status: StatusEnum.ACT,
+            createdAt: new Date()
+          }
+        })
+        // Gửi thông báo "đang gõ" với giá trị false
+        if (typingTimeout.current) clearTimeout(typingTimeout.current)
+        setIsTyping(false)
+        stompClient.publish({
+          destination: '/app/v1/chat-message/typing',
+          body: JSON.stringify({
+            chatRoomId: roomId,
+            userId: userAccount.id as string,
+            isTyping: false
+          })
         })
       } catch (e) {
         toast.error('Không thể gửi tin nhắn')
       }
       setMessage('')
-      // const newMessageElement = <ChatMessage message={chatMessage} userAccount={userAccount} />
-      // const chatMessageContainer = chatMessageContainerRef.current as HTMLElement
-      // const tempContainer = document.createElement('div')
-      // createRoot(tempContainer).render(newMessageElement)
-      // // Lấy phần tử đầu tiên trong danh sách các phần tử con của thẻ container
-      // const firstChild = chatMessageContainer?.firstChild
-      // // Thêm phần tử mới vào trước phần tử đầu tiên
-      // chatMessageContainer?.insertBefore(tempContainer as Node, firstChild as Node)
-      // setTimeout(() => {
-      //   tempContainer.scrollIntoView({ behavior: 'smooth', block: 'end' })
-      // }, 100)
     }
   }
 
@@ -156,7 +178,7 @@ export const ChatBox = ({ roomId, setNewMessage }: Props) => {
       animateZoomIn('#media-gif', 'animate-[scale-in-center_0.1s_ease-in-out_both_100ms]')
       messageTextAreaElement.style.width = '973px'
     }
-  }, [message])
+  }, [message, isTyping])
 
   useEffect(() => {
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 import { getAccessTokenFromLS } from '../utils/auth'
 import { Client, IMessage } from '@stomp/stompjs'
 
@@ -8,45 +8,51 @@ type AppContextType = {
   isAuthenticated: boolean
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
   reset: () => void
-  stompClient: Client
-  messageReceived: IMessage | null
-  setMessageReceived: React.Dispatch<React.SetStateAction<IMessage | null>>
+  stompClient: Client | null
+  eventReceived: IMessage | null
+  setEventReceived: React.Dispatch<React.SetStateAction<IMessage | null>>
 }
 
-const inititalAppContext: AppContextType = {
-  isAuthenticated: Boolean(getAccessTokenFromLS() && localStorage.getItem('persist:root')),
+export const AppContext = createContext<AppContextType>({
+  isAuthenticated: false,
   setIsAuthenticated: () => null,
   reset: () => null,
-  stompClient: new Client({
-    brokerURL: `${WS_URL}?token=Bearer ${getAccessTokenFromLS()}`,
-    connectHeaders: {
-      Authorization: `Bearer ${getAccessTokenFromLS()}`,
-      'Accept-Language': 'vi-VN'
-    },
-    onWebSocketError: (event) => {
-      console.error('Lỗi WebSocket:', event)
-    },
-    onWebSocketClose: (event) => {
-      console.log('Đã đóng kết nối:', event)
-    }
-  }),
-  messageReceived: null,
-  setMessageReceived: () => null
-}
-
-export const AppContext = createContext<AppContextType>(inititalAppContext)
+  stompClient: null,
+  eventReceived: null,
+  setEventReceived: () => null
+})
 
 const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(inititalAppContext.isAuthenticated)
-  const [messageReceived, setMessageReceived] = useState<IMessage | null>(inititalAppContext.messageReceived)
+  const token = getAccessTokenFromLS()
+  const isPersisted = Boolean(localStorage.getItem('persist:root'))
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(Boolean(token && isPersisted))
+  const [eventReceived, setEventReceived] = useState<IMessage | null>(null)
+  const [stompClient, setStompClient] = useState<Client | null>(null)
 
-  // const [stompClient, setStompClient] = useState<Client | null>(null)
+  useEffect(() => {
+    if (token) {
+      const client = new Client({
+        brokerURL: `${WS_URL}?token=Bearer ${token}`,
+        connectHeaders: {
+          Authorization: `Bearer ${token}`,
+          'Accept-Language': 'vi-VN'
+        },
+        onWebSocketError: (event) => {
+          console.error('Lỗi WebSocket:', event)
+        },
+        onWebSocketClose: (event) => {
+          console.log('Kết nối WebSocket đã đóng:', event)
+        }
+      })
+
+      // client.activate()
+      setStompClient(client)
+    }
+  }, [token]) // Tự động kết nối lại khi token thay đổi
 
   const reset = () => {
     setIsAuthenticated(false)
   }
-
-  const stompClient = inititalAppContext.stompClient
 
   return (
     <AppContext.Provider
@@ -55,8 +61,8 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated,
         reset,
         stompClient,
-        messageReceived,
-        setMessageReceived
+        eventReceived,
+        setEventReceived
       }}
     >
       {children}
