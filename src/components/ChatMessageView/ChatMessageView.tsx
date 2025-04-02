@@ -51,7 +51,7 @@ export const ChatMessageView = ({ chatRoom, newEvent }: ChatMessageViewProps) =>
     // Định nghĩa hàm xử lý sự kiện resize
     const handleResize = () => {
       // Tính toán lại chiều cao và cập nhật state
-      setMaxHeight((messengerContainer?.clientHeight as number) - 65 - 60)
+      setMaxHeight((messengerContainer?.clientHeight as number) - 65 - 60 - 32 + 6)
     }
 
     // Gán hàm xử lý sự kiện cho sự kiện resize của cửa sổ

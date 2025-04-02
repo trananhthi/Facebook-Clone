@@ -4,7 +4,7 @@ import { IconButton, Input } from '@material-tailwind/react'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import chatApi from 'src/apis/chat.api'
 import userAccountApi from 'src/apis/userAccount.api'
 import ChatRoom from 'src/base-components/ChatRoom'
@@ -13,6 +13,8 @@ import { RootState } from 'src/redux/store'
 import { ChatRoomType } from 'src/types/chat.type'
 import { UserInfo } from 'src/types/user.type'
 import { WSEventPayload } from 'src/types/utils.type.ts'
+import routes from 'src/constants/routes.ts'
+import { faFacebook } from '@fortawesome/free-brands-svg-icons'
 
 const ChatRoomList = ({ newEvent }: { newEvent: WSEventPayload<any> | null }) => {
   const userAccount = useSelector((state: RootState) => state.rootReducer.userAccountReducer)
@@ -169,6 +171,10 @@ const ChatRoomList = ({ newEvent }: { newEvent: WSEventPayload<any> | null }) =>
       <div className='px-4 flex justify-between items-center mb-3'>
         <span className='font-bold text-[24px] leading-7'>Đoạn chat</span>
         <div className='flex gap-3'>
+          <Link to={routes.home} className='flex justify-center items-center'>
+            <FontAwesomeIcon icon={faFacebook} className='w-9 h-9' />
+          </Link>
+
           <CircleIconButton>
             <svg viewBox='0 0 20 20' width='20' height='20' fill='currentColor'>
               <g fillRule='evenodd' transform='translate(-446 -398)'>

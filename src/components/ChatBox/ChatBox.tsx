@@ -179,8 +179,7 @@ export const ChatBox = ({ roomId, setNewEvent }: Props) => {
       messageTextAreaElement.style.width = '973px'
     }
   }, [message, isTyping])
-  console.log(message)
-  console.log(isTyping)
+
   useEffect(() => {
     const messageTextAreaElement = document.getElementById('message-text-area') as HTMLElement
 
@@ -216,7 +215,7 @@ export const ChatBox = ({ roomId, setNewEvent }: Props) => {
   )
 
   return (
-    <div className='flex h-full px-1 justify-between items-center gap-[6px]'>
+    <div className='flex h-full w-full px-1 justify-between items-center gap-[6px] relative'>
       {/* BEGIN: addition content */}
       <div className='flex items-center absolute'>
         <div role='button' className='hover:bg-[#f2f2f2] h-7 w-7 flex justify-center items-center rounded-full'>
@@ -234,9 +233,9 @@ export const ChatBox = ({ roomId, setNewEvent }: Props) => {
       {/* END: addition content*/}
 
       {/* BEGIN: Chat box */}
-      <div className='flex gap-[6px] py-3 h-full w-full items-center '>
+      <div className='flex gap-[6px] py-3 h-full w-full items-center justify-end relative'>
         {/* media content */}
-        <div id='media-content-container' className='flex gap-[6px] items-center absolute ml-[31px]'>
+        <div id='media-content-container' className='flex gap-[6px] items-center absolute ml-[31px] left-0'>
           {/* image */}
           <div
             id='media-image'
@@ -305,9 +304,9 @@ export const ChatBox = ({ roomId, setNewEvent }: Props) => {
           </div>
         </div>
 
-        {/* media content */}
+        {/* END: media content */}
         {/* */}
-        <div className='flex justify-end w-full'>
+        <div className='flex justify-end w-[calc(100%-132px)]'>
           <div
             id='message-text-area'
             className={`h-auto bg-[#f0f2f5] flex items-center transition-all duration-[300ms] rounded-full`}

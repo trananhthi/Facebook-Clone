@@ -66,7 +66,7 @@ const Messenger = () => {
       <div className='sm:w-[360px]'>
         <ChatRoomList newEvent={newEvent} />
       </div>
-      <div className='flex-1 h-full'>
+      <div className='flex-1 h-full px-3 py-3 bg-gray-100'>
         <ChatWindow newEvent={newEvent} setNewEvent={setNewEvent} />
       </div>
     </div>

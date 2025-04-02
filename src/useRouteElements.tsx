@@ -1,5 +1,5 @@
 import { ComponentType, FC, lazy, Suspense, /* Suspense, lazy,  */ useContext } from 'react'
-import { Navigate, Outlet, createBrowserRouter } from 'react-router-dom'
+import { Navigate, Outlet, createBrowserRouter, matchPath } from 'react-router-dom'
 import routes from './constants/routes'
 import { AppContext } from './contexts/app.context'
 import { useSelector } from 'react-redux'
@@ -47,7 +47,7 @@ interface FrozenComponentProps {
 }
 
 const FrozenComponent: FC<FrozenComponentProps> = ({ component: Component, routePath, currentPath }) => {
-  const isActive = routePath === currentPath
+  const isActive = matchPath(currentPath, routePath) !== null
 
   return (
     <Freeze freeze={!isActive}>

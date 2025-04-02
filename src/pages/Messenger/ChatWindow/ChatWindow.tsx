@@ -7,6 +7,7 @@ import ChatMessageView from 'src/components/ChatMessageView'
 import ChatBox from 'src/components/ChatBox'
 import React from 'react'
 import { WSEventPayload } from 'src/types/utils.type.ts'
+import LoadingSpinner from 'src/base-components/LoadingSpinner'
 
 interface ChatWindowProps {
   newEvent: WSEventPayload<any> | null
@@ -25,11 +26,15 @@ export const ChatWindow = ({ newEvent, setNewEvent }: ChatWindowProps) => {
   const room = getChatRoom.data?.data as ChatRoomType
 
   if (getChatRoom.isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className='h-full'>
+        <LoadingSpinner type='window' />
+      </div>
+    )
   }
 
   return (
-    <div className='h-full'>
+    <div className='h-full border shadow-lg bg-white rounded-lg'>
       {roomId ? (
         <div className='w-full'>
           {/* BEGIN: receiver information */}
